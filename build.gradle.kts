@@ -17,6 +17,8 @@ repositories {
 dependencies {
     // modules
     implementation(project(":dsl"))
+    implementation(project(":parser"))
+    implementation(project(":serializer"))
 
     // test
     testImplementation(kotlin("test"))
@@ -27,19 +29,6 @@ dependencies {
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
     implementation("info.picocli:picocli:4.7.6")
     implementation(kotlin("stdlib-jdk8"))
-
-    // kotlin-script
-    implementation("org.jetbrains.kotlin:kotlin-scripting-common:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-scripting-jvm:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-scripting-jvm-host:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-scripting-dependencies:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-scripting-dependencies-maven:$kotlinVersion")
-//    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-script-util:1.8.22")
-//    implementation(kotlin("reflect"))
-
-    // reflection
-    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 }
 kotlin {
     jvmToolchain(17)
