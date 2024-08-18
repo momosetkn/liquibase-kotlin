@@ -1,4 +1,4 @@
-package momosetkn.liquibase.parser.ext
+package momosetkn.liquibase.kotlin.parser
 
 import kotlin.script.experimental.api.EvaluationResult
 import kotlin.script.experimental.api.ResultWithDiagnostics

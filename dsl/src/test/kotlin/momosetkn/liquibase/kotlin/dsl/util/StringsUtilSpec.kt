@@ -1,8 +1,8 @@
-package org.liquibase.kotlin.dsl.util
+package momosetkn.liquibase.kotlin.dsl.util
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import org.liquibase.kotlin.dsl.util.StringsUtil.splitAndTrim
+import momosetkn.liquibase.kotlin.dsl.util.StringsUtil.splitAndTrim
 
 class StringsUtilSpec : FunSpec({
     test("splitAndTrim with normal input") {

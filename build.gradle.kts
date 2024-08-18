@@ -30,9 +30,6 @@ dependencies {
     implementation("info.picocli:picocli:4.7.6")
     implementation(kotlin("stdlib-jdk8"))
 }
-kotlin {
-    jvmToolchain(17)
-}
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     compilerOptions {
