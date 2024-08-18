@@ -5,6 +5,7 @@ val liquibaseKotlinDslVersion = rootProject.properties["liquibaseKotlinDslVersio
 
 plugins {
     kotlin("jvm")
+    `maven-publish`
 }
 
 group = "com.github.momosetkn"

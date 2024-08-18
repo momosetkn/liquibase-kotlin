@@ -13,9 +13,11 @@ plugins {
 group = "momosetkn"
 version = "1.0-SNAPSHOT"
 
-repositories {
-    mavenCentral()
-    maven { url = URI("https://jitpack.io") }
+allprojects {
+    repositories {
+        mavenCentral()
+        maven { url = URI("https://jitpack.io") }
+    }
 }
 
 dependencies {
