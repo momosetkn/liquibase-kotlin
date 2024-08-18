@@ -1,12 +1,13 @@
 val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
+val liquibaseKotlinDslVersion = rootProject.properties["liquibaseKotlinDslVersion"] as String
 
 plugins {
     kotlin("jvm")
 }
 
-group = "momosetkn"
-version = "1.0-SNAPSHOT"
+group = "com.github.momosetkn"
+version = liquibaseKotlinDslVersion
 
 repositories {
     mavenCentral()
