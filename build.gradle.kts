@@ -1,3 +1,5 @@
+import java.net.URI
+
 val kotestVersion: String by project
 val kotlinVersion: String by project
 val liquibaseVersion: String by project
@@ -12,13 +14,14 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven { url = URI("https://jitpack.io") }
 }
 
 dependencies {
     // modules
-    implementation(project(":dsl"))
-    implementation(project(":parser"))
-    implementation(project(":serializer"))
+    api(project(":dsl"))
+    api(project(":parser"))
+    api(project(":serializer"))
 
     // test
     testImplementation(kotlin("test"))
