@@ -4,6 +4,7 @@ val liquibaseVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.10"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 }
 
 group = "momosetkn"
@@ -14,6 +15,9 @@ repositories {
 }
 
 dependencies {
+    // modules
+    implementation(project(":dsl"))
+
     // test
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
@@ -46,4 +50,8 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         freeCompilerArgs.addAll(listOf("-Xcontext-receivers", "-Xjvm-default=all"))
     }
+}
+
+ktlint {
+    version.set("1.3.1")
 }
