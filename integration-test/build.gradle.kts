@@ -1,5 +1,9 @@
+val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
+val kotestVersion = rootProject.properties["kotestVersion"] as String
+val testcontainersVersion = rootProject.properties["testcontainersVersion"] as String
+
 plugins {
-    id("java")
+    kotlin("jvm")
 }
 
 group = "momosetkn"
@@ -10,10 +14,18 @@ repositories {
 }
 
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-}
+    // test
+    testImplementation(kotlin("test"))
+    testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
 
-tasks.test {
-    useJUnitPlatform()
+    // db-migration
+    implementation("org.liquibase:liquibase-core:$liquibaseVersion")
+    implementation("info.picocli:picocli:4.7.6")
+
+    // testcontainers
+    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
+    // postgresql
+    testImplementation("org.postgresql:postgresql:42.7.3")
+    testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
 }
