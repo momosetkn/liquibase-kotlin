@@ -40,3 +40,17 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            create<MavenPublication>("release") {
+                from(components["java"])
+                groupId = "com.github.momosetkn"
+                artifactId = "liquibase-kotlin-dsl-parser"
+                version = liquibaseKotlinDslVersion
+            }
+        }
+    }
+}
