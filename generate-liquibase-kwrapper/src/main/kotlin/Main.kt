@@ -130,7 +130,7 @@ private fun code(): String {
 }
 
 private fun writeFile(codeString: String) {
-    val file = File("src/main/kotlin", "KLiquibaseChangeCommand.kt")
+    val file = File("dsl/src/main/kotlin/momosetkn/liquibase/kotlinh/dsl", "KLiquibaseChangeCommand.kt.codegen")
     PrintWriter(file).use { out ->
         out.println(codeString)
     }

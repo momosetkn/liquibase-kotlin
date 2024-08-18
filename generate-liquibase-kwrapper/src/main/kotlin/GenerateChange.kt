@@ -43,7 +43,7 @@ object GenerateChange {
             fun $methodName(
                 $formatedArgs
             ) {
-                val change = lookupChange("$methodName")
+                val change = createChange("$methodName")
                 $formatedMutableChange
                 addChange(change)
             }
