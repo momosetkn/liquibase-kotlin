@@ -38,7 +38,7 @@ configure(libraryProjects) {
             create<MavenPublication>("release") {
                 from(components["java"])
                 artifact(sourcesJar)
-                groupId = "com.github.momosetkn"
+                groupId = "com.github.momosetkn.liquibase-kotlin-dsl"
                 artifactId = project.name
                 version = liquibaseKotlinDslVersion
             }
