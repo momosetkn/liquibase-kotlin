@@ -9,6 +9,7 @@ plugins {
     kotlin("jvm") version "2.0.10"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
     `maven-publish`
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "momosetkn"
@@ -33,10 +34,17 @@ val sourcesJar by tasks.creating(Jar::class) {
     from(sourceSets["main"].allSource)
 }
 
+tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+    archiveBaseName.set("liquibase-kotlin-dsl")
+    archiveVersion.set(liquibaseKotlinDslVersion)
+    from(sourceSets["main"].output)
+    from(sourcesJar)
+}
+
 publishing {
     publications {
-        create<MavenPublication>("release") {
-            from(components["java"])
+        create<MavenPublication>("shadowJarPublication") {
+            artifact(tasks["shadowJar"])
             artifact(sourcesJar)
             groupId = "com.github.momosetkn"
             artifactId = "liquibase-kotlin-dsl"
