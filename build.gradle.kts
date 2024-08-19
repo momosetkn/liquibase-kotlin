@@ -3,14 +3,12 @@ import java.net.URI
 val kotestVersion: String by project
 val kotlinVersion: String by project
 val liquibaseVersion: String by project
-val artifactId: String by project
+val artifactIdPrefix: String by project
 val liquibaseKotlinDslVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.10"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
-    `maven-publish`
-    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "momosetkn"
@@ -24,60 +22,34 @@ allprojects {
 }
 
 val libraryProjects = subprojects.filter {
-    it.name in listOf("dsl", "parser", "serializer")
+    it.name in listOf("dsl-all", "dsl", "parser", "serializer")
 }
 configure(libraryProjects) {
     apply(plugin = "org.jetbrains.kotlin.jvm")
-}
+    apply(plugin = "maven-publish")
 
-val sourcesJar by tasks.creating(Jar::class) {
-    archiveClassifier.set("sources")
-    libraryProjects.forEach {
-        from(project(":${it.name}").sourceSets["main"].allSource)
+    val sourcesJar by tasks.creating(Jar::class) {
+        archiveClassifier.set("sources")
+        from(sourceSets["main"].allSource)
     }
-}
 
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    archiveBaseName.set(artifactId)
-    archiveVersion.set(liquibaseKotlinDslVersion)
-    from(sourceSets["main"].output)
-    from(sourcesJar)
-    libraryProjects.forEach {
-        from(project(":${it.name}").sourceSets["main"].output)
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("shadowJarPublication") {
-            artifact(tasks["shadowJar"])
-            artifact(sourcesJar)
-            groupId = "com.github.momosetkn"
-            artifactId = artifactId
-            version = liquibaseKotlinDslVersion
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["java"])
+                artifact(sourcesJar)
+                groupId = "com.github.momosetkn"
+                artifactId = "${artifactIdPrefix}-${project.name}"
+                version = liquibaseKotlinDslVersion
+            }
+        }
+        repositories {
+            maven { url = URI("https://jitpack.io") }
         }
     }
-    repositories {
-        maven { url = URI("https://jitpack.io") }
-    }
 }
 
-dependencies {
-    // modules
-    api(project(":dsl"))
-    api(project(":parser"))
-    api(project(":serializer"))
-
-    // test
-    testImplementation(kotlin("test"))
-    testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
-    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
-
-    // db-migration
-    implementation("org.liquibase:liquibase-core:$liquibaseVersion")
-    implementation("info.picocli:picocli:4.7.6")
-    implementation(kotlin("stdlib-jdk8"))
-}
+dependencies {}
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     compilerOptions {
