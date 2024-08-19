@@ -11,8 +11,8 @@ class ChangeLogBuilderDsl(
     private val changeLog: DatabaseChangeLog,
     private val resourceAccessor: ResourceAccessor,
 ) {
-    fun changeLog(
-        physicalFilePath: String? = null,
+    fun databaseChangeLog(
+        physicalFilePath: String? = changeLog.physicalFilePath,
         logicalFilePath: String? = null,
         objectQuotingStrategy: String? = null,
 //        changeLogParameters: Map<String, Any>? = null,
