@@ -2,12 +2,6 @@ val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
 val kotlinVersion = rootProject.properties["kotlinVersion"] as String
 val liquibaseKotlinDslVersion = rootProject.properties["liquibaseKotlinDslVersion"] as String
-val groupId = rootProject.properties["groupId"] as String
-
-plugins {
-    kotlin("jvm")
-    `maven-publish`
-}
 
 repositories {
     mavenCentral()
@@ -37,18 +31,4 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            // Creates a Maven publication called "release".
-            create<MavenPublication>("release") {
-                from(components["java"])
-                groupId = groupId
-                artifactId = project.name
-                version = liquibaseKotlinDslVersion
-            }
-        }
-    }
 }
