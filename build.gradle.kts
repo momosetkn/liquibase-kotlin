@@ -3,6 +3,7 @@ import java.net.URI
 val kotestVersion: String by project
 val kotlinVersion: String by project
 val liquibaseVersion: String by project
+val artifactId: String by project
 val liquibaseKotlinDslVersion: String by project
 
 plugins {
@@ -35,7 +36,7 @@ val sourcesJar by tasks.creating(Jar::class) {
 }
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    archiveBaseName.set("liquibase-kotlin-dsl")
+    archiveBaseName.set(artifactId)
     archiveVersion.set(liquibaseKotlinDslVersion)
     from(sourceSets["main"].output)
     from(sourcesJar)
@@ -47,7 +48,7 @@ publishing {
             artifact(tasks["shadowJar"])
             artifact(sourcesJar)
             groupId = "com.github.momosetkn"
-            artifactId = "liquibase-kotlin-dsl"
+            artifactId = artifactId
             version = liquibaseKotlinDslVersion
         }
     }
