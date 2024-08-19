@@ -9,7 +9,7 @@ repositories {
 
 dependencies {
     // modules
-    api(project(":dsl"))
+    implementation(project(":dsl"))
 
     // db-migration
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
