@@ -32,7 +32,9 @@ configure(libraryProjects) {
 
 val sourcesJar by tasks.creating(Jar::class) {
     archiveClassifier.set("sources")
-    from(sourceSets["main"].allSource)
+    libraryProjects.forEach {
+        from(project(":${it.name}").sourceSets["main"].allSource)
+    }
 }
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
@@ -40,6 +42,9 @@ tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
     archiveVersion.set(liquibaseKotlinDslVersion)
     from(sourceSets["main"].output)
     from(sourcesJar)
+    libraryProjects.forEach {
+        from(project(":${it.name}").sourceSets["main"].output)
+    }
 }
 
 publishing {
