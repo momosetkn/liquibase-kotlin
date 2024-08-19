@@ -12,6 +12,7 @@ class ChangeLogBuilderDsl(
     private val resourceAccessor: ResourceAccessor,
 ) {
     fun databaseChangeLog(
+        // assigned by momosetkn.liquibase.kotlin.parser.KotlinLiquibaseChangeLogParser.updateChangeLog
         physicalFilePath: String? = changeLog.physicalFilePath,
         logicalFilePath: String? = null,
         objectQuotingStrategy: String? = null,
