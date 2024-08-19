@@ -1,14 +1,12 @@
 val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
 val liquibaseKotlinDslVersion = rootProject.properties["liquibaseKotlinDslVersion"] as String
+val groupId = rootProject.properties["groupId"] as String
 
 plugins {
     kotlin("jvm")
     `maven-publish`
 }
-
-group = "com.github.momosetkn"
-version = liquibaseKotlinDslVersion
 
 repositories {
     mavenCentral()
@@ -33,8 +31,8 @@ afterEvaluate {
             // Creates a Maven publication called "release".
             create<MavenPublication>("release") {
                 from(components["java"])
-                groupId = "com.github.momosetkn"
-                artifactId = "liquibase-kotlin-dsl"
+                groupId = groupId
+                artifactId = project.name
                 version = liquibaseKotlinDslVersion
             }
         }
