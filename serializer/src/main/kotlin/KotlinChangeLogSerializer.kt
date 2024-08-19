@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.superclasses
 import kotlin.reflect.jvm.isAccessible
 
 class KotlinChangeLogSerializer : ChangeLogSerializer {
@@ -159,7 +160,11 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
 
     private fun getProperty(kClass: KClass<*>, propertyName: String): KProperty1<out Any, *> {
         val map = propertyMap.getOrPut(kClass) {
-            kClass.declaredMemberProperties.associateBy { it.name }
+            // include superclass
+            val kClasses = listOf(listOf(kClass), kClass.superclasses).flatten()
+            kClasses
+                .flatMap { it.declaredMemberProperties }
+                .associateBy { it.name }
         }
 
         return checkNotNull(map[propertyName]) {
