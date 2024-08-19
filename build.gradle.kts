@@ -3,6 +3,7 @@ import java.net.URI
 val kotestVersion: String by project
 val kotlinVersion: String by project
 val liquibaseVersion: String by project
+val liquibaseKotlinDslVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.10"
@@ -17,6 +18,31 @@ allprojects {
     repositories {
         mavenCentral()
         maven { url = URI("https://jitpack.io") }
+    }
+}
+
+subprojects {
+    apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "maven-publish")
+
+    val sourcesJar by tasks.creating(Jar::class) {
+        archiveClassifier.set("sources")
+        from(sourceSets["main"].allSource)
+    }
+
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["java"])
+                artifact(sourcesJar)
+                groupId = "com.github.takagimeow"
+                artifactId = project.name
+                version = liquibaseKotlinDslVersion
+            }
+        }
+        repositories {
+            maven { url = URI("https://jitpack.io") }
+        }
     }
 }
 
