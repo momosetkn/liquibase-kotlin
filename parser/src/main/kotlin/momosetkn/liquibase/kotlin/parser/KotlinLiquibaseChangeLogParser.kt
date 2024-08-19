@@ -10,11 +10,6 @@ import liquibase.resource.ResourceAccessor
 import java.io.InputStreamReader
 
 class KotlinLiquibaseChangeLogParser : ChangeLogParser {
-    init {
-        // todo: manual register
-        ChangeLogParserFactory.getInstance().register(KotlinLiquibaseChangeLogParser())
-    }
-
     override fun parse(
         physicalChangeLogLocation: String,
         changeLogParameters: ChangeLogParameters,
@@ -78,4 +73,12 @@ class KotlinLiquibaseChangeLogParser : ChangeLogParser {
     ) = changeLogFile.endsWith(".kts")
 
     override fun getPriority() = PRIORITY_DEFAULT
+
+    companion object {
+        val instance = KotlinLiquibaseChangeLogParser()
+
+        fun register() {
+            ChangeLogParserFactory.getInstance().register(instance)
+        }
+    }
 }

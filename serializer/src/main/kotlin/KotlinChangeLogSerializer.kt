@@ -3,6 +3,7 @@ package momosetkn.liquibase.kotlin.serializer
 import liquibase.changelog.ChangeLogChild
 import liquibase.changelog.ChangeSet
 import liquibase.serializer.ChangeLogSerializer
+import liquibase.serializer.ChangeLogSerializerFactory
 import liquibase.serializer.LiquibaseSerializable
 import liquibase.util.ISODateFormat
 import java.util.concurrent.ConcurrentHashMap
@@ -186,5 +187,13 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
             return "\"\"\"$result\"\"\""
         }
         return "\"$result\""
+    }
+
+    companion object {
+        val instance = KotlinChangeLogSerializer()
+
+        fun register() {
+            ChangeLogSerializerFactory.getInstance().register(instance)
+        }
     }
 }
