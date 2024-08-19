@@ -26,26 +26,25 @@ val libraryProjects = subprojects.filter {
 }
 configure(libraryProjects) {
     apply(plugin = "org.jetbrains.kotlin.jvm")
-    apply(plugin = "maven-publish")
+}
 
-    val sourcesJar by tasks.creating(Jar::class) {
-        archiveClassifier.set("sources")
-        from(sourceSets["main"].allSource)
+val sourcesJar by tasks.creating(Jar::class) {
+    archiveClassifier.set("sources")
+    from(sourceSets["main"].allSource)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("release") {
+            from(components["java"])
+            artifact(sourcesJar)
+            groupId = "com.github.momosetkn"
+            artifactId = "liquibase-kotlin-dsl"
+            version = liquibaseKotlinDslVersion
+        }
     }
-
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                from(components["java"])
-                artifact(sourcesJar)
-                groupId = "com.github.momosetkn.liquibase-kotlin-dsl"
-                artifactId = project.name
-                version = liquibaseKotlinDslVersion
-            }
-        }
-        repositories {
-            maven { url = URI("https://jitpack.io") }
-        }
+    repositories {
+        maven { url = URI("https://jitpack.io") }
     }
 }
 
