@@ -23,17 +23,19 @@ class KotlinLiquibaseChangeLogParser : ChangeLogParser {
                 physicalChangeLogLocation = fixedPhysicalChangeLogLocation,
             )
 
-        return DatabaseChangeLog(fixedPhysicalChangeLogLocation).apply {
-            updateChangeLog(
-                databaseChangeLog = this,
-                changeLogParameters = changeLogParameters,
-                resourceAccessor = resourceAccessor,
-                changeLogScript = changeLogScript,
-            )
-        }
+        val databaseChangeLog = DatabaseChangeLog(fixedPhysicalChangeLogLocation)
+        updateChangeLog(
+            filePath = fixedPhysicalChangeLogLocation,
+            databaseChangeLog = databaseChangeLog,
+            changeLogParameters = changeLogParameters,
+            resourceAccessor = resourceAccessor,
+            changeLogScript = changeLogScript,
+        )
+        return databaseChangeLog
     }
 
     private fun updateChangeLog(
+        filePath: String,
         databaseChangeLog: DatabaseChangeLog,
         changeLogParameters: ChangeLogParameters,
         resourceAccessor: ResourceAccessor,
@@ -48,8 +50,9 @@ class KotlinLiquibaseChangeLogParser : ChangeLogParser {
             )
 
         EvaluateLiquibaseDsl.evaluate(
-            changeLogScript,
-            changeLogBuilderDsl,
+            filePath = filePath,
+            changeLogScript = changeLogScript,
+            context = changeLogBuilderDsl,
         )
     }
 
