@@ -28,10 +28,9 @@ object LiquibaseCommand {
         executor.shutdown()
     }
 
-    fun commandUnuseChangelog(
+    fun command(
         driverClassName: String,
         jdbcUrl: String,
-        databaseName: String? = null,
         user: String,
         password: String?,
         command: String,
@@ -46,7 +45,7 @@ object LiquibaseCommand {
                     command,
                     changelogFile?.let { "--changelog-file=$changelogFile"},
                     // target
-                    databaseName?.let {  "--url=${jdbcUrl}/$databaseName" } ?: "--url=$jdbcUrl",
+                    "--url=$jdbcUrl",
                     "--driver=${driverClassName}",
                     "--username=${user}",
                     password?.let { "--password=$it" },

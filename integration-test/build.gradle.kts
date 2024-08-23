@@ -14,6 +14,10 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":dsl"))
+    implementation(project(":serializer"))
+    implementation(project(":parser"))
+
     // test
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
