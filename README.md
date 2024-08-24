@@ -24,3 +24,7 @@ It will be registered by the following code.
 momosetkn.liquibase.kotlin.serializer.KotlinChangeLogSerializer.register()
 momosetkn.liquibase.kotlin.parser.KotlinLiquibaseChangeLogParser.register()
 ```
+
+# example
+
+https://github.com/momosetkn/liquibase-kotlin-dsl/blob/main/integration-test/src/main/resources/db.changelog/parser_input/db.changelog-0.kts
