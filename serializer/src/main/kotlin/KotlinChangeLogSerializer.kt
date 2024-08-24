@@ -9,14 +9,14 @@ import liquibase.serializer.LiquibaseSerializable
 import liquibase.util.ISODateFormat
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
-import kotlin.reflect.KProperty1
-import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
+import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.full.superclasses
-import kotlin.reflect.jvm.isAccessible
 
 class KotlinChangeLogSerializer : ChangeLogSerializer {
     private val isoFormat = ISODateFormat()
-    private val propertyMap = ConcurrentHashMap<KClass<*>, Map<String, KProperty1<out Any, *>>>()
+    private val getterMethodMap = ConcurrentHashMap<KClass<*>, Map<String, KFunction<*>>>()
 
     override fun getValidFileExtensions(): Array<String> = arrayOf("kts")
 
@@ -141,7 +141,7 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
         obj: Any,
     ): List<String> {
         return propertyNames.mapNotNull { propertyName ->
-            val prop = getProperty(obj::class, propertyName)
+            val prop = getGetterMethod(obj::class, propertyName)
             val propertyValue = prop.call(obj)
             propertyValue?.let {
                 val propertyString =
@@ -160,19 +160,26 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
         }
     }
 
-    private fun getProperty(kClass: KClass<*>, propertyName: String): KProperty1<out Any, *> {
-        val map = propertyMap.getOrPut(kClass) {
+    private fun getGetterMethod(kClass: KClass<*>, propertyName: String): KFunction<*> {
+        val map = getterMethodMap.getOrPut(kClass) {
             // include superclass
             val kClasses = listOf(listOf(kClass), kClass.superclasses).flatten()
             kClasses
-                .flatMap { it.declaredMemberProperties }
-                .associateBy { it.name }
+                .flatMap { it.memberFunctions }
+                .filter { method ->
+                    // getter method
+                    method.parameters.none { it.kind == KParameter.Kind.VALUE }
+                }
+                .associateBy { method ->
+                    method.name
+                        .removePrefix("get")
+                        .removePrefix("is")
+                        .replaceFirstChar { it.lowercase() }
+                }
         }
 
         return checkNotNull(map[propertyName]) {
-            "$kClass is not found $propertyName property."
-        }.apply {
-            isAccessible = true
+            "$kClass is not found $propertyName getter method."
         }
     }
 
