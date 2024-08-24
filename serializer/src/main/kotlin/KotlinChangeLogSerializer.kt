@@ -1,5 +1,6 @@
 package momosetkn.liquibase.kotlin.serializer
 
+import liquibase.change.ConstraintsConfig
 import liquibase.changelog.ChangeLogChild
 import liquibase.changelog.ChangeSet
 import liquibase.serializer.ChangeLogSerializer
@@ -74,7 +75,7 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
                         }
                     }
 
-                    serializationType == LiquibaseSerializable.SerializationType.NESTED_OBJECT -> {
+                    serializationType == LiquibaseSerializable.SerializationType.NESTED_OBJECT || fieldValue is ConstraintsConfig -> {
                         children.add(prettySerialize(fieldValue as LiquibaseSerializable))
                     }
 
@@ -108,19 +109,19 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
         return when {
             children.isNotEmpty() -> {
                 val renderedChildren = children.joinToString("\n") { indent(it) }
-                """
-                $serializedChange {
-                $renderedChildren
-                }
-                """.trimIndent()
+                listOf(
+                    "$serializedChange {",
+                    renderedChildren,
+                    "}"
+                ).joinToString("\n")
             }
 
             textBody != null -> {
-                """
-                "$serializedChange {
-                    ${wrapQuoteString(textBody!!)}
-                }"
-                """.trimIndent()
+                listOf(
+                    "$serializedChange {",
+                    indent(wrapQuoteString(textBody!!)),
+                    "}"
+                ).joinToString("\n")
             }
 
             else -> serializedChange
