@@ -21,6 +21,18 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: company; Type: TABLE; Schema: public; Owner: test
+--
+
+CREATE TABLE public.company (
+    id uuid NOT NULL,
+    name character varying(256)
+);
+
+
+ALTER TABLE public.company OWNER TO test;
+
+--
 -- Name: databasechangelog; Type: TABLE; Schema: public; Owner: test
 --
 
@@ -59,11 +71,50 @@ CREATE TABLE public.databasechangeloglock (
 ALTER TABLE public.databasechangeloglock OWNER TO test;
 
 --
+-- Name: employee; Type: TABLE; Schema: public; Owner: test
+--
+
+CREATE TABLE public.employee (
+    id uuid NOT NULL,
+    company_id uuid NOT NULL,
+    new_name character varying(256),
+    not_null_name character varying(256) NOT NULL,
+    not_null_name2 character varying(256) NOT NULL
+);
+
+
+ALTER TABLE public.employee OWNER TO test;
+
+--
+-- Name: company company_pkey; Type: CONSTRAINT; Schema: public; Owner: test
+--
+
+ALTER TABLE ONLY public.company
+    ADD CONSTRAINT company_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: databasechangeloglock databasechangeloglock_pkey; Type: CONSTRAINT; Schema: public; Owner: test
 --
 
 ALTER TABLE ONLY public.databasechangeloglock
     ADD CONSTRAINT databasechangeloglock_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: employee employee_pkey; Type: CONSTRAINT; Schema: public; Owner: test
+--
+
+ALTER TABLE ONLY public.employee
+    ADD CONSTRAINT employee_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: employee employee_company_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: test
+--
+
+ALTER TABLE ONLY public.employee
+    ADD CONSTRAINT employee_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.company(id) ON UPDATE RESTRICT ON DELETE CASCADE;
 
 
 --

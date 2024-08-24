@@ -33,3 +33,6 @@ dependencies {
     testImplementation("org.postgresql:postgresql:42.7.3")
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
 }
+tasks.test {
+    useJUnitPlatform()
+}
