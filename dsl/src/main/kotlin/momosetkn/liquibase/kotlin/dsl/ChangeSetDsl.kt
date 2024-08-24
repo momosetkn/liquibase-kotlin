@@ -217,14 +217,15 @@ class ChangeSetDsl(
         columnName: String? = null,
         schemaName: String? = null,
         tableName: String,
-        block: ColumnDsl.() -> Unit,
+        // Used when deleting multiple columns.
+        block: (ColumnDsl.() -> Unit)? = null,
     ) {
         val change = changeSetSupport.createChange("dropColumn") as DropColumnChange
         change.catalogName = catalogName
         change.columnName = columnName
         change.schemaName = schemaName
         change.tableName = tableName
-        change.columns = change.toColumnDsl(block)
+        block?.also { change.columns = change.toColumnDsl(block) }
         changeSetSupport.addChange(change)
     }
 
