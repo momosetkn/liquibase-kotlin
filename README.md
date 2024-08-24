@@ -1,4 +1,5 @@
 # liquibase-kotlin-dsl
+
 Kotlin DSL for Liquibase
 
 # How to install
@@ -14,4 +15,12 @@ dependencies {
     implementation("com.github.momosetkn.liquibase-kotlin-dsl:liquibase-kotlin-parser:$liquibaseKotlinDslVersion")
     implementation("com.github.momosetkn.liquibase-kotlin-dsl:liquibase-kotlin-serializer:$liquibaseKotlinDslVersion")
 }
+```
+
+Require register serializer and parser before using liquibase.
+It will be registered by the following code.
+
+```kotlin
+momosetkn.liquibase.kotlin.serializer.KotlinChangeLogSerializer.register()
+momosetkn.liquibase.kotlin.parser.KotlinLiquibaseChangeLogParser.register()
 ```
