@@ -121,7 +121,7 @@ class ChangeSetDsl(
         tableName: String,
     ) {
         val change = changeSetSupport.createChange("dropTable") as DropTableChange
-        change.cascadeConstraints = cascadeConstraints
+        change.isCascadeConstraints = cascadeConstraints
         change.catalogName = catalogName
         change.schemaName = schemaName
         change.tableName = tableName
@@ -284,7 +284,7 @@ class ChangeSetDsl(
         change.schemaName = schemaName
         change.tableName = tableName
         change.tablespace = tablespace
-        change.unique = unique
+        change.isUnique = unique
         changeSetSupport.addChange(change)
     }
 
@@ -336,7 +336,7 @@ class ChangeSetDsl(
     ) {
         val change = changeSetSupport.createChange("dropView") as DropViewChange
         change.catalogName = catalogName
-        change.ifExists = ifExists
+        change.isIfExists = ifExists
         change.schemaName = schemaName
         change.viewName = viewName
         changeSetSupport.addChange(change)
@@ -374,7 +374,7 @@ class ChangeSetDsl(
         change.path = path
         change.procedureText = procedureText().expandExpressions(changeLog)
         change.procedureName = procedureName
-        change.relativeToChangelogFile = relativeToChangelogFile
+        change.isRelativeToChangelogFile = relativeToChangelogFile
         change.replaceIfExists = replaceIfExists
         change.schemaName = schemaName
         changeSetSupport.addChange(change)
@@ -393,30 +393,30 @@ class ChangeSetDsl(
     }
 
     fun createSequence(
-        cacheSize: String? = null,
+        cacheSize: Long? = null,
         catalogName: String? = null,
-        cycle: String? = null,
+        cycle: Boolean? = null,
         dataType: String? = null,
         incrementBy: Long? = null,
-        maxValue: String? = null,
-        minValue: String? = null,
-        ordered: String? = null,
+        maxValue: Long? = null,
+        minValue: Long? = null,
+        ordered: Boolean? = null,
         schemaName: String? = null,
         sequenceName: String,
-        startValue: String? = null,
+        startValue: Long? = null,
     ) {
         val change = changeSetSupport.createChange("createSequence") as CreateSequenceChange
-        change.cacheSize = cacheSize
+        change.cacheSize = cacheSize?.toBigInteger()
         change.catalogName = catalogName
         change.cycle = cycle
         change.dataType = dataType
         change.incrementBy = incrementBy?.toBigInteger()
-        change.maxValue = maxValue
-        change.minValue = minValue
-        change.ordered = ordered
+        change.maxValue = maxValue?.toBigInteger()
+        change.minValue = minValue?.toBigInteger()
+        change.isOrdered = ordered
         change.schemaName = schemaName
         change.sequenceName = sequenceName
-        change.startValue = startValue
+        change.startValue = startValue?.toBigInteger()
         changeSetSupport.addChange(change)
     }
 
@@ -449,24 +449,24 @@ class ChangeSetDsl(
     fun alterSequence(
         cacheSize: String? = null,
         catalogName: String? = null,
-        cycle: String? = null,
+        cycle: Boolean? = null,
         dataType: String? = null,
         incrementBy: Long? = null,
         maxValue: String? = null,
         minValue: String? = null,
-        ordered: String? = null,
+        ordered: Boolean? = null,
         schemaName: String? = null,
         sequenceName: String,
     ) {
         val change = changeSetSupport.createChange("alterSequence") as AlterSequenceChange
-        change.cacheSize = cacheSize
+        change.cacheSize = cacheSize?.toBigInteger()
         change.catalogName = catalogName
         change.cycle = cycle
         change.dataType = dataType
         change.incrementBy = incrementBy?.toBigInteger()
-        change.maxValue = maxValue
-        change.minValue = minValue
-        change.ordered = ordered
+        change.maxValue = maxValue?.toBigInteger()
+        change.minValue = minValue?.toBigInteger()
+        change.isOrdered = ordered
         change.schemaName = schemaName
         change.sequenceName = sequenceName
         changeSetSupport.addChange(change)
@@ -493,7 +493,7 @@ class ChangeSetDsl(
 //        change.functionName = functionName
 //        change.path = path
 //        change.procedureText = procedureText
-//        change.relativeToChangelogFile = relativeToChangelogFile
+//        change.isRelativeToChangelogFile = relativeToChangelogFile
 //        change.replaceIfExists = replaceIfExists
 //        change.schemaName = schemaName
 //        changeSetSupport.addChange(change)
@@ -531,7 +531,7 @@ class ChangeSetDsl(
 //        change.packageText = packageText
 //        change.path = path
 //        change.procedureText = procedureText
-//        change.relativeToChangelogFile = relativeToChangelogFile
+//        change.isRelativeToChangelogFile = relativeToChangelogFile
 //        change.replaceIfExists = replaceIfExists
 //        change.schemaName = schemaName
 //        changeSetSupport.addChange(change)
@@ -557,7 +557,7 @@ class ChangeSetDsl(
 //        change.packageBodyText = packageBodyText
 //        change.path = path
 //        change.procedureText = procedureText
-//        change.relativeToChangelogFile = relativeToChangelogFile
+//        change.isRelativeToChangelogFile = relativeToChangelogFile
 //        change.replaceIfExists = replaceIfExists
 //        change.schemaName = schemaName
 //        changeSetSupport.addChange(change)
@@ -649,7 +649,7 @@ class ChangeSetDsl(
 //        change.encoding = encoding
 //        change.path = path
 //        change.procedureText = procedureText
-//        change.relativeToChangelogFile = relativeToChangelogFile
+//        change.isRelativeToChangelogFile = relativeToChangelogFile
 //        change.replaceIfExists = replaceIfExists
 //        change.schemaName = schemaName
 //        change.scope = scope
@@ -806,11 +806,11 @@ class ChangeSetDsl(
         change.columnName = columnName
         change.defaultValue = defaultValue
         change.defaultValueBoolean = defaultValueBoolean
-        change.defaultValueComputed = defaultValueComputed
+//        change.defaultValueComputed = defaultValueComputed // TODO
         change.defaultValueConstraintName = defaultValueConstraintName
         change.defaultValueDate = defaultValueDate
         change.defaultValueNumeric = defaultValueNumeric
-        change.defaultValueSequenceNext = defaultValueSequenceNext
+//        change.defaultValueSequenceNext = defaultValueSequenceNext // TODO
         change.schemaName = schemaName
         change.tableName = tableName
         changeSetSupport.addChange(change)
@@ -1107,7 +1107,7 @@ class ChangeSetDsl(
         change.encoding = encoding
         change.file = file
         change.quotchar = quotchar
-        change.relativeToChangelogFile = relativeToChangelogFile
+        change.isRelativeToChangelogFile = relativeToChangelogFile
         change.schemaName = schemaName
         change.separator = separator
         change.tableName = tableName
@@ -1139,7 +1139,7 @@ class ChangeSetDsl(
         change.onlyUpdate = onlyUpdate
         change.primaryKey = primaryKey
         change.quotchar = quotchar
-        change.relativeToChangelogFile = relativeToChangelogFile
+        change.isRelativeToChangelogFile = relativeToChangelogFile
         change.schemaName = schemaName
         change.separator = separator
         change.tableName = tableName
@@ -1290,12 +1290,12 @@ class ChangeSetDsl(
         val change = changeSetSupport.createChange("sql") as RawSQLChange
         change.dbms = dbms
         change.endDelimiter = endDelimiter
-        change.splitStatements = splitStatements
-        change.stripComments = stripComments
+        change.isSplitStatements = splitStatements
+        change.isStripComments = stripComments
         val dsl = CommentDsl()
         val sql = block(dsl)
         change.sql = sql.expandExpressions(changeLog)
-        change.comment = dsl.comment.expandExpressions(changeLog)
+        change.comment = dsl.comment?.expandExpressions(changeLog)
         changeSetSupport.addChange(change)
     }
 
@@ -1313,9 +1313,9 @@ class ChangeSetDsl(
         change.encoding = encoding
         change.endDelimiter = endDelimiter
         change.path = path
-        change.relativeToChangelogFile = relativeToChangelogFile
-        change.splitStatements = splitStatements
-        change.stripComments = stripComments
+        change.isRelativeToChangelogFile = relativeToChangelogFile
+        change.isSplitStatements = splitStatements
+        change.isStripComments = stripComments
         change.finishInitialization() // check for path in liquibase.change.core.SQLFileChange
         changeSetSupport.addChange(change)
     }
