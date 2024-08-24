@@ -20,6 +20,10 @@ class IColumnDsl<out COLUMN_CONFIG : ColumnConfig>(
     private val changeName: String = "<unknown>",
     private val change: Change,
 ) {
+    internal val _columns = mutableListOf<ColumnConfig>()
+    internal val columns : List<COLUMN_CONFIG>
+        get() = _columns.toList() as List<COLUMN_CONFIG>
+
     fun column(
         name: String,
         type: String? = null,
@@ -41,7 +45,7 @@ class IColumnDsl<out COLUMN_CONFIG : ColumnConfig>(
         position: Int? = null,
         remarks: String? = null,
         startWith: Long? = null,
-        valueBlobFile: String? = null,
+        valueBlobFile: String? = null, // maybe for update or delete
         valueBoolean: Boolean? = null,
         valueClobFile: String? = null,
         valueComputed: String? = null,
@@ -114,6 +118,7 @@ class IColumnDsl<out COLUMN_CONFIG : ColumnConfig>(
             it(constraintDsl)
             column.constraints = constraintDsl.constraint
         }
+        _columns.add(column)
     }
 
     fun where(whereClause: String) {

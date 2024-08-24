@@ -3,14 +3,56 @@ package momosetkn.liquibase.kotlin.dsl
 import liquibase.Scope
 import liquibase.change.Change
 import liquibase.change.ColumnConfig
-import liquibase.change.core.*
+import liquibase.change.core.AddAutoIncrementChange
+import liquibase.change.core.AddColumnChange
+import liquibase.change.core.AddDefaultValueChange
+import liquibase.change.core.AddForeignKeyConstraintChange
+import liquibase.change.core.AddLookupTableChange
+import liquibase.change.core.AddNotNullConstraintChange
+import liquibase.change.core.AddPrimaryKeyChange
+import liquibase.change.core.AddUniqueConstraintChange
+import liquibase.change.core.AlterSequenceChange
+import liquibase.change.core.CreateIndexChange
+import liquibase.change.core.CreateProcedureChange
+import liquibase.change.core.CreateSequenceChange
+import liquibase.change.core.CreateTableChange
+import liquibase.change.core.CreateViewChange
+import liquibase.change.core.DeleteDataChange
+import liquibase.change.core.DropAllForeignKeyConstraintsChange
+import liquibase.change.core.DropColumnChange
+import liquibase.change.core.DropDefaultValueChange
+import liquibase.change.core.DropForeignKeyConstraintChange
+import liquibase.change.core.DropIndexChange
+import liquibase.change.core.DropNotNullConstraintChange
+import liquibase.change.core.DropPrimaryKeyChange
+import liquibase.change.core.DropProcedureChange
+import liquibase.change.core.DropSequenceChange
+import liquibase.change.core.DropTableChange
+import liquibase.change.core.DropUniqueConstraintChange
+import liquibase.change.core.DropViewChange
+import liquibase.change.core.ExecuteShellCommandChange
+import liquibase.change.core.InsertDataChange
+import liquibase.change.core.LoadDataChange
+import liquibase.change.core.LoadUpdateDataChange
+import liquibase.change.core.MergeColumnChange
+import liquibase.change.core.ModifyDataTypeChange
+import liquibase.change.core.OutputChange
+import liquibase.change.core.RawSQLChange
+import liquibase.change.core.RenameColumnChange
+import liquibase.change.core.RenameSequenceChange
+import liquibase.change.core.RenameTableChange
+import liquibase.change.core.RenameViewChange
+import liquibase.change.core.SQLFileChange
+import liquibase.change.core.SetColumnRemarksChange
+import liquibase.change.core.SetTableRemarksChange
+import liquibase.change.core.StopChange
+import liquibase.change.core.TagDatabaseChange
+import liquibase.change.core.UpdateDataChange
 import liquibase.change.custom.CustomChangeWrapper
 import liquibase.changelog.ChangeSet
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.exception.ChangeLogParseException
 import liquibase.exception.RollbackImpossibleException
-import momosetkn.liquibase.kotlin.dsl.util.StringsUtil
-import momosetkn.liquibase.kotlin.dsl.util.StringsUtil.splitAndTrim
 
 @ChangeLogDslMarker
 class ChangeSetDsl(
@@ -110,7 +152,7 @@ class ChangeSetDsl(
         change.schemaName = schemaName
         change.tableName = tableName
         change.tablespace = tablespace
-        block(change.toColumnDsl())
+        change.columns = change.toColumnDsl(block)
         changeSetSupport.addChange(change)
     }
 
@@ -166,7 +208,7 @@ class ChangeSetDsl(
         change.catalogName = catalogName
         change.schemaName = schemaName
         change.tableName = tableName
-        block(change.toColumnDsl())
+        change.columns = change.toColumnDsl(block)
         changeSetSupport.addChange(change)
     }
 
@@ -182,7 +224,7 @@ class ChangeSetDsl(
         change.columnName = columnName
         change.schemaName = schemaName
         change.tableName = tableName
-        block(change.toColumnDsl())
+        change.columns = change.toColumnDsl(block)
         changeSetSupport.addChange(change)
     }
 
@@ -1068,7 +1110,9 @@ class ChangeSetDsl(
         change.catalogName = catalogName
         change.schemaName = schemaName
         change.tableName = tableName
-        block(change.toColumnDsl())
+        change.toColumnDsl(block).forEach {
+            change.addWhereParam(it)
+        }
         changeSetSupport.addChange(change)
     }
 
@@ -1084,7 +1128,7 @@ class ChangeSetDsl(
         change.dbms = dbms
         change.schemaName = schemaName
         change.tableName = tableName
-        block(change.toColumnDsl())
+        change.columns = change.toColumnDsl(block)
         changeSetSupport.addChange(change)
     }
 
@@ -1112,7 +1156,7 @@ class ChangeSetDsl(
         change.separator = separator
         change.tableName = tableName
         change.usePreparedStatements = usePreparedStatements
-        block(change.toColumnDsl())
+        change.columns = change.toColumnDsl(block)
         changeSetSupport.addChange(change)
     }
 
@@ -1144,7 +1188,7 @@ class ChangeSetDsl(
         change.separator = separator
         change.tableName = tableName
         change.usePreparedStatements = usePreparedStatements
-        block(change.toColumnDsl())
+        change.columns = change.toColumnDsl(block)
         changeSetSupport.addChange(change)
     }
 
@@ -1203,7 +1247,7 @@ class ChangeSetDsl(
         change.catalogName = catalogName
         change.schemaName = schemaName
         change.tableName = tableName
-        block(change.toColumnDsl())
+        change.columns = change.toColumnDsl(block)
         changeSetSupport.addChange(change)
     }
 
@@ -1332,14 +1376,19 @@ class ChangeSetDsl(
         changeSetSupport.addChange(change)
     }
 
-    private inline fun <reified COLUMN_CONFIG : ColumnConfig> Change.toColumnDsl() =
-        IColumnDsl(
+    private inline fun <reified COLUMN_CONFIG : ColumnConfig> Change.toColumnDsl(
+        block: IColumnDsl<COLUMN_CONFIG>.() -> Unit,
+    ): List<COLUMN_CONFIG> {
+        val columnDsl = IColumnDsl(
             changeLog = changeLog,
             columnConfigClass = COLUMN_CONFIG::class,
             changeSetId = changeSet.id,
             changeName = this.serializedObjectName,
             change = this,
         )
+        block(columnDsl)
+        return columnDsl.columns
+    }
 }
 
 class ChangeSetContext(
