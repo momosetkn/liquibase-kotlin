@@ -3,7 +3,7 @@ package momosetkn.liquibase.kotlin.dsl
 import liquibase.Scope
 import liquibase.change.Change
 import liquibase.change.ColumnConfig
-import liquibase.change.core.ExecuteShellCommandChange
+import liquibase.change.core.*
 import liquibase.change.custom.CustomChangeWrapper
 import liquibase.changelog.ChangeSet
 import liquibase.changelog.DatabaseChangeLog
@@ -101,7 +101,7 @@ class ChangeSetDsl(
         tablespace: String? = null,
         block: ColumnDsl.() -> Unit,
     ) {
-        val change = changeSetSupport.createChange("createTable")
+        val change = changeSetSupport.createChange("createTable") as CreateTableChange
         change["catalogName"] = catalogName
         change["ifNotExists"] = ifNotExists
         change["remarks"] = remarks
@@ -118,7 +118,7 @@ class ChangeSetDsl(
         schemaName: String? = null,
         tableName: String,
     ) {
-        val change = changeSetSupport.createChange("dropTable")
+        val change = changeSetSupport.createChange("dropTable") as DropTableChange
         change["cascadeConstraints"] = cascadeConstraints
         change["catalogName"] = catalogName
         change["schemaName"] = schemaName
@@ -132,7 +132,7 @@ class ChangeSetDsl(
         schemaName: String? = null,
         tableName: String,
     ) {
-        val change = changeSetSupport.createChange("setTableRemarks")
+        val change = changeSetSupport.createChange("setTableRemarks") as SetTableRemarksChange
         change["catalogName"] = catalogName
         change["remarks"] = remarks
         change["schemaName"] = schemaName
@@ -146,7 +146,7 @@ class ChangeSetDsl(
         oldTableName: String,
         schemaName: String? = null,
     ) {
-        val change = changeSetSupport.createChange("renameTable")
+        val change = changeSetSupport.createChange("renameTable") as RenameTableChange
         change["catalogName"] = catalogName
         change["newTableName"] = newTableName
         change["oldTableName"] = oldTableName
@@ -160,7 +160,7 @@ class ChangeSetDsl(
         tableName: String,
         block: AddColumnDsl.() -> Unit,
     ) {
-        val change = changeSetSupport.createChange("addColumn")
+        val change = changeSetSupport.createChange("addColumn") as AddColumnChange
         change["catalogName"] = catalogName
         change["schemaName"] = schemaName
         change["tableName"] = tableName
@@ -175,7 +175,7 @@ class ChangeSetDsl(
         tableName: String,
         block: ColumnDsl.() -> Unit,
     ) {
-        val change = changeSetSupport.createChange("dropColumn")
+        val change = changeSetSupport.createChange("dropColumn") as DropColumnChange
         change["catalogName"] = catalogName
         change["columnName"] = columnName
         change["schemaName"] = schemaName
@@ -193,7 +193,7 @@ class ChangeSetDsl(
         schemaName: String? = null,
         tableName: String,
     ) {
-        val change = changeSetSupport.createChange("renameColumn")
+        val change = changeSetSupport.createChange("renameColumn") as RenameColumnChange
         change["catalogName"] = catalogName
         change["columnDataType"] = columnDataType
         change["newColumnName"] = newColumnName
@@ -211,7 +211,7 @@ class ChangeSetDsl(
         schemaName: String? = null,
         tableName: String,
     ) {
-        val change = changeSetSupport.createChange("modifyDataType")
+        val change = changeSetSupport.createChange("modifyDataType") as ModifyDataTypeChange
         change["catalogName"] = catalogName
         change["columnName"] = columnName
         change["newDataType"] = newDataType
@@ -229,7 +229,7 @@ class ChangeSetDsl(
         columnDataType: String? = null,
         columnParentType: String? = null,
     ) {
-        val change = changeSetSupport.createChange("setColumnRemarks")
+        val change = changeSetSupport.createChange("setColumnRemarks") as SetColumnRemarksChange
         change["catalogName"] = catalogName
         change["columnName"] = columnName
         change["remarks"] = remarks
@@ -251,7 +251,7 @@ class ChangeSetDsl(
         startWith: String? = null,
         tableName: String,
     ) {
-        val change = changeSetSupport.createChange("addAutoIncrement")
+        val change = changeSetSupport.createChange("addAutoIncrement") as AddAutoIncrementChange
         change["catalogName"] = catalogName
         change["columnDataType"] = columnDataType
         change["columnName"] = columnName
@@ -274,7 +274,7 @@ class ChangeSetDsl(
         tablespace: String? = null,
         unique: String? = null,
     ) {
-        val change = changeSetSupport.createChange("createIndex")
+        val change = changeSetSupport.createChange("createIndex") as CreateIndexChange
         change["associatedWith"] = associatedWith
         change["catalogName"] = catalogName
         change["clustered"] = clustered
@@ -292,7 +292,7 @@ class ChangeSetDsl(
         schemaName: String? = null,
         tableName: String? = null,
     ) {
-        val change = changeSetSupport.createChange("dropIndex")
+        val change = changeSetSupport.createChange("dropIndex") as DropIndexChange
         change["catalogName"] = catalogName
         change["indexName"] = indexName
         change["schemaName"] = schemaName
@@ -312,7 +312,7 @@ class ChangeSetDsl(
         viewName: String,
         selectQuery: () -> String,
     ) {
-        val change = changeSetSupport.createChange("createView")
+        val change = changeSetSupport.createChange("createView") as CreateViewChange
         change["catalogName"] = catalogName
         change["encoding"] = encoding
         change["fullDefinition"] = fullDefinition
@@ -332,7 +332,7 @@ class ChangeSetDsl(
         schemaName: String? = null,
         viewName: String,
     ) {
-        val change = changeSetSupport.createChange("dropView")
+        val change = changeSetSupport.createChange("dropView") as DropViewChange
         change["catalogName"] = catalogName
         change["ifExists"] = ifExists
         change["schemaName"] = schemaName
@@ -346,7 +346,7 @@ class ChangeSetDsl(
         oldViewName: String,
         schemaName: String? = null,
     ) {
-        val change = changeSetSupport.createChange("renameView")
+        val change = changeSetSupport.createChange("renameView") as RenameViewChange
         change["catalogName"] = catalogName
         change["newViewName"] = newViewName
         change["oldViewName"] = oldViewName
@@ -365,7 +365,7 @@ class ChangeSetDsl(
         schemaName: String? = null,
         procedureText: () -> String,
     ) {
-        val change = changeSetSupport.createChange("createProcedure")
+        val change = changeSetSupport.createChange("createProcedure") as CreateProcedureChange
         change["catalogName"] = catalogName
         change["dbms"] = dbms
         change["encoding"] = encoding
@@ -383,7 +383,7 @@ class ChangeSetDsl(
         procedureName: String,
         schemaName: String? = null,
     ) {
-        val change = changeSetSupport.createChange("dropProcedure")
+        val change = changeSetSupport.createChange("dropProcedure") as DropProcedureChange
         change["catalogName"] = catalogName
         change["procedureName"] = procedureName
         change["schemaName"] = schemaName
@@ -403,7 +403,7 @@ class ChangeSetDsl(
         sequenceName: String,
         startValue: String? = null,
     ) {
-        val change = changeSetSupport.createChange("createSequence")
+        val change = changeSetSupport.createChange("createSequence") as CreateSequenceChange
         change["cacheSize"] = cacheSize
         change["catalogName"] = catalogName
         change["cycle"] = cycle
@@ -423,7 +423,7 @@ class ChangeSetDsl(
         schemaName: String? = null,
         sequenceName: String,
     ) {
-        val change = changeSetSupport.createChange("dropSequence")
+        val change = changeSetSupport.createChange("dropSequence") as DropSequenceChange
         change["catalogName"] = catalogName
         change["schemaName"] = schemaName
         change["sequenceName"] = sequenceName
@@ -436,7 +436,7 @@ class ChangeSetDsl(
         oldSequenceName: String,
         schemaName: String? = null,
     ) {
-        val change = changeSetSupport.createChange("renameSequence")
+        val change = changeSetSupport.createChange("renameSequence") as RenameSequenceChange
         change["catalogName"] = catalogName
         change["newSequenceName"] = newSequenceName
         change["oldSequenceName"] = oldSequenceName
@@ -456,7 +456,7 @@ class ChangeSetDsl(
         schemaName: String? = null,
         sequenceName: String,
     ) {
-        val change = changeSetSupport.createChange("alterSequence")
+        val change = changeSetSupport.createChange("alterSequence") as AlterSequenceChange
         change["cacheSize"] = cacheSize
         change["catalogName"] = catalogName
         change["cycle"] = cycle
@@ -470,318 +470,319 @@ class ChangeSetDsl(
         changeSetSupport.addChange(change)
     }
 
-    fun createFunction(
-        catalogName: String? = null,
-        dbms: String? = null,
-        encoding: String? = null,
-        functionBody: String,
-        functionName: String,
-        path: String,
-        procedureText: String,
-        relativeToChangelogFile: String? = null,
-        replaceIfExists: String? = null,
-        schemaName: String? = null,
-    ) {
-        val change = changeSetSupport.createChange("createFunction")
-        change["catalogName"] = catalogName
-        change["dbms"] = dbms
-        change["encoding"] = encoding
-        change["functionBody"] = functionBody
-        change["functionName"] = functionName
-        change["path"] = path
-        change["procedureText"] = procedureText
-        change["relativeToChangelogFile"] = relativeToChangelogFile
-        change["replaceIfExists"] = replaceIfExists
-        change["schemaName"] = schemaName
-        changeSetSupport.addChange(change)
-    }
-
-    fun dropFunction(
-        catalogName: String? = null,
-        functionName: String,
-        schemaName: String? = null,
-    ) {
-        val change = changeSetSupport.createChange("dropFunction")
-        change["catalogName"] = catalogName
-        change["functionName"] = functionName
-        change["schemaName"] = schemaName
-        changeSetSupport.addChange(change)
-    }
-
-    fun createPackage(
-        catalogName: String? = null,
-        dbms: String? = null,
-        encoding: String? = null,
-        packageName: String,
-        packageText: String,
-        path: String,
-        procedureText: String,
-        relativeToChangelogFile: String? = null,
-        replaceIfExists: String? = null,
-        schemaName: String? = null,
-    ) {
-        val change = changeSetSupport.createChange("createPackage")
-        change["catalogName"] = catalogName
-        change["dbms"] = dbms
-        change["encoding"] = encoding
-        change["packageName"] = packageName
-        change["packageText"] = packageText
-        change["path"] = path
-        change["procedureText"] = procedureText
-        change["relativeToChangelogFile"] = relativeToChangelogFile
-        change["replaceIfExists"] = replaceIfExists
-        change["schemaName"] = schemaName
-        changeSetSupport.addChange(change)
-    }
-
-    fun createPackageBody(
-        catalogName: String? = null,
-        dbms: String? = null,
-        encoding: String? = null,
-        packageBodyName: String,
-        packageBodyText: String,
-        path: String,
-        procedureText: String,
-        relativeToChangelogFile: String? = null,
-        replaceIfExists: String? = null,
-        schemaName: String? = null,
-    ) {
-        val change = changeSetSupport.createChange("createPackageBody")
-        change["catalogName"] = catalogName
-        change["dbms"] = dbms
-        change["encoding"] = encoding
-        change["packageBodyName"] = packageBodyName
-        change["packageBodyText"] = packageBodyText
-        change["path"] = path
-        change["procedureText"] = procedureText
-        change["relativeToChangelogFile"] = relativeToChangelogFile
-        change["replaceIfExists"] = replaceIfExists
-        change["schemaName"] = schemaName
-        changeSetSupport.addChange(change)
-    }
-
-    fun dropPackage(
-        catalogName: String? = null,
-        packageName: String,
-        schemaName: String? = null,
-    ) {
-        val change = changeSetSupport.createChange("dropPackage")
-        change["catalogName"] = catalogName
-        change["packageName"] = packageName
-        change["schemaName"] = schemaName
-        changeSetSupport.addChange(change)
-    }
-
-    fun dropPackageBody(
-        catalogName: String? = null,
-        packageBodyName: String,
-        schemaName: String? = null,
-    ) {
-        val change = changeSetSupport.createChange("dropPackageBody")
-        change["catalogName"] = catalogName
-        change["packageBodyName"] = packageBodyName
-        change["schemaName"] = schemaName
-        changeSetSupport.addChange(change)
-    }
-
-    fun createSynonym(
-        objectCatalogName: String? = null,
-        objectName: String,
-        objectSchemaName: String? = null,
-        objectType: String? = null,
-        private: String? = null,
-        replaceIfExists: String? = null,
-        synonymCatalogName: String? = null,
-        synonymName: String,
-        synonymSchemaName: String? = null,
-    ) {
-        val change = changeSetSupport.createChange("createSynonym")
-        change["objectCatalogName"] = objectCatalogName
-        change["objectName"] = objectName
-        change["objectSchemaName"] = objectSchemaName
-        change["objectType"] = objectType
-        change["private"] = private
-        change["replaceIfExists"] = replaceIfExists
-        change["synonymCatalogName"] = synonymCatalogName
-        change["synonymName"] = synonymName
-        change["synonymSchemaName"] = synonymSchemaName
-        changeSetSupport.addChange(change)
-    }
-
-    fun dropSynonym(
-        objectType: String? = null,
-        private: String? = null,
-        synonymCatalogName: String? = null,
-        synonymName: String,
-        synonymSchemaName: String? = null,
-    ) {
-        val change = changeSetSupport.createChange("dropSynonym")
-        change["objectType"] = objectType
-        change["private"] = private
-        change["synonymCatalogName"] = synonymCatalogName
-        change["synonymName"] = synonymName
-        change["synonymSchemaName"] = synonymSchemaName
-        changeSetSupport.addChange(change)
-    }
-
-    fun createTrigger(
-        catalogName: String? = null,
-        dbms: String? = null,
-        disabled: String? = null,
-        encoding: String? = null,
-        path: String,
-        procedureText: String,
-        relativeToChangelogFile: String? = null,
-        replaceIfExists: String? = null,
-        schemaName: String? = null,
-        scope: String? = null,
-        tableName: String? = null,
-        triggerBody: String,
-        triggerName: String,
-    ) {
-        val change = changeSetSupport.createChange("createTrigger")
-        change["catalogName"] = catalogName
-        change["dbms"] = dbms
-        change["disabled"] = disabled
-        change["encoding"] = encoding
-        change["path"] = path
-        change["procedureText"] = procedureText
-        change["relativeToChangelogFile"] = relativeToChangelogFile
-        change["replaceIfExists"] = replaceIfExists
-        change["schemaName"] = schemaName
-        change["scope"] = scope
-        change["tableName"] = tableName
-        change["triggerBody"] = triggerBody
-        change["triggerName"] = triggerName
-        changeSetSupport.addChange(change)
-    }
-
-    fun enableTrigger(
-        catalogName: String? = null,
-        schemaName: String? = null,
-        scope: String? = null,
-        tableName: String? = null,
-        triggerName: String,
-    ) {
-        val change = changeSetSupport.createChange("enableTrigger")
-        change["catalogName"] = catalogName
-        change["schemaName"] = schemaName
-        change["scope"] = scope
-        change["tableName"] = tableName
-        change["triggerName"] = triggerName
-        changeSetSupport.addChange(change)
-    }
-
-    fun dropTrigger(
-        catalogName: String? = null,
-        schemaName: String? = null,
-        scope: String? = null,
-        tableName: String? = null,
-        triggerName: String,
-    ) {
-        val change = changeSetSupport.createChange("dropTrigger")
-        change["catalogName"] = catalogName
-        change["schemaName"] = schemaName
-        change["scope"] = scope
-        change["tableName"] = tableName
-        change["triggerName"] = triggerName
-        changeSetSupport.addChange(change)
-    }
-
-    fun disableTrigger(
-        catalogName: String? = null,
-        schemaName: String? = null,
-        scope: String? = null,
-        tableName: String? = null,
-        triggerName: String,
-    ) {
-        val change = changeSetSupport.createChange("disableTrigger")
-        change["catalogName"] = catalogName
-        change["schemaName"] = schemaName
-        change["scope"] = scope
-        change["tableName"] = tableName
-        change["triggerName"] = triggerName
-        changeSetSupport.addChange(change)
-    }
-
-    fun renameTrigger(
-        catalogName: String? = null,
-        newTriggerName: String,
-        oldTriggerName: String,
-        schemaName: String? = null,
-        tableName: String? = null,
-    ) {
-        val change = changeSetSupport.createChange("renameTrigger")
-        change["catalogName"] = catalogName
-        change["newTriggerName"] = newTriggerName
-        change["oldTriggerName"] = oldTriggerName
-        change["schemaName"] = schemaName
-        change["tableName"] = tableName
-        changeSetSupport.addChange(change)
-    }
-
-    // Constraints
-    fun addCheckConstraint(
-        catalogName: String? = null,
-        constraintBody: String,
-        constraintName: String,
-        disabled: String? = null,
-        schemaName: String? = null,
-        tableName: String,
-        validate: String? = null,
-    ) {
-        val change = changeSetSupport.createChange("addCheckConstraint")
-        change["catalogName"] = catalogName
-        change["constraintBody"] = constraintBody
-        change["constraintName"] = constraintName
-        change["disabled"] = disabled
-        change["schemaName"] = schemaName
-        change["tableName"] = tableName
-        change["validate"] = validate
-        changeSetSupport.addChange(change)
-    }
-
-    fun enableCheckConstraint(
-        catalogName: String? = null,
-        constraintName: String,
-        schemaName: String? = null,
-        tableName: String,
-    ) {
-        val change = changeSetSupport.createChange("enableCheckConstraint")
-        change["catalogName"] = catalogName
-        change["constraintName"] = constraintName
-        change["schemaName"] = schemaName
-        change["tableName"] = tableName
-        changeSetSupport.addChange(change)
-    }
-
-    fun dropCheckConstraint(
-        catalogName: String? = null,
-        constraintName: String,
-        schemaName: String? = null,
-        tableName: String,
-    ) {
-        val change = changeSetSupport.createChange("dropCheckConstraint")
-        change["catalogName"] = catalogName
-        change["constraintName"] = constraintName
-        change["schemaName"] = schemaName
-        change["tableName"] = tableName
-        changeSetSupport.addChange(change)
-    }
-
-    fun disableCheckConstraint(
-        catalogName: String? = null,
-        constraintName: String,
-        schemaName: String? = null,
-        tableName: String,
-    ) {
-        val change = changeSetSupport.createChange("disableCheckConstraint")
-        change["catalogName"] = catalogName
-        change["constraintName"] = constraintName
-        change["schemaName"] = schemaName
-        change["tableName"] = tableName
-        changeSetSupport.addChange(change)
-    }
+    // for pro
+//    fun createFunction(
+//        catalogName: String? = null,
+//        dbms: String? = null,
+//        encoding: String? = null,
+//        functionBody: String,
+//        functionName: String,
+//        path: String,
+//        procedureText: String,
+//        relativeToChangelogFile: String? = null,
+//        replaceIfExists: String? = null,
+//        schemaName: String? = null,
+//    ) {
+//        val change = changeSetSupport.createChange("createFunction") as CreateFunctionChange
+//        change["catalogName"] = catalogName
+//        change["dbms"] = dbms
+//        change["encoding"] = encoding
+//        change["functionBody"] = functionBody
+//        change["functionName"] = functionName
+//        change["path"] = path
+//        change["procedureText"] = procedureText
+//        change["relativeToChangelogFile"] = relativeToChangelogFile
+//        change["replaceIfExists"] = replaceIfExists
+//        change["schemaName"] = schemaName
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    fun dropFunction(
+//        catalogName: String? = null,
+//        functionName: String,
+//        schemaName: String? = null,
+//    ) {
+//        val change = changeSetSupport.createChange("dropFunction") as DropFunctionChange
+//        change["catalogName"] = catalogName
+//        change["functionName"] = functionName
+//        change["schemaName"] = schemaName
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    fun createPackage(
+//        catalogName: String? = null,
+//        dbms: String? = null,
+//        encoding: String? = null,
+//        packageName: String,
+//        packageText: String,
+//        path: String,
+//        procedureText: String,
+//        relativeToChangelogFile: String? = null,
+//        replaceIfExists: String? = null,
+//        schemaName: String? = null,
+//    ) {
+//        val change = changeSetSupport.createChange("createPackage") as CreatePackageChange
+//        change["catalogName"] = catalogName
+//        change["dbms"] = dbms
+//        change["encoding"] = encoding
+//        change["packageName"] = packageName
+//        change["packageText"] = packageText
+//        change["path"] = path
+//        change["procedureText"] = procedureText
+//        change["relativeToChangelogFile"] = relativeToChangelogFile
+//        change["replaceIfExists"] = replaceIfExists
+//        change["schemaName"] = schemaName
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    fun createPackageBody(
+//        catalogName: String? = null,
+//        dbms: String? = null,
+//        encoding: String? = null,
+//        packageBodyName: String,
+//        packageBodyText: String,
+//        path: String,
+//        procedureText: String,
+//        relativeToChangelogFile: String? = null,
+//        replaceIfExists: String? = null,
+//        schemaName: String? = null,
+//    ) {
+//        val change = changeSetSupport.createChange("createPackageBody") as CreatePackageBodyChange
+//        change["catalogName"] = catalogName
+//        change["dbms"] = dbms
+//        change["encoding"] = encoding
+//        change["packageBodyName"] = packageBodyName
+//        change["packageBodyText"] = packageBodyText
+//        change["path"] = path
+//        change["procedureText"] = procedureText
+//        change["relativeToChangelogFile"] = relativeToChangelogFile
+//        change["replaceIfExists"] = replaceIfExists
+//        change["schemaName"] = schemaName
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    fun dropPackage(
+//        catalogName: String? = null,
+//        packageName: String,
+//        schemaName: String? = null,
+//    ) {
+//        val change = changeSetSupport.createChange("dropPackage") as DropPackageChange
+//        change["catalogName"] = catalogName
+//        change["packageName"] = packageName
+//        change["schemaName"] = schemaName
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    fun dropPackageBody(
+//        catalogName: String? = null,
+//        packageBodyName: String,
+//        schemaName: String? = null,
+//    ) {
+//        val change = changeSetSupport.createChange("dropPackageBody") as DropPackageBodyChange
+//        change["catalogName"] = catalogName
+//        change["packageBodyName"] = packageBodyName
+//        change["schemaName"] = schemaName
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    fun createSynonym(
+//        objectCatalogName: String? = null,
+//        objectName: String,
+//        objectSchemaName: String? = null,
+//        objectType: String? = null,
+//        private: String? = null,
+//        replaceIfExists: String? = null,
+//        synonymCatalogName: String? = null,
+//        synonymName: String,
+//        synonymSchemaName: String? = null,
+//    ) {
+//        val change = changeSetSupport.createChange("createSynonym") as CreateSynonymChange
+//        change["objectCatalogName"] = objectCatalogName
+//        change["objectName"] = objectName
+//        change["objectSchemaName"] = objectSchemaName
+//        change["objectType"] = objectType
+//        change["private"] = private
+//        change["replaceIfExists"] = replaceIfExists
+//        change["synonymCatalogName"] = synonymCatalogName
+//        change["synonymName"] = synonymName
+//        change["synonymSchemaName"] = synonymSchemaName
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    fun dropSynonym(
+//        objectType: String? = null,
+//        private: String? = null,
+//        synonymCatalogName: String? = null,
+//        synonymName: String,
+//        synonymSchemaName: String? = null,
+//    ) {
+//        val change = changeSetSupport.createChange("dropSynonym") as DropSynonymChange
+//        change["objectType"] = objectType
+//        change["private"] = private
+//        change["synonymCatalogName"] = synonymCatalogName
+//        change["synonymName"] = synonymName
+//        change["synonymSchemaName"] = synonymSchemaName
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    fun createTrigger(
+//        catalogName: String? = null,
+//        dbms: String? = null,
+//        disabled: String? = null,
+//        encoding: String? = null,
+//        path: String,
+//        procedureText: String,
+//        relativeToChangelogFile: String? = null,
+//        replaceIfExists: String? = null,
+//        schemaName: String? = null,
+//        scope: String? = null,
+//        tableName: String? = null,
+//        triggerBody: String,
+//        triggerName: String,
+//    ) {
+//        val change = changeSetSupport.createChange("createTrigger") as CreateTriggerChange
+//        change["catalogName"] = catalogName
+//        change["dbms"] = dbms
+//        change["disabled"] = disabled
+//        change["encoding"] = encoding
+//        change["path"] = path
+//        change["procedureText"] = procedureText
+//        change["relativeToChangelogFile"] = relativeToChangelogFile
+//        change["replaceIfExists"] = replaceIfExists
+//        change["schemaName"] = schemaName
+//        change["scope"] = scope
+//        change["tableName"] = tableName
+//        change["triggerBody"] = triggerBody
+//        change["triggerName"] = triggerName
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    fun enableTrigger(
+//        catalogName: String? = null,
+//        schemaName: String? = null,
+//        scope: String? = null,
+//        tableName: String? = null,
+//        triggerName: String,
+//    ) {
+//        val change = changeSetSupport.createChange("enableTrigger") as EnableTriggerChange
+//        change["catalogName"] = catalogName
+//        change["schemaName"] = schemaName
+//        change["scope"] = scope
+//        change["tableName"] = tableName
+//        change["triggerName"] = triggerName
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    fun dropTrigger(
+//        catalogName: String? = null,
+//        schemaName: String? = null,
+//        scope: String? = null,
+//        tableName: String? = null,
+//        triggerName: String,
+//    ) {
+//        val change = changeSetSupport.createChange("dropTrigger") as DropTriggerChange
+//        change["catalogName"] = catalogName
+//        change["schemaName"] = schemaName
+//        change["scope"] = scope
+//        change["tableName"] = tableName
+//        change["triggerName"] = triggerName
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    fun disableTrigger(
+//        catalogName: String? = null,
+//        schemaName: String? = null,
+//        scope: String? = null,
+//        tableName: String? = null,
+//        triggerName: String,
+//    ) {
+//        val change = changeSetSupport.createChange("disableTrigger") as DisableTriggerChange
+//        change["catalogName"] = catalogName
+//        change["schemaName"] = schemaName
+//        change["scope"] = scope
+//        change["tableName"] = tableName
+//        change["triggerName"] = triggerName
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    fun renameTrigger(
+//        catalogName: String? = null,
+//        newTriggerName: String,
+//        oldTriggerName: String,
+//        schemaName: String? = null,
+//        tableName: String? = null,
+//    ) {
+//        val change = changeSetSupport.createChange("renameTrigger") as RenameTriggerChange
+//        change["catalogName"] = catalogName
+//        change["newTriggerName"] = newTriggerName
+//        change["oldTriggerName"] = oldTriggerName
+//        change["schemaName"] = schemaName
+//        change["tableName"] = tableName
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    // Constraints
+//    fun addCheckConstraint(
+//        catalogName: String? = null,
+//        constraintBody: String,
+//        constraintName: String,
+//        disabled: String? = null,
+//        schemaName: String? = null,
+//        tableName: String,
+//        validate: String? = null,
+//    ) {
+//        val change = changeSetSupport.createChange("addCheckConstraint") as AddCheckConstraintChange
+//        change["catalogName"] = catalogName
+//        change["constraintBody"] = constraintBody
+//        change["constraintName"] = constraintName
+//        change["disabled"] = disabled
+//        change["schemaName"] = schemaName
+//        change["tableName"] = tableName
+//        change["validate"] = validate
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    fun enableCheckConstraint(
+//        catalogName: String? = null,
+//        constraintName: String,
+//        schemaName: String? = null,
+//        tableName: String,
+//    ) {
+//        val change = changeSetSupport.createChange("enableCheckConstraint") as EnableCheckConstraintChange
+//        change["catalogName"] = catalogName
+//        change["constraintName"] = constraintName
+//        change["schemaName"] = schemaName
+//        change["tableName"] = tableName
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    fun dropCheckConstraint(
+//        catalogName: String? = null,
+//        constraintName: String,
+//        schemaName: String? = null,
+//        tableName: String,
+//    ) {
+//        val change = changeSetSupport.createChange("dropCheckConstraint") as DropCheckConstraintChange
+//        change["catalogName"] = catalogName
+//        change["constraintName"] = constraintName
+//        change["schemaName"] = schemaName
+//        change["tableName"] = tableName
+//        changeSetSupport.addChange(change)
+//    }
+//
+//    fun disableCheckConstraint(
+//        catalogName: String? = null,
+//        constraintName: String,
+//        schemaName: String? = null,
+//        tableName: String,
+//    ) {
+//        val change = changeSetSupport.createChange("disableCheckConstraint") as DisableCheckConstraintChange
+//        change["catalogName"] = catalogName
+//        change["constraintName"] = constraintName
+//        change["schemaName"] = schemaName
+//        change["tableName"] = tableName
+//        changeSetSupport.addChange(change)
+//    }
 
     fun addDefaultValue(
         catalogName: String? = null,
@@ -797,7 +798,7 @@ class ChangeSetDsl(
         schemaName: String? = null,
         tableName: String,
     ) {
-        val change = changeSetSupport.createChange("addDefaultValue")
+        val change = changeSetSupport.createChange("addDefaultValue") as AddDefaultValueChange
         change["catalogName"] = catalogName
         change["columnDataType"] = columnDataType
         change["columnName"] = columnName
@@ -820,7 +821,7 @@ class ChangeSetDsl(
         schemaName: String? = null,
         tableName: String,
     ) {
-        val change = changeSetSupport.createChange("dropDefaultValue")
+        val change = changeSetSupport.createChange("dropDefaultValue") as DropDefaultValueChange
         change["catalogName"] = catalogName
         change["columnDataType"] = columnDataType
         change["columnName"] = columnName
@@ -846,7 +847,7 @@ class ChangeSetDsl(
         validate: String? = null,
         referencesUniqueColumn: String? = null,
     ) {
-        val change = changeSetSupport.createChange("addForeignKeyConstraint")
+        val change = changeSetSupport.createChange("addForeignKeyConstraint") as AddForeignKeyConstraintChange
         change["baseColumnNames"] = baseColumnNames
         change["baseTableCatalogName"] = baseTableCatalogName
         change["baseTableName"] = baseTableName
@@ -874,7 +875,7 @@ class ChangeSetDsl(
         baseTableSchemaName: String? = null,
         constraintName: String,
     ) {
-        val change = changeSetSupport.createChange("dropForeignKeyConstraint")
+        val change = changeSetSupport.createChange("dropForeignKeyConstraint") as DropForeignKeyConstraintChange
         change["baseTableCatalogName"] = baseTableCatalogName
         change["baseTableName"] = baseTableName
         change["baseTableSchemaName"] = baseTableSchemaName
@@ -887,7 +888,7 @@ class ChangeSetDsl(
         baseTableName: String,
         baseTableSchemaName: String? = null,
     ) {
-        val change = changeSetSupport.createChange("dropAllForeignKeyConstraints")
+        val change = changeSetSupport.createChange("dropAllForeignKeyConstraints") as DropAllForeignKeyConstraintsChange
         change["baseTableCatalogName"] = baseTableCatalogName
         change["baseTableName"] = baseTableName
         change["baseTableSchemaName"] = baseTableSchemaName
@@ -904,7 +905,7 @@ class ChangeSetDsl(
         tableName: String,
         validate: String? = null,
     ) {
-        val change = changeSetSupport.createChange("addNotNullConstraint")
+        val change = changeSetSupport.createChange("addNotNullConstraint") as AddNotNullConstraintChange
         change["catalogName"] = catalogName
         change["columnDataType"] = columnDataType
         change["columnName"] = columnName
@@ -924,7 +925,7 @@ class ChangeSetDsl(
         schemaName: String? = null,
         tableName: String,
     ) {
-        val change = changeSetSupport.createChange("dropNotNullConstraint")
+        val change = changeSetSupport.createChange("dropNotNullConstraint") as DropNotNullConstraintChange
         change["catalogName"] = catalogName
         change["columnDataType"] = columnDataType
         change["columnName"] = columnName
@@ -947,7 +948,7 @@ class ChangeSetDsl(
         tablespace: String? = null,
         validate: String? = null,
     ) {
-        val change = changeSetSupport.createChange("addPrimaryKey")
+        val change = changeSetSupport.createChange("addPrimaryKey") as AddPrimaryKeyChange
         change["catalogName"] = catalogName
         change["clustered"] = clustered
         change["columnNames"] = columnNames
@@ -969,7 +970,7 @@ class ChangeSetDsl(
         schemaName: String? = null,
         tableName: String,
     ) {
-        val change = changeSetSupport.createChange("dropPrimaryKey")
+        val change = changeSetSupport.createChange("dropPrimaryKey") as DropPrimaryKeyChange
         change["catalogName"] = catalogName
         change["constraintName"] = constraintName
         change["dropIndex"] = dropIndex
@@ -994,7 +995,7 @@ class ChangeSetDsl(
         tablespace: String? = null,
         validate: String? = null,
     ) {
-        val change = changeSetSupport.createChange("addUniqueConstraint")
+        val change = changeSetSupport.createChange("addUniqueConstraint") as AddUniqueConstraintChange
         change["catalogName"] = catalogName
         change["clustered"] = clustered
         change["columnNames"] = columnNames
@@ -1019,7 +1020,7 @@ class ChangeSetDsl(
         tableName: String,
         uniqueColumns: String? = null,
     ) {
-        val change = changeSetSupport.createChange("dropUniqueConstraint")
+        val change = changeSetSupport.createChange("dropUniqueConstraint") as DropUniqueConstraintChange
         change["catalogName"] = catalogName
         change["constraintName"] = constraintName
         change["schemaName"] = schemaName
@@ -1041,7 +1042,7 @@ class ChangeSetDsl(
         newTableName: String,
         newTableSchemaName: String? = null,
     ) {
-        val change = changeSetSupport.createChange("addLookupTable")
+        val change = changeSetSupport.createChange("addLookupTable") as AddLookupTableChange
         change["constraintName"] = constraintName
         change["existingColumnName"] = existingColumnName
         change["existingTableCatalogName"] = existingTableCatalogName
@@ -1061,7 +1062,7 @@ class ChangeSetDsl(
         tableName: String,
         block: ColumnDsl.() -> Unit,
     ) {
-        val change = changeSetSupport.createChange("delete")
+        val change = changeSetSupport.createChange("delete") as DeleteDataChange
         change["catalogName"] = catalogName
         change["schemaName"] = schemaName
         change["tableName"] = tableName
@@ -1076,7 +1077,7 @@ class ChangeSetDsl(
         tableName: String,
         block: ColumnDsl.() -> Unit,
     ) {
-        val change = changeSetSupport.createChange("insert")
+        val change = changeSetSupport.createChange("insert") as InsertDataChange
         change["catalogName"] = catalogName
         change["dbms"] = dbms
         change["schemaName"] = schemaName
@@ -1098,7 +1099,7 @@ class ChangeSetDsl(
         usePreparedStatements: String? = null,
         block: LoadDataColumnDsl.() -> Unit,
     ) {
-        val change = changeSetSupport.createChange("loadData")
+        val change = changeSetSupport.createChange("loadData") as LoadDataChange
         change["catalogName"] = catalogName
         change["commentLineStartsWith"] = commentLineStartsWith
         change["encoding"] = encoding
@@ -1128,7 +1129,7 @@ class ChangeSetDsl(
         usePreparedStatements: String? = null,
         block: LoadDataColumnDsl.() -> Unit,
     ) {
-        val change = changeSetSupport.createChange("loadUpdateData")
+        val change = changeSetSupport.createChange("loadUpdateData") as LoadUpdateDataChange
         change["catalogName"] = catalogName
         change["commentLineStartsWith"] = commentLineStartsWith
         change["encoding"] = encoding
@@ -1155,7 +1156,7 @@ class ChangeSetDsl(
         schemaName: String? = null,
         tableName: String,
     ) {
-        val change = changeSetSupport.createChange("mergeColumns")
+        val change = changeSetSupport.createChange("mergeColumns") as MergeColumnChange
         change["catalogName"] = catalogName
         change["column1Name"] = column1Name
         change["column2Name"] = column2Name
@@ -1196,7 +1197,7 @@ class ChangeSetDsl(
         tableName: String,
         block: ColumnDsl.() -> Unit,
     ) {
-        val change = changeSetSupport.createChange("update")
+        val change = changeSetSupport.createChange("update") as UpdateDataChange
         change["catalogName"] = catalogName
         change["schemaName"] = schemaName
         change["tableName"] = tableName
@@ -1215,8 +1216,7 @@ class ChangeSetDsl(
             `class` ?: clazz ?: className ?: throw ChangeLogParseException(
                 "Should be specify `class` or clazz",
             )
-        val change = changeSetSupport.createChange("customChange")
-        change as CustomChangeWrapper
+        val change = changeSetSupport.createChange("customChange") as CustomChangeWrapper
         change["classLoader"] = block?.javaClass?.classLoader ?: this::class.java.classLoader
         change["class"] = classOrClazz.expandExpressions(changeLog)
 
@@ -1240,8 +1240,7 @@ class ChangeSetDsl(
         timeout: String? = null,
         block: ArgumentDsl.() -> Unit,
     ) {
-        val change = changeSetSupport.createChange("executeCommand")
-        change as ExecuteShellCommandChange
+        val change = changeSetSupport.createChange("executeCommand") as ExecuteShellCommandChange
         change["executable"] = executable
         change["os"] = os
         change["timeout"] = timeout
@@ -1253,25 +1252,26 @@ class ChangeSetDsl(
         changeSetSupport.addChange(change)
     }
 
-    fun markUnused(
-        catalogName: String? = null,
-        columnName: String,
-        schemaName: String? = null,
-        tableName: String,
-    ) {
-        val change = changeSetSupport.createChange("markUnused")
-        change["catalogName"] = catalogName
-        change["columnName"] = columnName
-        change["schemaName"] = schemaName
-        change["tableName"] = tableName
-        changeSetSupport.addChange(change)
-    }
+    // for pro
+//    fun markUnused(
+//        catalogName: String? = null,
+//        columnName: String,
+//        schemaName: String? = null,
+//        tableName: String,
+//    ) {
+//        val change = changeSetSupport.createChange("markUnused") as MarkUnusedChange
+//        change["catalogName"] = catalogName
+//        change["columnName"] = columnName
+//        change["schemaName"] = schemaName
+//        change["tableName"] = tableName
+//        changeSetSupport.addChange(change)
+//    }
 
     fun output(
         message: String? = null,
         target: String? = null,
     ) {
-        val change = changeSetSupport.createChange("output")
+        val change = changeSetSupport.createChange("output") as OutputChange
         change["message"] = message
         change["target"] = target ?: "STDERR"
         changeSetSupport.addChange(change)
@@ -1284,7 +1284,7 @@ class ChangeSetDsl(
         stripComments: String? = null,
         block: CommentDsl.() -> String,
     ) {
-        val change = changeSetSupport.createChange("sql")
+        val change = changeSetSupport.createChange("sql") as RawSQLChange
         change["dbms"] = dbms
         change["endDelimiter"] = endDelimiter
         change["splitStatements"] = splitStatements
@@ -1305,7 +1305,7 @@ class ChangeSetDsl(
         splitStatements: String? = null,
         stripComments: String? = null,
     ) {
-        val change = changeSetSupport.createChange("sqlFile")
+        val change = changeSetSupport.createChange("sqlFile") as SQLFileChange
         change["dbms"] = dbms
         change["encoding"] = encoding
         change["endDelimiter"] = endDelimiter
@@ -1318,75 +1318,15 @@ class ChangeSetDsl(
     }
 
     fun stop(message: String? = null) {
-        val change = changeSetSupport.createChange("stop")
+        val change = changeSetSupport.createChange("stop") as StopChange
         change["message"] = message.expandExpressions(changeLog)
         changeSetSupport.addChange(change)
     }
 
     fun tagDatabase(tag: String) {
-        val change = changeSetSupport.createChange("tagDatabase")
+        val change = changeSetSupport.createChange("tagDatabase") as TagDatabaseChange
         change["tag"] = tag.expandExpressions(changeLog)
         changeSetSupport.addChange(change)
-    }
-
-    // Other tags
-    fun include(
-        file: String? = null,
-        contextFilter: String? = null,
-        errorIfMissing: String? = null,
-        ignore: String? = null,
-        labels: String? = null,
-        relativeToChangelogFile: String? = null,
-    ) {
-        val change = changeSetSupport.createChange("include")
-        change["file"] = file
-        change["contextFilter"] = contextFilter
-        change["errorIfMissing"] = errorIfMissing
-        change["ignore"] = ignore
-        change["labels"] = labels
-        change["relativeToChangelogFile"] = relativeToChangelogFile
-        changeSetSupport.addChange(change)
-    }
-
-    fun includeAll(
-        path: String? = null,
-        contextFilter: String? = null,
-        endsWithFilter: String? = null,
-        errorIfMissingOrEmpty: String? = null,
-        filter: String? = null,
-        ignore: String? = null,
-        labels: String? = null,
-        maxDepth: String? = null,
-        minDepth: String? = null,
-        relativeToChangelogFile: String? = null,
-        resourceComparator: String? = null,
-    ) {
-        val change = changeSetSupport.createChange("includeAll")
-        change["path"] = path
-        change["contextFilter"] = contextFilter
-        change["endsWithFilter"] = endsWithFilter
-        change["errorIfMissingOrEmpty"] = errorIfMissingOrEmpty
-        change["filter"] = filter
-        change["ignore"] = ignore
-        change["labels"] = labels
-        change["maxDepth"] = maxDepth
-        change["minDepth"] = minDepth
-        change["relativeToChangelogFile"] = relativeToChangelogFile
-        change["resourceComparator"] = resourceComparator
-        changeSetSupport.addChange(change)
-    }
-
-    fun removeChangeSetProperty(
-        change: String,
-        dbms: String,
-        remove: String,
-    ) {
-        @Suppress("ktlint:standard:property-naming")
-        val change_ = changeSetSupport.createChange("removeChangeSetProperty")
-        change_["change"] = change
-        change_["dbms"] = dbms
-        change_["remove"] = remove
-        changeSetSupport.addChange(change_)
     }
 
     private inline fun <reified COLUMN_CONFIG : ColumnConfig> Change.toColumnDsl() =
