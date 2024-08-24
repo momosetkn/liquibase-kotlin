@@ -8,6 +8,7 @@ import kotlin.script.experimental.api.ScriptCompilationConfiguration
 import kotlin.script.experimental.api.ScriptDiagnostic
 import kotlin.script.experimental.api.ScriptEvaluationConfiguration
 import kotlin.script.experimental.api.implicitReceivers
+import kotlin.script.experimental.api.valueOrNull
 import kotlin.script.experimental.api.valueOrThrow
 import kotlin.script.experimental.host.toScriptSource
 import kotlin.script.experimental.jvm.dependenciesFromCurrentContext
@@ -55,7 +56,7 @@ object EvaluateLiquibaseDsl {
     ) {
         var existsError = false
         result.reports.forEach { report ->
-            val message = filePath + " " + report.message
+            val message = "$filePath $report"
             when (report.severity) {
                 ScriptDiagnostic.Severity.DEBUG -> log.fine(message)
                 ScriptDiagnostic.Severity.INFO -> log.info(message)
@@ -71,8 +72,8 @@ object EvaluateLiquibaseDsl {
                 }
             }
         }
-        val valueOrThrow = result.valueOrThrow()
-        when (val returnValue = valueOrThrow.returnValue) {
+        val valueOrThrow = result.valueOrNull()
+        when (val returnValue = valueOrThrow?.returnValue) {
             is ResultValue.Value -> log.fine("$filePath name is ${returnValue.name}. value is ${returnValue.value}. type is ${returnValue.type}.")
             is ResultValue.Unit -> log.fine("$filePath returnValue is Unit")
             is ResultValue.Error -> {
@@ -82,6 +83,7 @@ object EvaluateLiquibaseDsl {
             }
 
             is ResultValue.NotEvaluated -> log.fine("$filePath not evaluated")
+            null -> log.warning("returnValue is null")
         }
         if (existsError) {
             val errorReports = result.reports.filter { it.severity >= ScriptDiagnostic.Severity.ERROR }
