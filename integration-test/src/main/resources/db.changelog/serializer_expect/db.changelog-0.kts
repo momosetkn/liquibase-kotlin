@@ -2,7 +2,7 @@ databaseChangeLog {
     changeSet(author = "**********", id = "*************-1") {
         createTable(tableName = "company") {
             column(name = "id", type = "UUID") {
-                constraints(primaryKey = true, primaryKeyName = "company_pkey", nullable = false)
+                constraints(nullable = false, primaryKey = true, primaryKeyName = "company_pkey")
             }
             column(name = "name", type = "VARCHAR(256)")
         }
@@ -11,7 +11,7 @@ databaseChangeLog {
     changeSet(author = "**********", id = "*************-2") {
         createTable(tableName = "employee") {
             column(name = "id", type = "UUID") {
-                constraints(primaryKey = true, primaryKeyName = "employee_pkey", nullable = false)
+                constraints(nullable = false, primaryKey = true, primaryKeyName = "employee_pkey")
             }
             column(name = "company_id", type = "UUID") {
                 constraints(nullable = false)
@@ -27,7 +27,7 @@ databaseChangeLog {
     }
 
     changeSet(author = "**********", id = "*************-3") {
-        addForeignKeyConstraint(referencedTableName = "company", referencedColumnNames = "id", deferrable = false, initiallyDeferred = false, validate = true, constraintName = "employee_company_id_fkey", baseTableName = "employee", baseColumnNames = "company_id", onUpdate = "RESTRICT", onDelete = "CASCADE")
+        addForeignKeyConstraint(baseColumnNames = "company_id", baseTableName = "employee", constraintName = "employee_company_id_fkey", deferrable = false, initiallyDeferred = false, onDelete = "CASCADE", onUpdate = "RESTRICT", referencedColumnNames = "id", referencedTableName = "company", validate = true)
     }
 
 }

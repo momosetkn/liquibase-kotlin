@@ -16,7 +16,7 @@ import kotlin.reflect.full.superclasses
 
 class KotlinChangeLogSerializer : ChangeLogSerializer {
     private val isoFormat = ISODateFormat()
-    private val getterMethodMap = ConcurrentHashMap<KClass<*>, List<Pair<String, KFunction<*>>>>()
+    private val getterMethodMap = ConcurrentHashMap<KClass<*>, Map<String, KFunction<*>>>()
 
     override fun getValidFileExtensions(): Array<String> = arrayOf("kts")
 
@@ -140,13 +140,12 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
         propertyNames: Set<String>,
         obj: Any,
     ): List<String> {
-        val getterMethods = getGetterMethods(obj::class)
-        return getterMethods
-            .filter { (propertyName, _getterMethod) ->
-                propertyName in propertyNames
-            }
-            .mapNotNull { (propertyName, getterMethod) ->
-                val propertyValue = getterMethod.call(obj)
+        // Order to alphabet. Because it cannot be sorted in the defined order.
+        return propertyNames
+            .sorted()
+            .mapNotNull { propertyName ->
+                val prop = getGetterMethod(obj::class, propertyName)
+                val propertyValue = prop.call(obj)
                 propertyValue?.let {
                     val propertyString =
                         when (propertyValue) {
@@ -164,8 +163,8 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
             }
     }
 
-    private fun getGetterMethods(kClass: KClass<*>): List<Pair<String, KFunction<*>>> {
-        val items = getterMethodMap.getOrPut(kClass) {
+    private fun getGetterMethod(kClass: KClass<*>, propertyName: String): KFunction<*> {
+        val map = getterMethodMap.getOrPut(kClass) {
             // include superclass
             // Increase the priority of the super class.
             val kClasses = listOf(listOf(kClass), kClass.superclasses).flatten().asReversed()
@@ -175,15 +174,16 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
                     // getter method
                     method.parameters.none { it.kind == KParameter.Kind.VALUE }
                 }
-                .map { method ->
-                    val propertyName = method.name
+                .associateBy { method ->
+                    method.name
                         .removePrefix("get")
                         .removePrefix("is")
                         .replaceFirstChar { it.lowercase() }
-                    propertyName to method
                 }
         }
-        return items ?: emptyList()
+        return checkNotNull(map[propertyName]) {
+            "$kClass is not found $propertyName getter method."
+        }
     }
 
     private fun serializeString(s: String): String {
