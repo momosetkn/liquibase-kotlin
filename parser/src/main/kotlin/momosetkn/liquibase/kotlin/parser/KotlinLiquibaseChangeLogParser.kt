@@ -76,12 +76,4 @@ class KotlinLiquibaseChangeLogParser : ChangeLogParser {
     ) = changeLogFile.endsWith(".kts")
 
     override fun getPriority() = PRIORITY_DEFAULT
-
-    companion object {
-        val instance = KotlinLiquibaseChangeLogParser()
-
-        fun register() {
-            ChangeLogParserFactory.getInstance().register(instance)
-        }
-    }
 }

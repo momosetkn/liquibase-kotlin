@@ -8,8 +8,6 @@ import java.nio.file.Paths
 
 class MigrateAndSerializeSpec : FunSpec({
     beforeSpec {
-        momosetkn.liquibase.kotlin.serializer.KotlinChangeLogSerializer.register()
-        momosetkn.liquibase.kotlin.parser.KotlinLiquibaseChangeLogParser.register()
         Database.start()
     }
     afterSpec {

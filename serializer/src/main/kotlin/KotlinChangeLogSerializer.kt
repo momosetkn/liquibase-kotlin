@@ -191,12 +191,4 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
             .replace("\n", "\\n")
         return "\"${replaced}\""
     }
-
-    companion object {
-        val instance = KotlinChangeLogSerializer()
-
-        fun register() {
-            ChangeLogSerializerFactory.getInstance().register(instance)
-        }
-    }
 }
