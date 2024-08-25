@@ -16,7 +16,7 @@ import kotlin.reflect.full.superclasses
 
 class KotlinChangeLogSerializer : ChangeLogSerializer {
     private val isoFormat = ISODateFormat()
-    private val getterMethodMap = ConcurrentHashMap<KClass<*>, Map<String, KFunction<*>>>()
+    private val getterMethodMap = ConcurrentHashMap<KClass<*>, List<Pair<String, KFunction<*>>>>()
 
     override fun getValidFileExtensions(): Array<String> = arrayOf("kts")
 
@@ -61,7 +61,7 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
     private fun prettySerialize(change: LiquibaseSerializable): String {
         val fields = change.serializableFields
         val children = mutableListOf<String>()
-        val attributes = mutableListOf<String>()
+        val attributes = mutableSetOf<String>()
         var textBody: String? = null
 
         fields.forEach { field ->
@@ -96,12 +96,12 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
 
         val serializedChange =
             if (attributes.isNotEmpty()) {
-                val propertyList =
-                    buildPropertyListFrom(
+                val serializedNamedParameters =
+                    serializeNamedParameters(
                         attributes,
                         change,
                     ).joinToString(", ")
-                "${change.serializedObjectName}($propertyList)"
+                "${change.serializedObjectName}($serializedNamedParameters)"
             } else {
                 change.serializedObjectName
             }
@@ -132,55 +132,58 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
         return text
             ?.lineSequence()
             ?.joinToString("\n") {
-                "     $it"
+                "    $it"
             } ?: ""
     }
 
-    private fun buildPropertyListFrom(
-        propertyNames: List<String>,
+    private fun serializeNamedParameters(
+        propertyNames: Set<String>,
         obj: Any,
     ): List<String> {
-        return propertyNames.mapNotNull { propertyName ->
-            val prop = getGetterMethod(obj::class, propertyName)
-            val propertyValue = prop.call(obj)
-            propertyValue?.let {
-                val propertyString =
-                    when (propertyValue) {
-                        is Boolean -> propertyValue.toString()
-                        is Number -> propertyValue.toString()
-                        is java.sql.Timestamp ->
-                            serializeString(
-                                isoFormat.format(propertyValue),
-                            )
-
-                        else -> serializeString(propertyValue.toString())
-                    }
-                "$propertyName = $propertyString"
+        val getterMethods = getGetterMethods(obj::class)
+        return getterMethods
+            .filter { (propertyName, _getterMethod) ->
+                propertyName in propertyNames
             }
-        }
+            .mapNotNull { (propertyName, getterMethod) ->
+                val propertyValue = getterMethod.call(obj)
+                propertyValue?.let {
+                    val propertyString =
+                        when (propertyValue) {
+                            is Boolean -> propertyValue.toString()
+                            is Number -> propertyValue.toString()
+                            is java.sql.Timestamp ->
+                                serializeString(
+                                    isoFormat.format(propertyValue),
+                                )
+
+                            else -> serializeString(propertyValue.toString())
+                        }
+                    "$propertyName = $propertyString"
+                }
+            }
     }
 
-    private fun getGetterMethod(kClass: KClass<*>, propertyName: String): KFunction<*> {
-        val map = getterMethodMap.getOrPut(kClass) {
+    private fun getGetterMethods(kClass: KClass<*>): List<Pair<String, KFunction<*>>> {
+        val items = getterMethodMap.getOrPut(kClass) {
             // include superclass
-            val kClasses = listOf(listOf(kClass), kClass.superclasses).flatten()
+            // Increase the priority of the super class.
+            val kClasses = listOf(listOf(kClass), kClass.superclasses).flatten().asReversed()
             kClasses
                 .flatMap { it.memberFunctions }
                 .filter { method ->
                     // getter method
                     method.parameters.none { it.kind == KParameter.Kind.VALUE }
                 }
-                .associateBy { method ->
-                    method.name
+                .map { method ->
+                    val propertyName = method.name
                         .removePrefix("get")
                         .removePrefix("is")
                         .replaceFirstChar { it.lowercase() }
+                    propertyName to method
                 }
         }
-
-        return checkNotNull(map[propertyName]) {
-            "$kClass is not found $propertyName getter method."
-        }
+        return items ?: emptyList()
     }
 
     private fun serializeString(s: String): String {

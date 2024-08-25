@@ -1,33 +1,33 @@
 databaseChangeLog {
-     changeSet(id = "1724505385194-1", author = "momose (generated)") {
-          createTable(tableName = "company") {
-               column(type = "UUID", name = "id") {
-                    constraints(nullable = false, primaryKeyName = "company_pkey", primaryKey = true)
-               }
-               column(type = "VARCHAR(256)", name = "name")
-          }
-     }
+    changeSet(author = "**********", id = "*************-1") {
+        createTable(tableName = "company") {
+            column(name = "id", type = "UUID") {
+                constraints(primaryKey = true, primaryKeyName = "company_pkey", nullable = false)
+            }
+            column(name = "name", type = "VARCHAR(256)")
+        }
+    }
 
-     changeSet(id = "1724505385194-2", author = "momose (generated)") {
-          createTable(tableName = "employee") {
-               column(type = "UUID", name = "id") {
-                    constraints(nullable = false, primaryKeyName = "employee_pkey", primaryKey = true)
-               }
-               column(type = "UUID", name = "company_id") {
-                    constraints(nullable = false)
-               }
-               column(type = "VARCHAR(256)", name = "new_name")
-               column(type = "VARCHAR(256)", name = "not_null_name") {
-                    constraints(nullable = false)
-               }
-               column(type = "VARCHAR(256)", name = "not_null_name2") {
-                    constraints(nullable = false)
-               }
-          }
-     }
+    changeSet(author = "**********", id = "*************-2") {
+        createTable(tableName = "employee") {
+            column(name = "id", type = "UUID") {
+                constraints(primaryKey = true, primaryKeyName = "employee_pkey", nullable = false)
+            }
+            column(name = "company_id", type = "UUID") {
+                constraints(nullable = false)
+            }
+            column(name = "new_name", type = "VARCHAR(256)")
+            column(name = "not_null_name", type = "VARCHAR(256)") {
+                constraints(nullable = false)
+            }
+            column(name = "not_null_name2", type = "VARCHAR(256)") {
+                constraints(nullable = false)
+            }
+        }
+    }
 
-     changeSet(id = "1724505385194-3", author = "momose (generated)") {
-          addForeignKeyConstraint(deferrable = false, baseColumnNames = "company_id", constraintName = "employee_company_id_fkey", referencedTableName = "company", onDelete = "CASCADE", referencedColumnNames = "id", initiallyDeferred = false, onUpdate = "RESTRICT", baseTableName = "employee", validate = true)
-     }
+    changeSet(author = "**********", id = "*************-3") {
+        addForeignKeyConstraint(referencedTableName = "company", referencedColumnNames = "id", deferrable = false, initiallyDeferred = false, validate = true, constraintName = "employee_company_id_fkey", baseTableName = "employee", baseColumnNames = "company_id", onUpdate = "RESTRICT", onDelete = "CASCADE")
+    }
 
 }

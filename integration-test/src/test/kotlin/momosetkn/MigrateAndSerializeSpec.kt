@@ -48,17 +48,24 @@ class MigrateAndSerializeSpec : FunSpec({
                 this::class.java.classLoader.getResourceAsStream("db.changelog/parser_expect/db.changelog-0.sql")
                     .readAllBytes()
             )
-            getResourceAsString("db.changelog/serializer_actual/db.changelog-0.kts") shouldBe
+            getResourceAsString("db.changelog/serializer_actual/db.changelog-0.kts")
+                .maskingChangeSet() shouldBe
                     getResourceAsString("db.changelog/serializer_expect/db.changelog-0.kts")
+                        .maskingChangeSet()
         }
     }
 })
 
 private fun getResourceAsString(path: String) =
-    Thread.currentThread().contextClassLoader.getResourceAsStream(path)?.let {
+    Thread.currentThread().contextClassLoader.getResourceAsStream(path).let {
         String(
             it.readAllBytes()
         )
     }
+
+val changeSetRegex = Regex("""changeSet\(author = "(.+)", id = "(\d+)-(\d)"\) \{""")
+
+private fun String.maskingChangeSet() =
+    this.replace(changeSetRegex, "changeSet(author = \"**********\", id = \"*************-\$3\") {")
 
 const val resourceDir = "src/main/resources"
