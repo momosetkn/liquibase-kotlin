@@ -37,13 +37,11 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
     ) {
         out.use {
             out.write("databaseChangeLog {\n".toByteArray())
-            out.write(
-                changeSets
-                    .joinToString("\n\n") {
-                        indent(prettySerialize(it))
-                    }.toByteArray(),
-            )
-            out.write("\n\n}\n".toByteArray())
+            changeSets.forEach {
+                val line = indent(prettySerialize(it)) + "\n\n"
+                out.write(line.toByteArray())
+            }
+            out.write("}\n".toByteArray())
         }
     }
 
