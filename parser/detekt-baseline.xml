@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>MaxLineLength:EvaluateLiquibaseDsl.kt$EvaluateLiquibaseDsl$is ResultValue.Value -&gt; log.fine("$filePath name is ${returnValue.name}. value is ${returnValue.value}. type is ${returnValue.type}.")</ID>
+  </CurrentIssues>
+</SmellBaseline>

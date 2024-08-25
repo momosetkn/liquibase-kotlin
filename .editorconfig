@@ -1,0 +1,37 @@
+[*.{kt,kts}]
+
+# https://pinterest.github.io/ktlint/1.3.1/rules/standard/#enum-entry
+# You can check the rule names that resulted in errors in the files in build/reports/ktlint!
+# The rules with the standard: prefix should have the prefix ktlint_standard_ in the editorconfig!
+
+ktlint_standard_enum-entry-name-case = disabled
+# Whether to allow line breaks, etc. after the opening parenthesis of a function
+ktlint_standard_function-signature = disabled
+ktlint_standard_trailing-comma-on-call-site = disabled
+ktlint_standard_trailing-comma-on-declaration-site = disabled
+ktlint_standard_multiline-expression-wrapping = disabled
+ktlint_standard_string-template-indent = disabled
+ktlint_standard_blank-line-before-declaration = disabled
+# Handled by detekt
+ktlint_standard_max-line-length = disabled
+# Whether to allow blank lines between properties in data classes, etc.
+ktlint_standard_no-blank-line-in-list = disabled
+# Whether to allow comments before elements
+ktlint_standard_discouraged-comment-location = disabled
+ktlint_standard_if-else-wrapping = disabled
+# Whether to allow single-line expressions such as { it.id }
+ktlint_standard_statement-wrapping = disabled
+# Whether to force omitting {} and return by using = in function definitions
+ktlint_standard_function-expression-body = disabled
+# Handled by detekt
+ktlint_standard_property-naming = disabled
+# Whether to allow properties that start with _ only if they correspond to variables or methods
+# The rule is overly complex, so it is disabled
+ktlint_standard_backing-property-naming = disabled
+# Handled by detekt
+ktlint_standard_function-naming = disabled
+# Handled by detekt
+ktlint_standard_class-naming = disabled
+ktlint_standard_chain-method-continuation = disabled
+# Line break after supertype
+ktlint_standard_class-signature = disabled

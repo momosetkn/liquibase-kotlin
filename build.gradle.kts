@@ -38,9 +38,10 @@ allprojects {
     }
 }
 
-val libraryProjects = subprojects.filter {
-    it.name in listOf("dsl", "parser", "serializer")
-}
+val libraryProjects =
+    subprojects.filter {
+        it.name in listOf("dsl", "parser", "serializer")
+    }
 configure(libraryProjects) {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "maven-publish")
@@ -56,7 +57,7 @@ configure(libraryProjects) {
                 from(components["java"])
                 artifact(sourcesJar)
                 groupId = "com.github.momosetkn"
-                artifactId = "${artifactIdPrefix}-${project.name}"
+                artifactId = "$artifactIdPrefix-${project.name}"
                 version = liquibaseKotlinDslVersion
             }
         }

@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>LongParameterList:LiquibaseCommand.kt$LiquibaseCommand$( driverClassName: String, jdbcUrl: String, user: String, password: String?, command: String, changelogFile: String? = null, vararg options: String?, )</ID>
+    <ID>MatchingDeclarationName:DatabaseConstants.kt$Database</ID>
+    <ID>MaxLineLength:LiquibaseCommand.kt$LiquibaseCommand$*</ID>
+    <ID>TopLevelPropertyNaming:MigrateAndSerializeSpec.kt$const val resourceDir = "src/main/resources"</ID>
+  </CurrentIssues>
+</SmellBaseline>

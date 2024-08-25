@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>InvalidPackageDeclaration:GenerateChange.kt$package momosetkn</ID>
+    <ID>InvalidPackageDeclaration:Main.kt$package momosetkn</ID>
+    <ID>LongMethod:Main.kt$private fun code(): String</ID>
+  </CurrentIssues>
+</SmellBaseline>
