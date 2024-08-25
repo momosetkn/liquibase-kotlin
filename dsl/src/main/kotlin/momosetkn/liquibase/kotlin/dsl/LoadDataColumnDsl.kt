@@ -1,22 +1,19 @@
 package momosetkn.liquibase.kotlin.dsl
 
-import liquibase.change.ColumnConfig
-import liquibase.changelog.DatabaseChangeLog
+import liquibase.change.core.LoadDataColumnConfig
 import liquibase.statement.DatabaseFunction
 import liquibase.util.ISODateFormat
 import java.math.BigInteger
 
 @ChangeLogDslMarker
-class ColumnDsl(
-    private val changeLog: DatabaseChangeLog,
-) {
-    private val columnConfigClass = ColumnConfig::class
+class LoadDataColumnDsl {
+    private val columnConfigClass = LoadDataColumnConfig::class
 
-    private val columns = mutableListOf<ColumnConfig>()
+    private val columns = mutableListOf<LoadDataColumnConfig>()
 
     internal operator fun invoke(
-        block: ColumnDsl.() -> Unit,
-    ): List<ColumnConfig> {
+        block: LoadDataColumnDsl.() -> Unit,
+    ): List<LoadDataColumnConfig> {
         block(this)
         return columns.toList()
     }
@@ -39,13 +36,12 @@ class ColumnDsl(
         incrementBy: Long? = null,
         remarks: String? = null,
         startWith: Long? = null,
-        valueBlobFile: String? = null, // maybe for update or delete
+        valueBlobFile: String? = null,
         valueBoolean: Boolean? = null,
         valueClobFile: String? = null,
         valueComputed: String? = null,
         valueDate: String? = null,
         valueNumeric: Number? = null,
-        block: (ConstraintDsl.() -> Unit)? = null,
     ) {
         val column = columnConfigClass.java.getDeclaredConstructor().newInstance()
 
@@ -85,10 +81,6 @@ class ColumnDsl(
         }
         column.valueNumeric = valueNumeric
 
-        block?.let {
-            val constraintDsl = ConstraintDsl(changeLog)
-            column.constraints = constraintDsl(it)
-        }
         columns.add(column)
     }
 }

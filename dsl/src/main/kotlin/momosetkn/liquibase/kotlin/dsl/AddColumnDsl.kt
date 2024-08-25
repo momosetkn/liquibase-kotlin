@@ -1,22 +1,22 @@
 package momosetkn.liquibase.kotlin.dsl
 
-import liquibase.change.ColumnConfig
+import liquibase.change.AddColumnConfig
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.statement.DatabaseFunction
 import liquibase.util.ISODateFormat
 import java.math.BigInteger
 
 @ChangeLogDslMarker
-class ColumnDsl(
+class AddColumnDsl(
     private val changeLog: DatabaseChangeLog,
 ) {
-    private val columnConfigClass = ColumnConfig::class
+    private val columnConfigClass = AddColumnConfig::class
 
-    private val columns = mutableListOf<ColumnConfig>()
+    private val columns = mutableListOf<AddColumnConfig>()
 
     internal operator fun invoke(
-        block: ColumnDsl.() -> Unit,
-    ): List<ColumnConfig> {
+        block: AddColumnDsl.() -> Unit,
+    ): List<AddColumnConfig> {
         block(this)
         return columns.toList()
     }
@@ -25,7 +25,9 @@ class ColumnDsl(
         name: String,
         type: String? = null,
         value: String? = null,
+        afterColumn: String? = null,
         autoIncrement: Boolean? = null,
+        beforeColumn: String? = null,
         computed: Boolean? = null,
         defaultValue: String? = null,
         defaultValueBoolean: Boolean? = null,
@@ -37,14 +39,9 @@ class ColumnDsl(
         encoding: String? = null,
         generationType: String? = null,
         incrementBy: Long? = null,
+        position: Int? = null,
         remarks: String? = null,
         startWith: Long? = null,
-        valueBlobFile: String? = null, // maybe for update or delete
-        valueBoolean: Boolean? = null,
-        valueClobFile: String? = null,
-        valueComputed: String? = null,
-        valueDate: String? = null,
-        valueNumeric: Number? = null,
         block: (ConstraintDsl.() -> Unit)? = null,
     ) {
         val column = columnConfigClass.java.getDeclaredConstructor().newInstance()
@@ -52,7 +49,13 @@ class ColumnDsl(
         column.name = name
         column.type = type
         column.value = value
+        afterColumn?.also {
+            column.afterColumn = afterColumn
+        }
         column.isAutoIncrement = autoIncrement
+        beforeColumn?.also {
+            column.beforeColumn = beforeColumn
+        }
         column.computed = computed
         column.defaultValue = defaultValue
         column.defaultValueBoolean = defaultValueBoolean
@@ -70,20 +73,13 @@ class ColumnDsl(
         incrementBy?.also {
             column.incrementBy = BigInteger.valueOf(it)
         }
+        position?.also {
+            column.position = position
+        }
         column.remarks = remarks
         startWith?.also {
             column.startWith = BigInteger.valueOf(it)
         }
-        column.valueBlobFile = valueBlobFile
-        column.valueBoolean = valueBoolean
-        column.valueClobFile = valueClobFile
-        valueComputed?.also {
-            column.valueComputed = DatabaseFunction(it)
-        }
-        valueDate?.also {
-            column.valueDate = ISODateFormat().parse(it)
-        }
-        column.valueNumeric = valueNumeric
 
         block?.let {
             val constraintDsl = ConstraintDsl(changeLog)

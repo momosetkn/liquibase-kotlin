@@ -1,8 +1,6 @@
 package momosetkn.liquibase.kotlin.dsl
 
 import liquibase.Scope
-import liquibase.change.Change
-import liquibase.change.ColumnConfig
 import liquibase.change.core.AddAutoIncrementChange
 import liquibase.change.core.AddColumnChange
 import liquibase.change.core.AddDefaultValueChange
@@ -163,7 +161,8 @@ class ChangeSetDsl(
         change.schemaName = schemaName
         change.tableName = tableName
         change.tablespace = tablespace
-        change.columns = change.toColumnDsl(block)
+        val dsl = ColumnDsl(changeLog)
+        change.columns = dsl(block)
         changeSetSupport.addChange(change)
     }
 
@@ -219,7 +218,8 @@ class ChangeSetDsl(
         change.catalogName = catalogName
         change.schemaName = schemaName
         change.tableName = tableName
-        change.columns = change.toColumnDsl(block)
+        val dsl = AddColumnDsl(changeLog)
+        change.columns = dsl(block)
         changeSetSupport.addChange(change)
     }
 
@@ -236,7 +236,10 @@ class ChangeSetDsl(
         change.columnName = columnName
         change.schemaName = schemaName
         change.tableName = tableName
-        block?.also { change.columns = change.toColumnDsl(block) }
+        block?.also {
+            val dsl = ColumnDsl(changeLog)
+            change.columns = dsl(block)
+        }
         changeSetSupport.addChange(change)
     }
 
@@ -1116,13 +1119,21 @@ class ChangeSetDsl(
         catalogName: String? = null,
         schemaName: String? = null,
         tableName: String,
-        block: ColumnDsl.() -> Unit,
+        block: ModifyDataColumnDsl.() -> Unit,
     ) {
         val change = changeSetSupport.createChange("delete") as DeleteDataChange
         change.catalogName = catalogName
         change.schemaName = schemaName
         change.tableName = tableName
-        change.toColumnDsl(block).forEach {
+        val dsl = ModifyDataColumnDsl(changeLog)
+        val dslResult = dsl(block)
+        if (dslResult.columns.isNotEmpty()) {
+            throw ChangeLogParseException(
+                "delete type is not allow columns"
+            )
+        }
+        change.where = dslResult.where
+        dslResult.params.forEach {
             change.addWhereParam(it)
         }
         changeSetSupport.addChange(change)
@@ -1140,7 +1151,8 @@ class ChangeSetDsl(
         change.dbms = dbms
         change.schemaName = schemaName
         change.tableName = tableName
-        change.columns = change.toColumnDsl(block)
+        val dsl = ColumnDsl(changeLog)
+        change.columns = dsl(block)
         changeSetSupport.addChange(change)
     }
 
@@ -1168,7 +1180,11 @@ class ChangeSetDsl(
         change.separator = separator
         change.tableName = tableName
         change.usePreparedStatements = usePreparedStatements
-        change.columns = change.toColumnDsl(block)
+
+        val dsl = LoadDataColumnDsl()
+        val columns = dsl(block)
+        change.columns = columns
+
         changeSetSupport.addChange(change)
     }
 
@@ -1200,7 +1216,11 @@ class ChangeSetDsl(
         change.separator = separator
         change.tableName = tableName
         change.usePreparedStatements = usePreparedStatements
-        change.columns = change.toColumnDsl(block)
+
+        val dsl = LoadDataColumnDsl()
+        val columns = dsl(block)
+        change.columns = columns
+
         changeSetSupport.addChange(change)
     }
 
@@ -1253,13 +1273,19 @@ class ChangeSetDsl(
         catalogName: String? = null,
         schemaName: String? = null,
         tableName: String,
-        block: ColumnDsl.() -> Unit,
+        block: ModifyDataColumnDsl.() -> Unit,
     ) {
         val change = changeSetSupport.createChange("update") as UpdateDataChange
         change.catalogName = catalogName
         change.schemaName = schemaName
         change.tableName = tableName
-        change.columns = change.toColumnDsl(block)
+        val dsl = ModifyDataColumnDsl(changeLog)
+        val dslResult = dsl(block)
+        change.columns = dslResult.columns
+        change.where = dslResult.where
+        dslResult.params.forEach {
+            change.addWhereParam(it)
+        }
         changeSetSupport.addChange(change)
     }
 
@@ -1386,18 +1412,6 @@ class ChangeSetDsl(
         val change = changeSetSupport.createChange("tagDatabase") as TagDatabaseChange
         change.tag = tag.expandExpressions(changeLog)
         changeSetSupport.addChange(change)
-    }
-
-    private inline fun <reified COLUMN_CONFIG : ColumnConfig> Change.toColumnDsl(
-        block: IColumnDsl<COLUMN_CONFIG>.() -> Unit,
-    ): List<COLUMN_CONFIG> {
-        val columnDsl = IColumnDsl(
-            changeLog = changeLog,
-            columnConfigClass = COLUMN_CONFIG::class,
-            change = this,
-        )
-        block(columnDsl)
-        return columnDsl.columns
     }
 }
 
