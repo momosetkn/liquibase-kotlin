@@ -166,7 +166,6 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
     private fun getGetterMethod(kClass: KClass<*>, propertyName: String): KFunction<*> {
         val map = getterMethodMap.getOrPut(kClass) {
             // include superclass
-            // Increase the priority of the super class.
             val kClasses = listOf(listOf(kClass), kClass.superclasses).flatten().asReversed()
             kClasses
                 .flatMap { it.memberFunctions }
