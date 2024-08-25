@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    val liquibaseKotlinDslVersion = "0.0.27"
+    val liquibaseKotlinDslVersion = "0.0.28"
     implementation("com.github.momosetkn.liquibase-kotlin-dsl:liquibase-kotlin-dsl:$liquibaseKotlinDslVersion")
     implementation("com.github.momosetkn.liquibase-kotlin-dsl:liquibase-kotlin-parser:$liquibaseKotlinDslVersion")
     implementation("com.github.momosetkn.liquibase-kotlin-dsl:liquibase-kotlin-serializer:$liquibaseKotlinDslVersion")
