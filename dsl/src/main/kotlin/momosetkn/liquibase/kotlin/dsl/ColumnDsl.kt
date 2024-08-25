@@ -6,7 +6,6 @@ import liquibase.change.ColumnConfig
 import liquibase.change.core.AbstractModifyDataChange
 import liquibase.change.core.LoadDataColumnConfig
 import liquibase.changelog.DatabaseChangeLog
-import liquibase.exception.ChangeLogParseException
 import liquibase.statement.DatabaseFunction
 import liquibase.util.ISODateFormat
 import java.math.BigInteger
@@ -16,12 +15,10 @@ import kotlin.reflect.KClass
 class IColumnDsl<out COLUMN_CONFIG : ColumnConfig>(
     private val changeLog: DatabaseChangeLog,
     private val columnConfigClass: KClass<COLUMN_CONFIG>,
-    private val changeSetId: String = "<unknown>",
-    private val changeName: String = "<unknown>",
     private val change: Change,
 ) {
     internal val _columns = mutableListOf<ColumnConfig>()
-    internal val columns : List<COLUMN_CONFIG>
+    internal val columns: List<COLUMN_CONFIG>
         get() = _columns.toList() as List<COLUMN_CONFIG>
 
     fun column(
@@ -56,22 +53,22 @@ class IColumnDsl<out COLUMN_CONFIG : ColumnConfig>(
         val column = columnConfigClass.java.getDeclaredConstructor().newInstance()
         val addColumnConfig = column as? AddColumnConfig
 
-        fun nullAddColumnConfigMessage() =
-            "ChangeSet '$changeSetId': columns are not allowed in '$changeName' changes."
+//        fun nullAddColumnConfigMessage() =
+//            "ChangeSet '$changeSetId': columns are not allowed in '$changeName' changes."
 
         column.name = name
         column.type = type
         column.value = value
         afterColumn?.also {
             requireNotNull(addColumnConfig) {
-                nullAddColumnConfigMessage()
+                NOT_ALLOW_COLUMNS_MESSAGE
             }
             addColumnConfig.afterColumn = afterColumn
         }
         column.isAutoIncrement = autoIncrement
         beforeColumn?.also {
             requireNotNull(addColumnConfig) {
-                nullAddColumnConfigMessage()
+                NOT_ALLOW_COLUMNS_MESSAGE
             }
             addColumnConfig.beforeColumn = beforeColumn
         }
@@ -94,7 +91,7 @@ class IColumnDsl<out COLUMN_CONFIG : ColumnConfig>(
         }
         position?.also {
             requireNotNull(addColumnConfig) {
-                nullAddColumnConfigMessage()
+                NOT_ALLOW_COLUMNS_MESSAGE
             }
             addColumnConfig.position = position
         }
@@ -115,8 +112,7 @@ class IColumnDsl<out COLUMN_CONFIG : ColumnConfig>(
 
         block?.let {
             val constraintDsl = ConstraintDsl(changeLog)
-            it(constraintDsl)
-            column.constraints = constraintDsl.constraint
+            column.constraints = constraintDsl(it)
         }
         _columns.add(column)
     }
@@ -127,21 +123,20 @@ class IColumnDsl<out COLUMN_CONFIG : ColumnConfig>(
             change as AbstractModifyDataChange
             change.where = expandedWhereClause
         } catch (e: ClassCastException) {
-            throw ChangeLogParseException(
-                "ChangeSet '$changeSetId': a where clause is invalid for '$changeName' changes.",
-                e,
+            throw IllegalArgumentException(
+                NOT_ALLOW_WHERE_MESSAGE,
+                e
             )
         }
     }
 
     fun whereParams(block: WhereParamsDsl.() -> Unit) {
         change as AbstractModifyDataChange
-        val whereParamsDsl =
-            WhereParamsDsl(
-                changeLog = changeLog,
-                change = change,
-            )
-        whereParamsDsl.block()
+        val dsl = WhereParamsDsl(changeLog,)
+        val params = dsl(block)
+        params.forEach { columnConfig ->
+            change.addWhereParam(columnConfig)
+        }
     }
 }
 
@@ -149,3 +144,6 @@ class IColumnDsl<out COLUMN_CONFIG : ColumnConfig>(
 typealias ColumnDsl = IColumnDsl<ColumnConfig>
 typealias AddColumnDsl = IColumnDsl<AddColumnConfig>
 typealias LoadDataColumnDsl = IColumnDsl<LoadDataColumnConfig>
+
+const val NOT_ALLOW_COLUMNS_MESSAGE = "columns are not allowed"
+const val NOT_ALLOW_WHERE_MESSAGE = "where clause is invalid"

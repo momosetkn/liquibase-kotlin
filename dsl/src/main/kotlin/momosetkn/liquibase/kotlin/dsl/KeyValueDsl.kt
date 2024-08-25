@@ -2,7 +2,14 @@ package momosetkn.liquibase.kotlin.dsl
 
 @ChangeLogDslMarker
 class KeyValueDsl {
-    internal var map = mutableMapOf<String, Any?>()
+    private var map = mutableMapOf<String, Any?>()
+
+    internal operator fun invoke(
+        block: KeyValueDsl.() -> Unit,
+    ): Map<String, Any?> {
+        block(this)
+        return map
+    }
 
     fun param(
         name: String,

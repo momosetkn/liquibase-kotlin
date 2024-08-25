@@ -1,7 +1,6 @@
 package momosetkn.liquibase.kotlin.dsl
 
 import liquibase.changelog.DatabaseChangeLog
-import liquibase.exception.ChangeLogParseException
 import liquibase.precondition.CustomPreconditionWrapper
 import liquibase.precondition.Precondition
 import liquibase.precondition.PreconditionLogic
@@ -20,17 +19,20 @@ import kotlin.reflect.KClass
 class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
     private val changeLog: DatabaseChangeLog,
     private val buildPreconditionContainer: () -> PRECONDITION_LOGIC,
-    private val changeSetId: String = "<unknown>", // used for error messages
 ) {
     @Suppress("ktlint:standard:backing-property-naming")
     private val _preConditions: MutableList<Precondition> = mutableListOf()
-    internal val preconditionContainer: PRECONDITION_LOGIC
-        get() =
-            buildPreconditionContainer().apply {
-                _preConditions.forEach {
-                    addNestedPrecondition(it)
-                }
+
+    internal operator fun invoke(
+        block: PreConditionDsl<PRECONDITION_LOGIC>.() -> Unit
+    ): PRECONDITION_LOGIC {
+        block(this)
+        return buildPreconditionContainer().apply {
+            _preConditions.forEach {
+                addNestedPrecondition(it)
             }
+        }
+    }
 
     fun sqlCheck(
         expectedResult: Any?,
@@ -55,13 +57,11 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
 
         val overrideClassName =
             `class` ?: clazz ?: className
-                ?: throw ChangeLogParseException(
-                    "ChangeSet '$changeSetId': 'Should specify either 'class' or 'clazz' or 'className' property for 'customPrecondition' preConditions.",
-                )
+                ?: error(SHOULD_SPECIFY_CLASS_MESSAGE)
         precondition.className = overrideClassName.expandExpressions(changeLog)
         val dsl = KeyValueDsl()
-        block(dsl)
-        dsl.map.forEach { (key, value) ->
+        val map = dsl(block)
+        map.forEach { (key, value) ->
             val expandedValue = value.expandExpressions(changeLog)
             precondition.setParam(key, expandedValue)
         }
@@ -97,8 +97,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
                         .newInstance()
                 },
             )
-        block(dsl)
-        return dsl.preconditionContainer
+        return dsl(block)
     }
 
     companion object {
@@ -140,3 +139,6 @@ data class PreconditionContainerContext(
 
 typealias RootPreConditionDsl = PreConditionDsl<PreconditionContainer>
 typealias NestedPreConditionDsl = PreConditionDsl<PreconditionLogic>
+
+const val SHOULD_SPECIFY_CLASS_MESSAGE =
+    "Should specify either 'class' or 'clazz' or 'className' property for 'customPrecondition' preConditions"

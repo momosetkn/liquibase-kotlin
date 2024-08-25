@@ -7,7 +7,14 @@ import liquibase.changelog.DatabaseChangeLog
 class ConstraintDsl(
     private val changeLog: DatabaseChangeLog,
 ) {
-    internal val constraint: ConstraintsConfig = ConstraintsConfig()
+    private val constraint: ConstraintsConfig = ConstraintsConfig()
+
+    internal operator fun invoke(
+        block: ConstraintDsl.() -> Unit,
+    ): ConstraintsConfig {
+        block(this)
+        return constraint
+    }
 
     fun constraints(
         nullable: Boolean? = null,

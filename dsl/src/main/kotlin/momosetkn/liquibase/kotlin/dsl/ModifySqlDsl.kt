@@ -15,11 +15,15 @@ class ModifySqlDsl(
     private val changeLog: DatabaseChangeLog,
     private val context: ModifySqlContext,
 ) {
-    @Suppress("ktlint:standard:backing-property-naming")
-    private val _sqlVisitors =
+    private val sqlVisitors =
         mutableListOf<SqlVisitor>()
-    internal val sqlVisitors: List<SqlVisitor>
-        get() = _sqlVisitors.toList()
+
+    internal operator fun invoke(
+        block: ModifySqlDsl.() -> Unit,
+    ): List<SqlVisitor> {
+        block(this)
+        return sqlVisitors
+    }
 
     fun prepend(value: String) {
         createSqlVisitor<PrependSqlVisitor>().apply {
@@ -70,7 +74,7 @@ class ModifySqlDsl(
         context.labels?.let { sqlVisitor.labels = it }
         sqlVisitor.isApplyToRollback = context.applyToRollback
 
-        _sqlVisitors.add(sqlVisitor)
+        sqlVisitors.add(sqlVisitor)
         return sqlVisitor
     }
 

@@ -193,8 +193,19 @@ class ChangeLogDsl(
                 changeLog = changeLog,
                 preconditionContainerContext = preconditionContainerContext,
             )
-        block(dsl)
-        changeLog.preconditions = dsl.preconditionContainer
+        kotlin.runCatching {
+            dsl(block)
+        }.fold(
+            onSuccess = {
+                changeLog.preconditions = it
+            },
+            onFailure = {
+                throw ChangeLogParseException(
+                    "changeLogId: ${changeLog.filePath} ${it.message}",
+                    it,
+                )
+            }
+        )
     }
 
     fun property(

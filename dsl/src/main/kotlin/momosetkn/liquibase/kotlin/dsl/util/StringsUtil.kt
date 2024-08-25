@@ -1,6 +1,6 @@
 package momosetkn.liquibase.kotlin.dsl.util
 
-object StringsUtil {
+internal object StringsUtil {
     fun String.splitAndTrim(): List<String> =
         this.split(",").map { it.trim() }.filter { it.isNotEmpty() }
 }

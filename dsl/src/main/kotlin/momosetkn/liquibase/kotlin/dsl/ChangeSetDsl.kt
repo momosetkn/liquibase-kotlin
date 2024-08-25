@@ -92,8 +92,19 @@ class ChangeSetDsl(
                 changeLog = changeLog,
                 preconditionContainerContext = preconditionContainerContext,
             )
-        block(dsl)
-        context.changeSet.preconditions = dsl.preconditionContainer
+        runCatching {
+            dsl(block)
+        }.fold(
+            onSuccess = {
+                context.changeSet.preconditions = it
+            },
+            onFailure = {
+                throw ChangeLogParseException(
+                    "changeSetId: ${context.changeSet.id}. ${it.message}",
+                    it,
+                )
+            }
+        )
     }
 
     fun validCheckSum(checksum: String) {
@@ -1232,8 +1243,8 @@ class ChangeSetDsl(
                 contextFilter = contextFilter ?: context,
                 applyToRollback = applyToRollback,
             )
-        block(dsl)
-        dsl.sqlVisitors.forEach {
+        val sqlVisitors = dsl(block)
+        sqlVisitors.forEach {
             this.context.changeSet.addSqlVisitor(it)
         }
     }
@@ -1270,8 +1281,8 @@ class ChangeSetDsl(
 
         block?.let {
             val dsl = KeyValueDsl()
-            it(dsl)
-            dsl.map.forEach { (key, value) ->
+            val map = dsl(block)
+            map.forEach { (key, value) ->
                 change.setParam(key, value.expandExpressions(changeLog))
             }
         }
@@ -1293,8 +1304,8 @@ class ChangeSetDsl(
         change.setOs(os)
         change.timeout = timeout
         val dsl = ArgumentDsl()
-        block(dsl)
-        dsl.args.forEach {
+        val args = dsl(block)
+        args.forEach {
             change.args.add(it.expandExpressions(changeLog))
         }
         changeSetSupport.addChange(change)
@@ -1330,17 +1341,17 @@ class ChangeSetDsl(
         endDelimiter: String? = null,
         splitStatements: Boolean? = null,
         stripComments: Boolean? = null,
-        block: CommentDsl.() -> String,
+        block: SqlBlockDsl.() -> String,
     ) {
         val change = changeSetSupport.createChange("sql") as RawSQLChange
         change.dbms = dbms
         change.endDelimiter = endDelimiter
         change.isSplitStatements = splitStatements
         change.isStripComments = stripComments
-        val dsl = CommentDsl()
-        val sql = block(dsl)
-        change.sql = sql.expandExpressions(changeLog)
-        change.comment = dsl.comment?.expandExpressions(changeLog)
+        val dsl = SqlBlockDsl()
+        val commentDslResult = dsl(block)
+        change.sql = commentDslResult.sql.expandExpressions(changeLog)
+        change.comment = commentDslResult.comment?.expandExpressions(changeLog)
         changeSetSupport.addChange(change)
     }
 
@@ -1383,8 +1394,6 @@ class ChangeSetDsl(
         val columnDsl = IColumnDsl(
             changeLog = changeLog,
             columnConfigClass = COLUMN_CONFIG::class,
-            changeSetId = changeSet.id,
-            changeName = this.serializedObjectName,
             change = this,
         )
         block(columnDsl)
