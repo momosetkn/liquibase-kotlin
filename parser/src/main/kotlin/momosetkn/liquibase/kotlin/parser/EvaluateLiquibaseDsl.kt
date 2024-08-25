@@ -72,8 +72,8 @@ object EvaluateLiquibaseDsl {
                 }
             }
         }
-        val valueOrThrow = result.valueOrNull()
-        when (val returnValue = valueOrThrow?.returnValue) {
+        val value = result.valueOrNull()
+        when (val returnValue = value?.returnValue) {
             is ResultValue.Value -> log.fine("$filePath name is ${returnValue.name}. value is ${returnValue.value}. type is ${returnValue.type}.")
             is ResultValue.Unit -> log.fine("$filePath returnValue is Unit")
             is ResultValue.Error -> {
