@@ -119,7 +119,7 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
             textBody != null -> {
                 listOf(
                     "$serializedChange {",
-                    indent(wrapQuoteString(textBody!!)),
+                    indent(serializeString(textBody!!)),
                     "}"
                 ).joinToString("\n")
             }
@@ -149,11 +149,11 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
                         is Boolean -> propertyValue.toString()
                         is Number -> propertyValue.toString()
                         is java.sql.Timestamp ->
-                            wrapQuoteString(
+                            serializeString(
                                 isoFormat.format(propertyValue),
                             )
 
-                        else -> wrapQuoteString(propertyValue.toString())
+                        else -> serializeString(propertyValue.toString())
                     }
                 "$propertyName = $propertyString"
             }
@@ -183,18 +183,11 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
         }
     }
 
-    private fun wrapQuoteString(s: String): String {
-        var result = s
-        if (result.startsWith('"')) {
-            result = "\\\"" + result.removePrefix("\"")
-        }
-        if (result.endsWith('"')) {
-            result = result.removeSuffix("\"") + "\\\""
-        }
-        if (s.contains("\"") || s.contains("\\")) {
-            return "\"\"\"$result\"\"\""
-        }
-        return "\"$result\""
+    private fun serializeString(s: String): String {
+        val replaced = s
+            .replace("'", "\\")
+            .replace("\n", "\\n")
+        return "\"${replaced}\""
     }
 
     companion object {
