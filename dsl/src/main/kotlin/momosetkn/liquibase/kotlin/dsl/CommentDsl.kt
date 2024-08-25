@@ -5,11 +5,8 @@ class CommentDsl {
     internal var comment: String? = null
 
     fun comment(value: String) {
-        comment =
-            if (comment != null) {
-                "$comment $value"
-            } else {
-                value
-            }
+        comment = comment?.let {
+            "$it $value"
+        } ?: value
     }
 }
