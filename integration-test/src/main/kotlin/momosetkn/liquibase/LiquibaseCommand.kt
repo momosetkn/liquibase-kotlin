@@ -32,7 +32,6 @@ object LiquibaseCommand {
         executor.shutdown()
     }
 
-    @Suppress("LongParameterList")
     fun command(
         driverClassName: String,
         jdbcUrl: String,
