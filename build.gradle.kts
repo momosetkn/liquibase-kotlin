@@ -8,6 +8,7 @@ val liquibaseKotlinDslVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.10"
+    id("io.gitlab.arturbosch.detekt") version "1.23.6"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
     `maven-publish`
 }
@@ -16,9 +17,24 @@ group = "momosetkn"
 version = "1.0-SNAPSHOT"
 
 allprojects {
+    apply(plugin = "io.gitlab.arturbosch.detekt")
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
     repositories {
         mavenCentral()
         maven { url = URI("https://jitpack.io") }
+    }
+
+    detekt {
+        parallel = true
+        autoCorrect = true
+        config.from("$rootDir/config/detekt/detekt.yml")
+        buildUponDefaultConfig = true
+        basePath = rootDir.absolutePath
+    }
+
+    ktlint {
+        version.set("1.3.1")
     }
 }
 
@@ -57,8 +73,4 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         freeCompilerArgs.addAll(listOf("-Xcontext-receivers", "-Xjvm-default=all"))
     }
-}
-
-ktlint {
-    version.set("1.3.1")
 }
