@@ -18,6 +18,11 @@ dependencies {
     implementation(project(":serializer"))
     implementation(project(":parser"))
 
+    // log
+    implementation("org.slf4j:slf4j-api:2.0.16")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.5.0")
+
     // test
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
@@ -35,4 +40,5 @@ dependencies {
 }
 tasks.test {
     useJUnitPlatform()
+    systemProperty("kotest.framework.classpath.scanning.config.disable", "true")
 }

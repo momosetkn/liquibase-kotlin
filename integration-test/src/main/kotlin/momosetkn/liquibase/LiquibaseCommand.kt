@@ -1,10 +1,13 @@
+package momosetkn.liquibase
+
 import liquibase.integration.commandline.LiquibaseCommandLine
 import java.util.concurrent.Executors
 
 object LiquibaseCommand {
     /**
      * Limit the execution of Liquibase to a single thread.
-     * One reason is to prevent interference between migrators, but there are also the following issues, so it will be executed on a fixed thread.
+     * One reason is to prevent interference between migrators,
+     * but there are also the following issues, so it will be executed on a fixed thread.
      * ```
      * Error below when executing Liquibase in parallel (executing in a different thread from the first execution).
      *
@@ -15,6 +18,7 @@ object LiquibaseCommand {
      */
     private val executor = Executors.newSingleThreadExecutor()
     private val cli = LiquibaseCommandLine()
+    private val log = org.slf4j.LoggerFactory.getLogger(this::class.java)
 
     init {
         Runtime.getRuntime().addShutdownHook(
@@ -28,6 +32,7 @@ object LiquibaseCommand {
         executor.shutdown()
     }
 
+    @Suppress("LongParameterList")
     fun command(
         driverClassName: String,
         jdbcUrl: String,
@@ -37,21 +42,20 @@ object LiquibaseCommand {
         changelogFile: String? = null,
         vararg options: String?,
     ) {
+        val argsList = listOfNotNull(
+            "--show-banner=false",
+            "--log-level=trace",
+            command,
+            changelogFile?.let { "--changelog-file=$changelogFile" },
+            // target
+            "--url=$jdbcUrl",
+            "--driver=$driverClassName",
+            "--username=$user",
+            password?.let { "--password=$it" },
+            // command
+        ) + options.mapNotNull { it }
         executeLiquibaseCommandLine(
-            (
-                listOfNotNull(
-                    "--show-banner=false",
-                    "--log-level=trace",
-                    command,
-                    changelogFile?.let { "--changelog-file=$changelogFile"},
-                    // target
-                    "--url=$jdbcUrl",
-                    "--driver=${driverClassName}",
-                    "--username=${user}",
-                    password?.let { "--password=$it" },
-                    // command
-                ) + options.mapNotNull { it }
-            ).toTypedArray(),
+            argsList.toTypedArray(),
         )
     }
 
@@ -71,7 +75,7 @@ object LiquibaseCommand {
 
     private fun logArgs(args: Array<String>) {
         val maskedArgs = passwordMasking(args)
-        println("execute liquibase. params: ${maskedArgs.joinToString(" ")}")
+        log.info("execute liquibase. params: ${maskedArgs.joinToString(" ")}")
     }
 
     private fun passwordMasking(args: Array<String>): List<String> =

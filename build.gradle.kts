@@ -22,7 +22,6 @@ allprojects {
 
     repositories {
         mavenCentral()
-        maven { url = URI("https://jitpack.io") }
     }
 
     detekt {

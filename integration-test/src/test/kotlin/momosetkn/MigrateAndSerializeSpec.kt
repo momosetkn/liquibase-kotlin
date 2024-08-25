@@ -1,9 +1,9 @@
-package  momosetkn
+package momosetkn
 
 import Database
-import LiquibaseCommand
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import momosetkn.liquibase.LiquibaseCommand
 import java.nio.file.Paths
 
 class MigrateAndSerializeSpec : FunSpec({

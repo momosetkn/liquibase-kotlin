@@ -4,16 +4,16 @@ import org.testcontainers.containers.PostgreSQLContainer
 
 object Database {
     private val log = LoggerFactory.getLogger(this.javaClass.name)
-    private var container: org.testcontainers.containers.PostgreSQLContainer<*>? = null
+    private var container: PostgreSQLContainer<*>? = null
     val startedContainer
         get() =
             requireNotNull(container) {
-                "MySQL is not started"
+                "Database is not started"
             }
 
     fun start() {
         val image = org.testcontainers.utility.DockerImageName.parse("postgres:15.8")
-        container = org.testcontainers.containers.PostgreSQLContainer(image)
+        container = PostgreSQLContainer(image)
 
         val launchTime =
             kotlin.system.measureTimeMillis {
@@ -36,9 +36,12 @@ object Database {
         val commandResult =
             executeCommand(
                 "pg_dump",
-                "-h", "localhost",
-                "-p", PostgreSQLContainer.POSTGRESQL_PORT.toString(),
-                "-U", startedContainer.username,
+                "-h",
+                "localhost",
+                "-p",
+                PostgreSQLContainer.POSTGRESQL_PORT.toString(),
+                "-U",
+                startedContainer.username,
                 "-s",
             )
         check(commandResult.exitCode == 0 && commandResult.stdout.isNotEmpty()) {

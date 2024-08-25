@@ -5,7 +5,6 @@ import liquibase.changelog.ChangeLogParameters
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.exception.ChangeLogParseException
 import liquibase.parser.ChangeLogParser
-import liquibase.parser.ChangeLogParserFactory
 import liquibase.resource.ResourceAccessor
 import java.io.InputStreamReader
 
