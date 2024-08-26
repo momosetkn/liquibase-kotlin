@@ -31,4 +31,5 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    systemProperty("kotest.framework.classpath.scanning.config.disable", "true")
 }
