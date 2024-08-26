@@ -78,8 +78,7 @@ CREATE TABLE public.employee (
     id uuid NOT NULL,
     company_id uuid NOT NULL,
     new_name character varying(256),
-    not_null_name character varying(256) NOT NULL,
-    not_null_name2 character varying(256) NOT NULL
+    not_null_name character varying(256) NOT NULL
 );
 
 

@@ -20,9 +20,6 @@ databaseChangeLog {
             column(name = "not_null_name", type = "VARCHAR(256)") {
                 constraints(nullable = false)
             }
-            column(name = "not_null_name2", type = "VARCHAR(256)") {
-                constraints(nullable = false)
-            }
         }
     }
 
