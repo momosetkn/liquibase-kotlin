@@ -97,10 +97,13 @@ class ChangeSetDsl(
     }
 
     fun rollback(block: ChangeSetDsl.() -> Unit) {
+        val rollbackContext = context.copy(
+            inRollback = true,
+        )
         val dsl =
             ChangeSetDsl(
                 changeLog = changeLog,
-                context = context,
+                context = rollbackContext,
             )
         block(dsl)
     }
@@ -1416,7 +1419,7 @@ class ChangeSetDsl(
     )
 }
 
-class ChangeSetContext(
+data class ChangeSetContext(
     val changeSet: ChangeSet,
     val inRollback: Boolean = false,
 ) {
