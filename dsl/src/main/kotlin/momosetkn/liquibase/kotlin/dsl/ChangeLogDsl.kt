@@ -47,6 +47,7 @@ class ChangeLogDsl(
                 } catch (e: IllegalArgumentException) {
                     throw ChangeLogParseException(
                         "ChangeSet '$id': $it is not a supported ChangeSet ObjectQuotingStrategy",
+                        e
                     )
                 }
             }
