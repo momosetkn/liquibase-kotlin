@@ -47,11 +47,16 @@ import liquibase.change.core.StopChange
 import liquibase.change.core.TagDatabaseChange
 import liquibase.change.core.UpdateDataChange
 import liquibase.change.custom.CustomChangeWrapper
+import liquibase.change.custom.setCustomChange
 import liquibase.changelog.ChangeSet
 import liquibase.changelog.DatabaseChangeLog
+import liquibase.database.Database
 import liquibase.exception.ChangeLogParseException
 import liquibase.exception.RollbackImpossibleException
+import liquibase.exception.ValidationErrors
+import kotlin.reflect.KClass
 
+@Suppress("LargeClass", "TooManyFunctions")
 @ChangeLogDslMarker
 class ChangeSetDsl(
     private val changeLog: DatabaseChangeLog,
@@ -1281,20 +1286,23 @@ class ChangeSetDsl(
 
     // Miscellaneous
     fun customChange(
-        `class`: String? = null,
-        clazz: String? = null, // syntax sugar(Not official)
-        className: String? = null, // syntax sugar(Not official)
+        @Suppress("FunctionParameterNaming")
+        `class`: Any,
         block: (KeyValueDsl.() -> Unit)? = null,
     ) {
+        fun Any?.toClassName(): String? {
+            return when (this) {
+                is KClass<*> -> checkNotNull(this.qualifiedName)
+                null -> null
+                else -> this.toString()
+            }
+        }
         val classOrClazz =
-            `class` ?: clazz ?: className ?: throw ChangeLogParseException(
-                "Should be specify `class` or clazz",
+            `class`.toClassName() ?: throw ChangeLogParseException(
+                "Should be specify `class`",
             )
-        // TODO: create KotlinCustomChangeWrapper
         val change = changeSetSupport.createChange("customChange") as CustomChangeWrapper
-//        change.classLoader = block?.javaClass?.javaClass?.classLoader ?: this::class.java.classLoader
         change.setClass(classOrClazz.expandExpressions(changeLog))
-
         block?.let {
             val dsl = KeyValueDsl()
             val map = wrapChangeLogParseException { dsl(block) }
@@ -1302,8 +1310,33 @@ class ChangeSetDsl(
                 change.setParam(key, value.expandExpressions(changeLog))
             }
         }
-
         changeSetSupport.addChange(change)
+    }
+
+    // TODO: support SqlCustomChange
+    fun customChange(
+        confirmationMessage: String = "custom_change",
+        execute: ((database: Database) -> Unit),
+        validate: ((database: Database) -> ValidationErrors)? = null,
+        rollback: ((database: Database) -> Unit)? = null,
+    ) {
+        val customChangeWrapper = changeSetSupport.createChange("customChange") as CustomChangeWrapper
+        val change = if (rollback != null) {
+            momosetkn.liquibase.kotlin.change.RollbackTaskCustomChange(
+                executeBlock = execute,
+                validateBlock = validate ?: { ValidationErrors() },
+                rollbackBlock = rollback,
+                confirmationMessage = confirmationMessage,
+            )
+        } else {
+            momosetkn.liquibase.kotlin.change.ForwardOnlyTaskCustomChange(
+                executeBlock = execute,
+                validateBlock = validate ?: { ValidationErrors() },
+                confirmationMessage = confirmationMessage,
+            )
+        }
+        customChangeWrapper.setCustomChange(change)
+        changeSetSupport.addChange(customChangeWrapper)
     }
 
     fun empty() {
