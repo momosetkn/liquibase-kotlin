@@ -69,24 +69,12 @@ class ChangeLogDsl(
                 changeLog,
             )
         changeSet.changeLogParameters = changeLog.changeLogParameters
-        failOnError?.also {
-            changeSet.failOnError = it
-        }
-        onValidationFail?.also {
-            changeSet.onValidationFail = ChangeSet.ValidationFailOption.valueOf(it)
-        }
-        labels?.also {
-            changeSet.labels = Labels(it)
-        }
-        created?.also {
-            changeSet.created = it
-        }
-        runOrder?.also {
-            changeSet.runOrder = it
-        }
-        ignore?.also {
-            changeSet.isIgnore = it
-        }
+        failOnError?.also { changeSet.failOnError = it }
+        onValidationFail?.also { changeSet.onValidationFail = ChangeSet.ValidationFailOption.valueOf(it) }
+        labels?.also { changeSet.labels = Labels(it) }
+        created?.also { changeSet.created = it }
+        runOrder?.also { changeSet.runOrder = it }
+        ignore?.also { changeSet.isIgnore = it }
         val changeSetcontext =
             ChangeSetContext(
                 changeSet = changeSet,
@@ -300,14 +288,5 @@ class ChangeLogDsl(
             )
 
         changeLog.changeVisitors.add(overrideChangeVisitor)
-    }
-
-    operator fun get(name: String): Any? {
-        val changeLogParameters = changeLog.changeLogParameters
-        return if (changeLogParameters.hasValue(name, changeLog)) {
-            changeLogParameters.getValue(name, changeLog)
-        } else {
-            throw NoSuchFieldException("Missing property: $name")
-        }
     }
 }
