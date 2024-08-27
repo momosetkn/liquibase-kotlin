@@ -327,6 +327,7 @@ class ChangeSetDsl(
         tableName: String,
         tablespace: String? = null,
         unique: Boolean? = null,
+        block: AddColumnDsl.() -> Unit,
     ) {
         val change = changeSetSupport.createChange("createIndex") as CreateIndexChange
         change.associatedWith = associatedWith
@@ -337,6 +338,8 @@ class ChangeSetDsl(
         change.tableName = tableName
         change.tablespace = tablespace
         change.isUnique = unique
+        val dsl = AddColumnDsl(changeLog)
+        change.columns = wrapChangeLogParseException { dsl(block) }
         changeSetSupport.addChange(change)
     }
 
