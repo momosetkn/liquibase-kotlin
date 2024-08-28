@@ -9,12 +9,17 @@ import liquibase.resource.ResourceAccessor
 import liquibase.statement.SqlStatement
 
 class RollbackSqlCustomChange(
-    private val generateStatementsBlock: ((database: Database) -> Array<SqlStatement>),
-    private val validateBlock: ((database: Database) -> ValidationErrors),
-    private val generateRollbackStatementsBlock: ((database: Database) -> Array<SqlStatement>),
+    private val generateStatementsBlock: context(ParamsContext)
+    (database: Database) -> Array<SqlStatement>,
+    private val validateBlock: context(ParamsContext)
+    (database: Database) -> ValidationErrors,
+    private val generateRollbackStatementsBlock: context(ParamsContext)
+    (database: Database) -> Array<SqlStatement>,
     private val confirmationMessage: String,
+    private val params: Map<String, Any?>?,
 ) : CustomChange, CustomSqlChange, CustomSqlRollback {
     private var resourceAccessor: ResourceAccessor? = null
+    private val paramsContext = ParamsContext(params ?: emptyMap())
 
     override fun getConfirmationMessage(): String {
         return confirmationMessage
@@ -27,14 +32,14 @@ class RollbackSqlCustomChange(
     }
 
     override fun validate(database: Database): ValidationErrors {
-        return validateBlock(database)
+        return validateBlock(paramsContext, database)
     }
 
     override fun generateStatements(database: Database): Array<SqlStatement> {
-        return generateStatementsBlock(database)
+        return generateStatementsBlock(paramsContext, database)
     }
 
     override fun generateRollbackStatements(database: Database): Array<SqlStatement> {
-        return generateRollbackStatementsBlock(database)
+        return generateRollbackStatementsBlock(paramsContext, database)
     }
 }

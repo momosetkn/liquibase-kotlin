@@ -54,6 +54,7 @@ import liquibase.database.Database
 import liquibase.exception.ChangeLogParseException
 import liquibase.exception.RollbackImpossibleException
 import liquibase.exception.ValidationErrors
+import momosetkn.liquibase.kotlin.change.ParamsContext
 import kotlin.reflect.KClass
 
 @Suppress("LargeClass", "TooManyFunctions")
@@ -1319,23 +1320,37 @@ class ChangeSetDsl(
     // TODO: support SqlCustomChange
     fun customChange(
         confirmationMessage: String = "custom_change",
-        execute: ((database: Database) -> Unit),
-        validate: ((database: Database) -> ValidationErrors)? = null,
-        rollback: ((database: Database) -> Unit)? = null,
+        execute: context(ParamsContext)
+        (database: Database) -> Unit,
+        validate: (
+            context(ParamsContext)
+            (database: Database) -> ValidationErrors
+        )? = null,
+        rollback: (
+            context(ParamsContext)
+            (database: Database) -> Unit
+        )? = null,
+        block: (KeyValueDsl.() -> Unit)? = null,
     ) {
         val customChangeWrapper = changeSetSupport.createChange("customChange") as CustomChangeWrapper
+        val params = block?.let {
+            val dsl = KeyValueDsl()
+            wrapChangeLogParseException { dsl(block) }
+        }
         val change = if (rollback != null) {
             momosetkn.liquibase.kotlin.change.RollbackTaskCustomChange(
                 executeBlock = execute,
                 validateBlock = validate ?: { ValidationErrors() },
                 rollbackBlock = rollback,
                 confirmationMessage = confirmationMessage,
+                params = params,
             )
         } else {
             momosetkn.liquibase.kotlin.change.ForwardOnlyTaskCustomChange(
                 executeBlock = execute,
                 validateBlock = validate ?: { ValidationErrors() },
                 confirmationMessage = confirmationMessage,
+                params = params,
             )
         }
         customChangeWrapper.setCustomChange(change)

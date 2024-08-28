@@ -24,6 +24,13 @@ allprojects {
         mavenCentral()
     }
 
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+            freeCompilerArgs.addAll(listOf("-Xcontext-receivers", "-Xjvm-default=all"))
+        }
+    }
+
     detekt {
         parallel = true
         autoCorrect = true
@@ -67,10 +74,3 @@ configure(libraryProjects) {
 }
 
 dependencies {}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-        freeCompilerArgs.addAll(listOf("-Xcontext-receivers", "-Xjvm-default=all"))
-    }
-}

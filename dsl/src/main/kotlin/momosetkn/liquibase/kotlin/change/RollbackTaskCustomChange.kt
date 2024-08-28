@@ -8,12 +8,17 @@ import liquibase.exception.ValidationErrors
 import liquibase.resource.ResourceAccessor
 
 class RollbackTaskCustomChange(
-    private val executeBlock: ((database: Database) -> Unit),
-    private val validateBlock: ((database: Database) -> ValidationErrors),
-    private val rollbackBlock: ((database: Database) -> Unit),
+    private val executeBlock: context(ParamsContext)
+    (database: Database) -> Unit,
+    private val validateBlock: context(ParamsContext)
+    (database: Database) -> ValidationErrors,
+    private val rollbackBlock: context(ParamsContext)
+    (database: Database) -> Unit,
     private val confirmationMessage: String,
+    private val params: Map<String, Any?>?,
 ) : CustomChange, CustomTaskChange, CustomTaskRollback {
     private var resourceAccessor: ResourceAccessor? = null
+    private val paramsContext = ParamsContext(params ?: emptyMap())
     private var alreadyRollbackFlg = false
     override fun getConfirmationMessage(): String {
         return confirmationMessage
@@ -26,17 +31,17 @@ class RollbackTaskCustomChange(
     }
 
     override fun validate(database: Database): ValidationErrors {
-        return validateBlock(database)
+        return validateBlock(paramsContext, database)
     }
 
     override fun execute(database: Database) {
-        executeBlock(database)
+        executeBlock(paramsContext, database)
     }
 
     override fun rollback(database: Database) {
         // FIXME: CustomTaskRollback has a bug that causes it to be rolled back twice, but there is a workaround.
         if (!alreadyRollbackFlg) {
-            rollbackBlock(database)
+            rollbackBlock(paramsContext, database)
             alreadyRollbackFlg = true
         }
     }
