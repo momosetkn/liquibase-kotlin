@@ -2,9 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>InvalidPackageDeclaration:KotlinChangeLogSerializer.kt$package momosetkn.liquibase.kotlin.serializer</ID>
-    <ID>LongMethod:KotlinChangeLogSerializer.kt$KotlinChangeLogSerializer$private fun prettySerialize(change: LiquibaseSerializable): String</ID>
-    <ID>MaxLineLength:KotlinChangeLogSerializer.kt$KotlinChangeLogSerializer$serializationType == LiquibaseSerializable.SerializationType.NESTED_OBJECT || fieldValue is ConstraintsConfig</ID>
-    <ID>NestedBlockDepth:KotlinChangeLogSerializer.kt$KotlinChangeLogSerializer$private fun prettySerialize(change: LiquibaseSerializable): String</ID>
+    <ID>InvalidPackageDeclaration:KotlinTypesafeChangeLogSerializer.kt$package momosetkn.liquibase.kotlin.serializer</ID>
   </CurrentIssues>
 </SmellBaseline>

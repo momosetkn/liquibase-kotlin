@@ -2,13 +2,12 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>ForbiddenComment:TypesafeKotlinChangeLogDslOverride.kt$TypesafeKotlinChangeLogDslOverride$* * TODO: same way to [liquibase.changelog.DatabaseChangeLog.findResources]</ID>
-    <ID>ForbiddenComment:TypesafeKotlinChangeLogDslOverride.kt$TypesafeKotlinChangeLogDslOverride$// TODO: relative</ID>
-    <ID>MaxLineLength:TypesafeKotlinChangeLogDslOverride.kt$TypesafeKotlinChangeLogDslOverride$val currentChangeLog = parser.parse(normalizedFilePath, sourceChangeLog.changeLogParameters, resourceAccessor)</ID>
-    <ID>TooGenericExceptionCaught:TypesafeKotlinChangeLogDslOverride.kt$TypesafeKotlinChangeLogDslOverride$e: Exception</ID>
-    <ID>UnusedParameter:TypesafeKotlinChangeLogDslOverride.kt$TypesafeKotlinChangeLogDslOverride$errorIfMissing: Boolean</ID>
-    <ID>UnusedParameter:TypesafeKotlinChangeLogDslOverride.kt$TypesafeKotlinChangeLogDslOverride$isRelativePath: Boolean</ID>
-    <ID>UnusedParameter:TypesafeKotlinChangeLogDslOverride.kt$TypesafeKotlinChangeLogDslOverride$modifyChangeSets: ModifyChangeSets?</ID>
-    <ID>UnusedParameter:TypesafeKotlinChangeLogDslOverride.kt$TypesafeKotlinChangeLogDslOverride$onUnknownFileFormat: OnUnknownFileFormat</ID>
+    <ID>ForbiddenComment:KotlinTypesafeChangeLogDslOverride.kt$KotlinTypesafeChangeLogDslOverride$* * TODO: same way to [liquibase.changelog.DatabaseChangeLog.findResources]</ID>
+    <ID>ForbiddenComment:KotlinTypesafeChangeLogDslOverride.kt$KotlinTypesafeChangeLogDslOverride$// TODO: relative</ID>
+    <ID>TooGenericExceptionCaught:KotlinTypesafeChangeLogDslOverride.kt$KotlinTypesafeChangeLogDslOverride$e: Exception</ID>
+    <ID>UnusedParameter:KotlinTypesafeChangeLogDslOverride.kt$KotlinTypesafeChangeLogDslOverride$errorIfMissing: Boolean</ID>
+    <ID>UnusedParameter:KotlinTypesafeChangeLogDslOverride.kt$KotlinTypesafeChangeLogDslOverride$isRelativePath: Boolean</ID>
+    <ID>UnusedParameter:KotlinTypesafeChangeLogDslOverride.kt$KotlinTypesafeChangeLogDslOverride$modifyChangeSets: ModifyChangeSets?</ID>
+    <ID>UnusedParameter:KotlinTypesafeChangeLogDslOverride.kt$KotlinTypesafeChangeLogDslOverride$onUnknownFileFormat: OnUnknownFileFormat</ID>
   </CurrentIssues>
 </SmellBaseline>

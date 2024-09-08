@@ -43,6 +43,7 @@ class KotlinTypesafeLiquibaseChangeLogParser : ChangeLogParser {
         typesafeDatabaseChangeLog.body(dsl)
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun getTypesafeDatabaseChangeLog(databaseChangeLog: DatabaseChangeLog): KotlinTypesafeDatabaseChangeLog {
         // not support .java, .scala
         val className = databaseChangeLog.physicalFilePath.removeSuffix(".kt")

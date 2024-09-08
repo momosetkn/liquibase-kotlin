@@ -14,7 +14,6 @@ import liquibase.precondition.core.PreconditionContainer
 import liquibase.resource.ResourceAccessor
 import momosetkn.liquibase.kotlin.dsl.overridable.ChangeLogDslOverride
 import java.util.Collections
-import kotlin.reflect.full.declaredMemberProperties
 
 class KotlinTypesafeChangeLogDslOverride(
     private val sourceChangeLog: DatabaseChangeLog,
@@ -41,7 +40,6 @@ class KotlinTypesafeChangeLogDslOverride(
         val includeContexts = ContextExpression(contextFilterOrContext)
         val typedLabels = labels?.let { Labels(it) }
         val modifyChangeSets = null
-        //  [liquibase.changelog.DatabaseChangeLog.includeAll]
         val resources = getResources(path)
 
         if (resources.isEmpty() && errorIfMissingOrEmpty) {
@@ -75,13 +73,6 @@ class KotlinTypesafeChangeLogDslOverride(
             throw SetupException(e)
         }
     }
-
-    val rootChangeLogThreadLocalProperty = DatabaseChangeLog::class.java
-        .getDeclaredField("ROOT_CHANGE_LOG")
-        .apply { isAccessible = true }
-    val parentChangeLogThreadLocalProperty = DatabaseChangeLog::class.java
-        .getDeclaredField("PARENT_CHANGE_LOG")
-        .apply { isAccessible = true }
 
     override fun include(
         file: String,
@@ -122,13 +113,6 @@ class KotlinTypesafeChangeLogDslOverride(
 //        }
         val normalizedFilePath = fileName
 
-        DatabaseChangeLog::class.declaredMemberProperties
-        val rootChangeLogThreadLocal =
-            rootChangeLogThreadLocalProperty.get(sourceChangeLog) as ThreadLocal<DatabaseChangeLog>
-        val parentChangeLogThreadLocal =
-            parentChangeLogThreadLocalProperty.get(sourceChangeLog) as ThreadLocal<DatabaseChangeLog>
-
-//        val changeLog: DatabaseChangeLog
         try {
             val rootChangeLog = rootChangeLogThreadLocal.get()
             if (rootChangeLog == null) {
@@ -140,7 +124,8 @@ class KotlinTypesafeChangeLogDslOverride(
                 val parser = ChangeLogParserFactory.getInstance().getParser(normalizedFilePath, resourceAccessor)
 
                 // not support modifyChangeLog
-                val currentChangeLog = parser.parse(normalizedFilePath, sourceChangeLog.changeLogParameters, resourceAccessor)
+                val currentChangeLog =
+                    parser.parse(normalizedFilePath, sourceChangeLog.changeLogParameters, resourceAccessor)
                 currentChangeLog.includeContextFilter = includeContextFilter
                 currentChangeLog.includeLabels = labels
                 currentChangeLog.isIncludeIgnore = ignore ?: false
@@ -163,6 +148,7 @@ class KotlinTypesafeChangeLogDslOverride(
                 sourceChangeLog.preconditions.addNestedPrecondition(preconditions)
             }
             for (changeSet in currentChangeLog.changeSets) {
+                // not support modifyChangeLog
 //            if (modifyChangeSets != null) {
                 // private method
 //                sourceChangeLog.modifyChangeSets(modifyChangeSets, changeSet)
@@ -189,5 +175,23 @@ class KotlinTypesafeChangeLogDslOverride(
             .map { it.name + ".kt" }
             .sorted() // same to includeAll order
         return files
+    }
+
+    companion object {
+        @Suppress("UNCHECKED_CAST")
+        val rootChangeLogThreadLocal = run {
+            val rootChangeLogThreadLocalProperty = DatabaseChangeLog::class.java
+                .getDeclaredField("ROOT_CHANGE_LOG")
+                .apply { isAccessible = true }
+            rootChangeLogThreadLocalProperty.get(DatabaseChangeLog()) as ThreadLocal<DatabaseChangeLog>
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        val parentChangeLogThreadLocal = run {
+            val parentChangeLogThreadLocalProperty = DatabaseChangeLog::class.java
+                .getDeclaredField("PARENT_CHANGE_LOG")
+                .apply { isAccessible = true }
+            parentChangeLogThreadLocalProperty.get(DatabaseChangeLog()) as ThreadLocal<DatabaseChangeLog>
+        }
     }
 }
