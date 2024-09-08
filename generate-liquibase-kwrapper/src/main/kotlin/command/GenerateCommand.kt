@@ -4,13 +4,22 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
 fun generateCommand(uri: String): String {
+    val isCheck = uri.startsWith("https://docs.liquibase.com/commands/quality-checks")
     val doc =
         Jsoup
             .connect(
                 uri,
             ).get()
     println(doc.title())
-    val command = doc.select("h1")[0].text()
+    val h1 = doc.select("h1")[0].text()
+    val command = if (isCheck) {
+        "check $h1"
+    } else {
+        h1
+    }
+    val commandArray = command
+        .split(" ")
+        .joinToString("") { "\"$it\"," }
     val methodName = command.toCamelCase()
     val tables = doc.select("#cli > table")
     val items = tables.flatMap { table ->
@@ -29,10 +38,10 @@ fun generateCommand(uri: String): String {
         }
     val assignParams =
         items.joinToString("\n") {
-            val body = "\"${it.liquibaseName}=\$${it.name}\""
             if (it.required) {
-                body
+                "\"${it.liquibaseName}=\$${it.name}\""
             } else {
+                val body = "\"${it.liquibaseName}=\$it\""
                 "${it.name}?.let { $body }"
             } + ","
         }
@@ -41,7 +50,7 @@ fun generateCommand(uri: String): String {
                 $formatedArgs
             ) {
                 val argsList = listOfNotNull(
-                                "$command",
+                                $commandArray
                                 $assignParams
                                 )
         executeLiquibaseCommandLine(
