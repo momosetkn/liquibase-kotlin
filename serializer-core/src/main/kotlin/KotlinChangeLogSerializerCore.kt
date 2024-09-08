@@ -14,14 +14,14 @@ class KotlinChangeLogSerializerCore {
     private val isoFormat = ISODateFormat()
     private val getterMethodMap = ConcurrentHashMap<KClass<*>, Map<String, KFunction<*>>>()
 
-    fun serializeChange(
+    @Suppress("NestedBlockDepth")
+    fun serializeLiquibaseSerializable(
         change: LiquibaseSerializable,
         indentLevel: Int = 0,
     ): String {
         val fields = change.serializableFields
         val children = mutableListOf<String>()
         val attributes = mutableSetOf<String>()
-        var textBody: String? = null
 
         fields.forEach { field ->
             val fieldValue = change.getSerializableFieldValue(field)
@@ -30,16 +30,18 @@ class KotlinChangeLogSerializerCore {
                 when {
                     fieldValue is Collection<*> -> {
                         fieldValue.filterIsInstance<LiquibaseSerializable>().forEach {
-                            children.add(serializeChange(it))
+                            children.add(serializeLiquibaseSerializable(it))
                         }
                     }
 
-                    serializationType == LiquibaseSerializable.SerializationType.NESTED_OBJECT || fieldValue is ConstraintsConfig -> {
-                        children.add(serializeChange(fieldValue as LiquibaseSerializable))
+                    serializationType == LiquibaseSerializable.SerializationType.NESTED_OBJECT ||
+                        fieldValue is ConstraintsConfig -> {
+                        children.add(serializeLiquibaseSerializable(fieldValue as LiquibaseSerializable))
                     }
 
                     serializationType == LiquibaseSerializable.SerializationType.DIRECT_VALUE -> {
-                        textBody = fieldValue.toString()
+                        children.clear()
+                        children.add(serializeString(fieldValue.toString()))
                     }
 
                     serializationType == LiquibaseSerializable.SerializationType.NAMED_FIELD -> {
@@ -65,32 +67,29 @@ class KotlinChangeLogSerializerCore {
                 change.serializedObjectName
             }
 
-        val body = when {
-            children.isNotEmpty() -> {
-                val renderedChildren = children.joinToString("\n") { indent(it) }
-                listOf(
-                    "$serializedChange {",
-                    renderedChildren,
-                    "}"
-                ).joinToString("\n")
-            }
-
-            textBody != null -> {
-                listOf(
-                    "$serializedChange {",
-                    indent(serializeString(textBody!!)),
-                    "}"
-                ).joinToString("\n")
-            }
-
-            else -> serializedChange
-        }
+        val body = wrapBlock(children = children, serializedChange = serializedChange)
         return (1..indentLevel).fold(body) { acc, _ ->
             indent(acc)
         }
     }
 
-    fun indent(text: String?): String {
+    private fun wrapBlock(
+        children: List<String>,
+        serializedChange: String,
+    ): String = when {
+        children.isNotEmpty() -> {
+            val renderedChildren = children.joinToString("\n") { indent(it) }
+            listOf(
+                "$serializedChange {",
+                renderedChildren,
+                "}"
+            ).joinToString("\n")
+        }
+
+        else -> serializedChange
+    }
+
+    private fun indent(text: String?): String {
         return text
             ?.lineSequence()
             ?.joinToString("\n") {

@@ -19,7 +19,7 @@ class KotlinTypesafeChangeLogSerializer : ChangeLogSerializer {
         require(pretty) {
             "'pretty = false' is not allowed"
         }
-        return kotlinChangeLogSerializerCore.serializeChange(serializable)
+        return kotlinChangeLogSerializerCore.serializeLiquibaseSerializable(serializable)
     }
 
     override fun <T : ChangeLogChild> write(
@@ -34,7 +34,7 @@ class KotlinTypesafeChangeLogSerializer : ChangeLogSerializer {
             val className = getClassName(changeSets)
             out.write("class $className : TypesafeDatabaseChangeLog({\n".toByteArray())
             changeSets.forEach { changeSet ->
-                val line = kotlinChangeLogSerializerCore.serializeChange(
+                val line = kotlinChangeLogSerializerCore.serializeLiquibaseSerializable(
                     change = changeSet,
                     indentLevel = 1,
                 ) + "\n\n"
