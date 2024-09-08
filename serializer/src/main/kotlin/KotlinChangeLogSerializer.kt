@@ -28,7 +28,7 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
         require(pretty) {
             "'pretty = false' is not allowed"
         }
-        return prettySerialize(serializable)
+        return serializeChange(serializable)
     }
 
     override fun <T : ChangeLogChild> write(
@@ -38,7 +38,7 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
         out.use {
             out.write("databaseChangeLog {\n".toByteArray())
             changeSets.forEach {
-                val line = indent(prettySerialize(it)) + "\n\n"
+                val line = indent(serializeChange(it)) + "\n\n"
                 out.write(line.toByteArray())
             }
             out.write("}\n".toByteArray())
@@ -55,7 +55,7 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
             """.trimIndent(),
         )
 
-    private fun prettySerialize(change: LiquibaseSerializable): String {
+    private fun serializeChange(change: LiquibaseSerializable): String {
         val fields = change.serializableFields
         val children = mutableListOf<String>()
         val attributes = mutableSetOf<String>()
@@ -68,12 +68,12 @@ class KotlinChangeLogSerializer : ChangeLogSerializer {
                 when {
                     fieldValue is Collection<*> -> {
                         fieldValue.filterIsInstance<LiquibaseSerializable>().forEach {
-                            children.add(prettySerialize(it))
+                            children.add(serializeChange(it))
                         }
                     }
 
                     serializationType == LiquibaseSerializable.SerializationType.NESTED_OBJECT || fieldValue is ConstraintsConfig -> {
-                        children.add(prettySerialize(fieldValue as LiquibaseSerializable))
+                        children.add(serializeChange(fieldValue as LiquibaseSerializable))
                     }
 
                     serializationType == LiquibaseSerializable.SerializationType.DIRECT_VALUE -> {
