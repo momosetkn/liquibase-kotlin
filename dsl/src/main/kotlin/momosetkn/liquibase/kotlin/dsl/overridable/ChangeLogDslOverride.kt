@@ -25,6 +25,4 @@ interface ChangeLogDslOverride {
         labels: String?,
         relativeToChangelogFile: Boolean,
     )
-
-    // TODO: include method
 }
