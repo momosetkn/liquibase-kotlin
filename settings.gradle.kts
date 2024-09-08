@@ -1,5 +1,3 @@
-// for kotlin-dsl develop
-include("generate-liquibase-kwrapper")
 // integration-test
 include("integration-test")
 
