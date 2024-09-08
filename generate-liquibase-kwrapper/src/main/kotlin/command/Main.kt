@@ -114,7 +114,16 @@ private fun code(): String {
 private fun writeFile(codeString: String) {
     val file = File("generate-liquibase-kwrapper/src/main/kotlin/command", "KLiquibaseCommand.kt")
     PrintWriter(file).use { out ->
-        out.println("class A {")
+        out.println(
+            """
+            package momosetkn.liquibase
+
+            import momosetkn.liquibase.LiquibaseCommandInstance.executeLiquibaseCommandLine
+
+            @Suppress("LargeClass", "TooManyFunctions")
+            object LiquibaseCommandFunctions {
+            """.trimIndent()
+        )
         out.println(codeString)
         out.println("}")
     }

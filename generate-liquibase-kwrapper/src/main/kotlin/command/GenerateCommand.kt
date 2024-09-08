@@ -45,7 +45,27 @@ fun generateCommand(uri: String): String {
                 "${it.name}?.let { $body }"
             } + ","
         }
-    return """
+    return format(
+        command = command,
+        uri = uri,
+        methodName = methodName,
+        formatedArgs = formatedArgs,
+        commandArray = commandArray,
+        assignParams = assignParams
+    )
+}
+
+private fun format(
+    command: String?,
+    uri: String,
+    methodName: String,
+    formatedArgs: String,
+    commandArray: String,
+    assignParams: String
+) = """
+        /**
+        * [$command]($uri)
+        */
             fun $methodName(
                 $formatedArgs
             ) {
@@ -57,8 +77,8 @@ fun generateCommand(uri: String): String {
             argsList.toTypedArray(),
         )
             }
-        """.trimIndent()
-}
+
+    """.trimIndent()
 
 private fun item(tr: Element): Item? {
     val td = tr.select("td")
