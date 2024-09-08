@@ -1,13 +1,14 @@
 package momosetkn.liquibase.kotlin.parser
 
 import liquibase.exception.LiquibaseParseException
+import momosetkn.liquibase.kotlin.parser.EvaluateLiquibaseDsl.log
+import momosetkn.liquibase.kotlin.parser.EvaluateLiquibaseDsl.logResult
 import kotlin.script.experimental.api.EvaluationResult
 import kotlin.script.experimental.api.ResultValue
 import kotlin.script.experimental.api.ResultWithDiagnostics
 import kotlin.script.experimental.api.ScriptCompilationConfiguration
 import kotlin.script.experimental.api.ScriptDiagnostic
 import kotlin.script.experimental.api.ScriptEvaluationConfiguration
-import kotlin.script.experimental.api.implicitReceivers
 import kotlin.script.experimental.api.valueOrNull
 import kotlin.script.experimental.api.valueOrThrow
 import kotlin.script.experimental.host.toScriptSource
@@ -17,7 +18,6 @@ import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
 
 class LiquibaseDslCompilationConfiguration :
     ScriptCompilationConfiguration({
-        implicitReceivers(momosetkn.liquibase.kotlin.dsl.ChangeLogBuilderDsl::class)
         jvm {
             dependenciesFromCurrentContext(wholeClasspath = true)
         }
@@ -29,25 +29,22 @@ object EvaluateLiquibaseDsl {
     fun evaluate(
         filePath: String,
         changeLogScript: String,
-        context: momosetkn.liquibase.kotlin.dsl.ChangeLogBuilderDsl,
     ) {
-        val result = evaluateWithConfiguration(changeLogScript, context)
+        val result = evaluateWithConfiguration(filePath = filePath, script = changeLogScript)
         logResult(filePath = filePath, result = result)
     }
 
     private fun evaluateWithConfiguration(
+        filePath: String,
         script: String,
-        context: momosetkn.liquibase.kotlin.dsl.ChangeLogBuilderDsl,
     ): ResultWithDiagnostics<EvaluationResult> {
+        val scriptSource = script.toScriptSource(filePath)
         val compilationConfiguration = LiquibaseDslCompilationConfiguration()
-        val evaluationConfiguration =
-            ScriptEvaluationConfiguration {
-                implicitReceivers(context)
-            }
+        val evaluationConfiguration = ScriptEvaluationConfiguration()
 
         val host = BasicJvmScriptingHost()
 
-        return host.eval(script.toScriptSource(), compilationConfiguration, evaluationConfiguration)
+        return host.eval(scriptSource, compilationConfiguration, evaluationConfiguration)
     }
 
     private fun logResult(
@@ -74,7 +71,9 @@ object EvaluateLiquibaseDsl {
         }
         val value = result.valueOrNull()
         when (val returnValue = value?.returnValue) {
-            is ResultValue.Value -> log.fine("$filePath name is ${returnValue.name}. value is ${returnValue.value}. type is ${returnValue.type}.")
+            is ResultValue.Value -> log.fine(
+                "$filePath name is ${returnValue.name}. value is ${returnValue.value}. type is ${returnValue.type}."
+            )
             is ResultValue.Unit -> log.fine("$filePath returnValue is Unit")
             is ResultValue.Error -> {
                 log.severe("$filePath error", returnValue.error)

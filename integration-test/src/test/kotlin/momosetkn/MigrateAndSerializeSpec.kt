@@ -80,15 +80,15 @@ private fun getResourceAsString(path: String) =
 private fun getFileAsString(path: String) =
     Paths.get(RESOURCE_DIR, path).toFile().readText()
 
-val changeSetRegex = Regex("""changeSet\(author = "(.+)", id = "(\d+)-(\d)"\) \{""")
+private val changeSetRegex = Regex("""changeSet\(author = "(.+)", id = "(\d+)-(\d)"\) \{""")
 
 private fun String.maskingChangeSet() =
     this.replace(changeSetRegex, "changeSet(author = \"**********\", id = \"*************-\$3\") {")
 
-const val PARSER_INPUT_CHANGELOG = "db.changelog/parser_input/db.changelog-0.kts"
-const val SERIALIZER_ACTUAL_CHANGELOG = "db.changelog/serializer_actual/db.changelog-0.kts"
+private const val PARSER_INPUT_CHANGELOG = "db/changelog/parser_input/db.changelog-all.kts"
+private const val SERIALIZER_ACTUAL_CHANGELOG = "db/changelog/serializer_actual/db.changelog-0.kts"
 
 // To avoid auto-formatting, do not add a file extension.
-const val SERIALIZER_EXPECT_CHANGELOG = "db.changelog/serializer_expect/db.changelog-0_kts"
-const val PARSER_EXPECT_DDL = "db.changelog/parser_expect/db.ddl-0.sql"
-const val RESOURCE_DIR = "src/main/resources"
+private const val SERIALIZER_EXPECT_CHANGELOG = "db/changelog/serializer_expect/db.changelog-0_kts"
+private const val PARSER_EXPECT_DDL = "db/changelog/parser_expect/db.ddl-0.sql"
+private const val RESOURCE_DIR = "src/main/resources"

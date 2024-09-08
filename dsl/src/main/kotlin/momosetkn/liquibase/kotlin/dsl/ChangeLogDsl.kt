@@ -92,10 +92,10 @@ class ChangeLogDsl(
         file: String,
         contextFilter: String? = null,
         context: String? = null, // same to contextFilter
-        errorIfMissing: Boolean? = null,
-        ignore: Boolean? = null,
+        errorIfMissing: Boolean = true,
+        ignore: Boolean = false,
         labels: String? = null,
-        relativeToChangelogFile: Boolean? = null,
+        relativeToChangelogFile: Boolean = false,
     ) {
         val fileName =
             changeLog
@@ -122,13 +122,13 @@ class ChangeLogDsl(
         contextFilter: String? = null,
         context: String? = null, // same to contextFilter
         endsWithFilter: String? = null,
-        errorIfMissingOrEmpty: Boolean? = null,
+        errorIfMissingOrEmpty: Boolean = true, // optional
         filter: String? = null,
-        ignore: Boolean? = null,
+        ignore: Boolean = false, // optional
         labels: String? = null,
         maxDepth: Int? = null,
         minDepth: Int? = null,
-        relativeToChangelogFile: Boolean? = null,
+        relativeToChangelogFile: Boolean = false, // optional
         resourceComparator: String? = null,
     ) {
         @Suppress("UNCHECKED_CAST")
@@ -140,23 +140,23 @@ class ChangeLogDsl(
                         it,
                     ).getDeclaredConstructor()
                     .newInstance() as Comparator<String>
-            }
+            } ?: Comparator.comparing { it.replace("WEB-INF/classes/", "") }
         val contextFilterOrContext = contextFilter ?: context
         val includeContexts = ContextExpression(contextFilterOrContext)
         val typedLabels = labels?.let { Labels(it) }
         changeLog.includeAll(
             path,
-            relativeToChangelogFile ?: false,
-            filter as IncludeAllFilter?,
-            errorIfMissingOrEmpty ?: false,
+            relativeToChangelogFile,
+            filter as IncludeAllFilter?, // FIXME
+            errorIfMissingOrEmpty,
             typedResourceComparator,
             resourceAccessor,
             includeContexts,
             typedLabels,
-            ignore as Boolean,
+            ignore,
             minDepth ?: 0,
             maxDepth ?: Integer.MAX_VALUE,
-            endsWithFilter,
+            endsWithFilter ?: "",
             null, // TODO: confirm
         )
     }
