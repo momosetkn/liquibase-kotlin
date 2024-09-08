@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<baseline version="1.0">
+    <file name="src/main/kotlin/momosetkn/liquibase/kotlin/parser/EvaluateLiquibaseDsl.kt">
+        <error line="77" column="46" source="standard:argument-list-wrapping" />
+        <error line="77" column="146" source="standard:argument-list-wrapping" />
+    </file>
+</baseline>

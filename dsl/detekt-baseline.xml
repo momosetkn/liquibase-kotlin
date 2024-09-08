@@ -5,6 +5,7 @@
     <ID>EmptyFunctionBlock:ChangeSetDsl.kt$ChangeSetDsl${ }</ID>
     <ID>ForbiddenComment:ChangeLogDsl.kt$ChangeLogDsl$// TODO: confirm</ID>
     <ID>ForbiddenComment:ChangeLogDsl.kt$ChangeLogDsl$// TODO: set by user</ID>
+    <ID>ForbiddenComment:ChangeLogDslOverride.kt$ChangeLogDslOverride$// TODO: include method</ID>
     <ID>ForbiddenComment:ChangeSetDsl.kt$ChangeSetDsl$// TODO: support SqlCustomChange</ID>
     <ID>ForbiddenComment:PreConditionDsl.kt$PreConditionDsl$// TODO: add other precondition</ID>
     <ID>ForbiddenComment:RollbackTaskCustomChange.kt$RollbackTaskCustomChange$// FIXME: CustomTaskRollback has a bug that causes it to be rolled back twice, but there is a workaround.</ID>

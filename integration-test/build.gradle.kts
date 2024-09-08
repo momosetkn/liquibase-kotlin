@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":dsl"))
     implementation(project(":serializer"))
     implementation(project(":parser"))
+    implementation(project(":typesafe-parser"))
 
     // log
     implementation("org.slf4j:slf4j-api:2.0.16")

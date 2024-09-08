@@ -11,6 +11,7 @@ import liquibase.database.DatabaseList
 import liquibase.database.ObjectQuotingStrategy
 import liquibase.exception.ChangeLogParseException
 import liquibase.resource.ResourceAccessor
+import momosetkn.liquibase.kotlin.dsl.overridable.ChangeLogDslOverride
 import momosetkn.liquibase.kotlin.dsl.util.StringsUtil.splitAndTrim
 import java.util.Properties
 
@@ -18,6 +19,7 @@ import java.util.Properties
 class ChangeLogDsl(
     private val changeLog: DatabaseChangeLog,
     private val resourceAccessor: ResourceAccessor,
+    private val changeLogDslOverride: ChangeLogDslOverride? = null,
 ) {
     fun changeSet(
         author: String,
@@ -97,6 +99,18 @@ class ChangeLogDsl(
         labels: String? = null,
         relativeToChangelogFile: Boolean = false,
     ) {
+        changeLogDslOverride?.also {
+            changeLogDslOverride.include(
+                file = file,
+                contextFilter = contextFilter,
+                context = context,
+                errorIfMissing = errorIfMissing,
+                ignore = ignore,
+                labels = labels,
+                relativeToChangelogFile = relativeToChangelogFile,
+            )
+            return
+        }
         val fileName =
             changeLog
                 .changeLogParameters
@@ -131,6 +145,23 @@ class ChangeLogDsl(
         relativeToChangelogFile: Boolean = false, // optional
         resourceComparator: String? = null,
     ) {
+        changeLogDslOverride?.also {
+            changeLogDslOverride.includeAll(
+                path = path,
+                contextFilter = contextFilter,
+                context = context,
+                endsWithFilter = endsWithFilter,
+                errorIfMissingOrEmpty = errorIfMissingOrEmpty,
+                filter = filter,
+                ignore = ignore,
+                labels = labels,
+                maxDepth = maxDepth,
+                minDepth = minDepth,
+                relativeToChangelogFile = relativeToChangelogFile,
+                resourceComparator = resourceComparator
+            )
+            return
+        }
         @Suppress("UNCHECKED_CAST")
         val typedResourceComparator =
             resourceComparator?.let {

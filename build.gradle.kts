@@ -46,7 +46,7 @@ allprojects {
 
 val libraryProjects =
     subprojects.filter {
-        it.name in listOf("dsl", "parser", "serializer")
+        it.name in listOf("dsl", "parser", "typesafe-parser", "serializer")
     }
 configure(libraryProjects) {
     apply(plugin = "org.jetbrains.kotlin.jvm")

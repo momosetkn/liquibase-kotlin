@@ -4,4 +4,5 @@ include("integration-test")
 // production code
 include("dsl")
 include("parser")
+include("typesafe-parser")
 include("serializer")
