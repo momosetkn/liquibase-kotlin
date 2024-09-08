@@ -31,8 +31,9 @@ class KotlinTypesafeChangeLogSerializer : ChangeLogSerializer {
             if (packageName.isNotEmpty()) {
                 out.write("package $packageName\n\n".toByteArray())
             }
+            out.write("import momosetkn.liquibase.kotlin.parser.KotlinTypesafeDatabaseChangeLog\n\n".toByteArray())
             val className = getClassName(changeSets)
-            out.write("class $className : TypesafeDatabaseChangeLog({\n".toByteArray())
+            out.write("class $className : KotlinTypesafeDatabaseChangeLog({\n".toByteArray())
             changeSets.forEach { changeSet ->
                 val line = kotlinChangeLogSerializerCore.serializeLiquibaseSerializable(
                     change = changeSet,

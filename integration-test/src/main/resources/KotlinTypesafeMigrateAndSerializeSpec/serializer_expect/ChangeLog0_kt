@@ -1,6 +1,8 @@
 package KotlinTypesafeMigrateAndSerializeSpec.serializer_actual
 
-class ChangeLog0 : TypesafeDatabaseChangeLog({
+import momosetkn.liquibase.kotlin.parser.KotlinTypesafeDatabaseChangeLog
+
+class ChangeLog0 : KotlinTypesafeDatabaseChangeLog({
     changeSet(author = "momose (generated)", id = "1725791709915-1") {
         createTable(tableName = "company") {
             column(name = "id", type = "UUID") {
