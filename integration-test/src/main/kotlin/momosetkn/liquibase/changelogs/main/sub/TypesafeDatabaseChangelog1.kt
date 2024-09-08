@@ -1,8 +1,8 @@
 package momosetkn.liquibase.changelogs.main.sub
 
-import momosetkn.liquibase.kotlin.parser.TypesafeDatabaseChangeLog
+import momosetkn.liquibase.kotlin.parser.KotlinTypesafeDatabaseChangeLog
 
-class TypesafeDatabaseChangelog1 : TypesafeDatabaseChangeLog({
+class TypesafeDatabaseChangelog1 : KotlinTypesafeDatabaseChangeLog({
     // employee
     changeSet(author = "momose (generated)", id = "1715520327312-20") {
         createTable(tableName = "employee") {

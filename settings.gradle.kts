@@ -2,7 +2,12 @@
 include("integration-test")
 
 // production code
+// dsl
 include("dsl")
-include("parser")
+// parser
+include("script-parser")
 include("typesafe-parser")
-include("serializer")
+// serializer
+include("serializer-core")
+include("script-serializer")
+include("typesafe-serializer")

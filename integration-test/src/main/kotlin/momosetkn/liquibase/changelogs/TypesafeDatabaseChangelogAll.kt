@@ -1,7 +1,7 @@
 package momosetkn.liquibase.changelogs
 
-import momosetkn.liquibase.kotlin.parser.TypesafeDatabaseChangeLog
+import momosetkn.liquibase.kotlin.parser.KotlinTypesafeDatabaseChangeLog
 
-class TypesafeDatabaseChangelogAll : TypesafeDatabaseChangeLog({
+class TypesafeDatabaseChangelogAll : KotlinTypesafeDatabaseChangeLog({
     includeAll("momosetkn.liquibase.changelogs.main")
 })

@@ -1,0 +1,32 @@
+package KotlinTypesafeMigrateAndSerializeSpec.serializer_actual
+
+class ChangeLog0 : TypesafeDatabaseChangeLog({
+    changeSet(author = "momose (generated)", id = "1725791709915-1") {
+        createTable(tableName = "company") {
+            column(name = "id", type = "UUID") {
+                constraints(nullable = false, primaryKey = true, primaryKeyName = "company_pkey")
+            }
+            column(name = "name", type = "VARCHAR(256)")
+        }
+    }
+
+    changeSet(author = "momose (generated)", id = "1725791709915-2") {
+        createTable(tableName = "employee") {
+            column(name = "id", type = "UUID") {
+                constraints(nullable = false, primaryKey = true, primaryKeyName = "employee_pkey")
+            }
+            column(name = "company_id", type = "UUID") {
+                constraints(nullable = false)
+            }
+            column(name = "new_name", type = "VARCHAR(256)")
+            column(name = "not_null_name", type = "VARCHAR(256)") {
+                constraints(nullable = false)
+            }
+        }
+    }
+
+    changeSet(author = "momose (generated)", id = "1725791709915-3") {
+        addForeignKeyConstraint(baseColumnNames = "company_id", baseTableName = "employee", constraintName = "employee_company_id_fkey", deferrable = false, initiallyDeferred = false, onDelete = "CASCADE", onUpdate = "RESTRICT", referencedColumnNames = "id", referencedTableName = "company", validate = true)
+    }
+
+})

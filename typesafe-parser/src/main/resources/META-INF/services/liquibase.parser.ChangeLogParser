@@ -1,1 +1,1 @@
-momosetkn.liquibase.kotlin.parser.TypesafeKotlinLiquibaseChangeLogParser
+momosetkn.liquibase.kotlin.parser.KotlinTypesafeLiquibaseChangeLogParser

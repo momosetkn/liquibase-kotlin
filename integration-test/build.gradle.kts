@@ -15,8 +15,9 @@ repositories {
 
 dependencies {
     implementation(project(":dsl"))
-    implementation(project(":serializer"))
-    implementation(project(":parser"))
+    implementation(project(":script-serializer"))
+    implementation(project(":typesafe-serializer"))
+    implementation(project(":script-parser"))
     implementation(project(":typesafe-parser"))
 
     // log
