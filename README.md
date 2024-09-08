@@ -10,6 +10,7 @@ Kotlin DSL for Liquibase
 
 ```kotlin
 repositories {
+    // Add below to repositories. because this product is publish to jitpack.
     maven { url = URI("https://jitpack.io") }
 }
 
