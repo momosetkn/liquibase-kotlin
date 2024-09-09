@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":typesafe-serializer"))
     implementation(project(":script-parser"))
     implementation(project(":typesafe-parser"))
+    implementation(project(":client"))
 
     // log
     implementation("org.slf4j:slf4j-api:2.0.16")

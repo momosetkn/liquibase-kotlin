@@ -1,9 +1,9 @@
-package momosetkn.liquibase
+package momosetkn.liquibase.client
 
 import liquibase.integration.commandline.LiquibaseCommandLine
 import java.util.concurrent.Executors
 
-object LiquibaseCommand {
+object LiquibaseCommandExecutor {
     /**
      * Limit the execution of Liquibase to a single thread.
      * One reason is to prevent interference between migrators,
@@ -32,43 +32,18 @@ object LiquibaseCommand {
         executor.shutdown()
     }
 
-    fun command(
-        driverClassName: String,
-        jdbcUrl: String,
-        user: String,
-        password: String?,
-        command: String,
-        changelogFile: String? = null,
-        vararg options: String?,
-    ) {
-        val argsList = listOfNotNull(
-            "--show-banner=false",
-            "--log-level=trace",
-            command,
-            changelogFile?.let { "--changelog-file=$changelogFile" },
-            // target
-            "--url=$jdbcUrl",
-            "--driver=$driverClassName",
-            "--username=$user",
-            password?.let { "--password=$it" },
-            // command
-        ) + options.mapNotNull { it }
-        executeLiquibaseCommandLine(
-            argsList.toTypedArray(),
-        )
-    }
-
-    private fun executeLiquibaseCommandLine(args: Array<String>) {
-        logArgs(args)
+    fun executeLiquibaseCommandLine(args: List<String>) {
+        val typedArgs = args.toTypedArray()
+        logArgs(typedArgs)
         // In the following case, it will terminate the process using System.exit.
         // liquibase.integration.commandline.LiquibaseCommandLine.main
         val future =
             executor.submit<Int> {
-                cli.execute(args)
+                cli.execute(typedArgs)
             }
         val returnCode = future.get()
-        if (returnCode != 0) {
-            error("liquibase command failed, return code: $returnCode")
+        check(returnCode == 0) {
+            "liquibase command failed, return code: $returnCode"
         }
     }
 
@@ -83,7 +58,7 @@ object LiquibaseCommand {
                 arg.startsWith("--password=") ||
                 arg.startsWith("--reference-password=")
             ) {
-                arg.replaceAfter("=", "********")
+                arg.replaceAfter("=", "***masked***")
             } else {
                 arg
             }

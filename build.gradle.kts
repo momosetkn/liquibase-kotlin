@@ -56,6 +56,8 @@ val libraryProjects =
             "serializer-core",
             "script-serializer",
             "typesafe-serializer",
+            // client
+            "client"
         )
     }
 configure(libraryProjects) {

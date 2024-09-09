@@ -2,8 +2,10 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>InvalidPackageDeclaration:GenerateChange.kt$package momosetkn</ID>
-    <ID>InvalidPackageDeclaration:Main.kt$package momosetkn</ID>
+    <ID>InvalidPackageDeclaration:GenerateChange.kt$package momosetkn.change</ID>
+    <ID>InvalidPackageDeclaration:GenerateCommand.kt$package momosetkn.command</ID>
+    <ID>InvalidPackageDeclaration:Main.kt$package momosetkn.change</ID>
+    <ID>InvalidPackageDeclaration:Main.kt$package momosetkn.command</ID>
     <ID>LongMethod:Main.kt$private fun code(): String</ID>
   </CurrentIssues>
 </SmellBaseline>

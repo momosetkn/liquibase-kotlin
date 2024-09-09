@@ -13,3 +13,5 @@ include("typesafe-parser")
 include("serializer-core")
 include("script-serializer")
 include("typesafe-serializer")
+// client
+include("client")

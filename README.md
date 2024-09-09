@@ -25,6 +25,8 @@ dependencies {
     implementation("com.github.momosetkn.liquibase-kotlin-dsl:liquibase-kotlin-dsl:$liquibaseKotlinDslVersion")
     implementation("com.github.momosetkn.liquibase-kotlin-dsl:liquibase-kotlin-typesafe-parser:$liquibaseKotlinDslVersion")
     implementation("com.github.momosetkn.liquibase-kotlin-dsl:liquibase-kotlin-typesafe-serializer:$liquibaseKotlinDslVersion")
+    // If you want to use call liquibase-command by kotlin, add the following code.
+    implementation("com.github.momosetkn.liquibase-kotlin-dsl:liquibase-kotlin-client:$liquibaseKotlinDslVersion")
 }
 ```
 

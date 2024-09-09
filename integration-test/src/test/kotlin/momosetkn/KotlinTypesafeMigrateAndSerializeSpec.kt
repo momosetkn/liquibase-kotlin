@@ -3,8 +3,8 @@ package momosetkn
 import Database
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import momosetkn.liquibase.LiquibaseCommand
 import momosetkn.liquibase.changelogs.TypesafeDatabaseChangelogAll
+import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.kotlin.serializer.KotlinTypesafeChangeLogSerializer
 import java.nio.file.Paths
 
@@ -20,41 +20,37 @@ class KotlinTypesafeMigrateAndSerializeSpec : FunSpec({
     context("Migrate and serialize") {
         test("can migrate") {
             val container = Database.startedContainer
-            LiquibaseCommand.command(
-                driverClassName = "org.postgresql.Driver",
-                jdbcUrl = container.jdbcUrl,
-                user = container.username,
+            LiquibaseClient.update(
+                driver = "org.postgresql.Driver",
+                url = container.jdbcUrl,
+                username = container.username,
                 password = container.password,
-                command = "update",
                 changelogFile = PARSER_INPUT_CHANGELOG,
             )
-            LiquibaseCommand.command(
-                driverClassName = "org.postgresql.Driver",
-                jdbcUrl = container.jdbcUrl,
-                user = container.username,
+            LiquibaseClient.rollback(
+                driver = "org.postgresql.Driver",
+                url = container.jdbcUrl,
+                username = container.username,
                 password = container.password,
-                command = "rollback",
                 changelogFile = PARSER_INPUT_CHANGELOG,
-                "--tag=started",
+                tag = "started",
             )
-            LiquibaseCommand.command(
-                driverClassName = "org.postgresql.Driver",
-                jdbcUrl = container.jdbcUrl,
-                user = container.username,
+            LiquibaseClient.update(
+                driver = "org.postgresql.Driver",
+                url = container.jdbcUrl,
+                username = container.username,
                 password = container.password,
-                command = "update",
                 changelogFile = PARSER_INPUT_CHANGELOG,
             )
             val actualSerializedChangeLogFile =
                 Paths.get(RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
             val f = actualSerializedChangeLogFile.toFile()
             if (f.exists()) f.delete()
-            LiquibaseCommand.command(
-                driverClassName = "org.postgresql.Driver",
-                jdbcUrl = container.jdbcUrl,
-                user = container.username,
+            LiquibaseClient.generateChangelog(
+                driver = "org.postgresql.Driver",
+                url = container.jdbcUrl,
+                username = container.username,
                 password = container.password,
-                command = "generate-changelog",
                 changelogFile = actualSerializedChangeLogFile.toString(),
             )
             val ddl = Database.generateDdl()
