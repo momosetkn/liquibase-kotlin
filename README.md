@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    val liquibaseKotlinDslVersion = "0.2.1"
+    val liquibaseKotlinDslVersion = "0.3.0"
     // You can choose to install either kotlin-script or kotlin-typesafe.
     // for kotlin-script
     implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-dsl:$liquibaseKotlinDslVersion")
