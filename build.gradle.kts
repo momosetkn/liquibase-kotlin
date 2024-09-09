@@ -4,7 +4,7 @@ val kotestVersion: String by project
 val kotlinVersion: String by project
 val liquibaseVersion: String by project
 val artifactIdPrefix: String by project
-val liquibaseKotlinDslVersion: String by project
+val liquibaseKotlinVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.10"
@@ -76,7 +76,7 @@ configure(libraryProjects) {
                 artifact(sourcesJar)
                 groupId = "com.github.momosetkn"
                 artifactId = "$artifactIdPrefix-${project.name}"
-                version = liquibaseKotlinDslVersion
+                version = liquibaseKotlinVersion
             }
         }
         repositories {
