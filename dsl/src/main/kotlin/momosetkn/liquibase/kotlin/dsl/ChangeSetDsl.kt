@@ -1320,15 +1320,12 @@ class ChangeSetDsl(
     // TODO: support SqlCustomChange
     fun customChange(
         confirmationMessage: String = "custom_change",
-        execute: context(ParamsContext)
-        (database: Database) -> Unit,
+        execute: ParamsContext.(database: Database) -> Unit,
         validate: (
-            context(ParamsContext)
-            (database: Database) -> ValidationErrors
+            ParamsContext.(database: Database) -> ValidationErrors
         )? = null,
         rollback: (
-            context(ParamsContext)
-            (database: Database) -> Unit
+            ParamsContext.(database: Database) -> Unit
         )? = null,
         block: (KeyValueDsl.() -> Unit)? = null,
     ) {

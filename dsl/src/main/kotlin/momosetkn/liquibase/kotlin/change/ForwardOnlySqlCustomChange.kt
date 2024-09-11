@@ -8,10 +8,8 @@ import liquibase.resource.ResourceAccessor
 import liquibase.statement.SqlStatement
 
 class ForwardOnlySqlCustomChange(
-    private val generateStatementsBlock: context(ParamsContext)
-    (database: Database) -> Array<SqlStatement>,
-    private val validateBlock: context(ParamsContext)
-    (database: Database) -> ValidationErrors,
+    private val generateStatementsBlock: ParamsContext.(database: Database) -> Array<SqlStatement>,
+    private val validateBlock: ParamsContext.(database: Database) -> ValidationErrors,
     private val confirmationMessage: String,
     private val params: Map<String, Any?>?,
 ) : CustomChange, CustomSqlChange {

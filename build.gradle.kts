@@ -27,7 +27,7 @@ allprojects {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-            freeCompilerArgs.addAll(listOf("-Xcontext-receivers", "-Xjvm-default=all"))
+            freeCompilerArgs.addAll(listOf("-Xjvm-default=all"))
         }
     }
 

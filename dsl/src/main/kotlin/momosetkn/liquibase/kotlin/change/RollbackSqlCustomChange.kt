@@ -9,12 +9,9 @@ import liquibase.resource.ResourceAccessor
 import liquibase.statement.SqlStatement
 
 class RollbackSqlCustomChange(
-    private val generateStatementsBlock: context(ParamsContext)
-    (database: Database) -> Array<SqlStatement>,
-    private val validateBlock: context(ParamsContext)
-    (database: Database) -> ValidationErrors,
-    private val generateRollbackStatementsBlock: context(ParamsContext)
-    (database: Database) -> Array<SqlStatement>,
+    private val generateStatementsBlock: ParamsContext.(database: Database) -> Array<SqlStatement>,
+    private val validateBlock: ParamsContext.(database: Database) -> ValidationErrors,
+    private val generateRollbackStatementsBlock: ParamsContext.(database: Database) -> Array<SqlStatement>,
     private val confirmationMessage: String,
     private val params: Map<String, Any?>?,
 ) : CustomChange, CustomSqlChange, CustomSqlRollback {

@@ -7,10 +7,8 @@ import liquibase.exception.ValidationErrors
 import liquibase.resource.ResourceAccessor
 
 class ForwardOnlyTaskCustomChange(
-    private val executeBlock: context(ParamsContext)
-    (database: Database) -> Unit,
-    private val validateBlock: context(ParamsContext)
-    (database: Database) -> ValidationErrors,
+    private val executeBlock: ParamsContext.(database: Database) -> Unit,
+    private val validateBlock: ParamsContext.(database: Database) -> ValidationErrors,
     private val confirmationMessage: String,
     private val params: Map<String, Any?>?,
 ) : CustomChange, CustomTaskChange {
