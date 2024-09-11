@@ -8,12 +8,10 @@ repositories {
 }
 
 dependencies {
-    // modules
-    implementation(project(":dsl"))
-
-    // db-migration
+    // liquibase-kotlin
+    api(project(":dsl"))
+    // liquibase
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
-
     // kotlin-script
     api("org.jetbrains.kotlin:kotlin-scripting-common:$kotlinVersion")
     api("org.jetbrains.kotlin:kotlin-scripting-jvm:$kotlinVersion")

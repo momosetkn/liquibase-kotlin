@@ -9,21 +9,18 @@ repositories {
 }
 
 dependencies {
-    // modules
-    implementation(project(":dsl"))
-
-    // db-migration
+    // liquibase-kotlin
+    api(project(":dsl"))
+    // liquibase
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
-
     // reflection
-    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+    api("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
+    // Scan classes
+    api("io.github.classgraph:classgraph:$classgraphVersion")
 
     // test
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
-
-    // Scan classes
-    implementation("io.github.classgraph:classgraph:$classgraphVersion")
 }
 
 tasks.test {

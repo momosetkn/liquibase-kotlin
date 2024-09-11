@@ -8,17 +8,16 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":serializer-core"))
-
-    // db-migration
+    // liquibase-kotlin
+    api(project(":serializer-core"))
+    // liquibase
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
+    // reflection
+    api("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
     // test
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
-
-    // reflection
-    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 }
 
 tasks.test {

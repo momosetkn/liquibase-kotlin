@@ -10,13 +10,12 @@ repositories {
 dependencies {
     // db-migration
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
+    // reflection
+    api("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
     // test
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
-
-    // reflection
-    implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 }
 
 tasks.test {

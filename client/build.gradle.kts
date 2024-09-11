@@ -2,9 +2,12 @@ val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
 
 dependencies {
-    // db-migration
+    // liquibase
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
-    implementation("org.slf4j:slf4j-api:2.0.16")
+    // for liquibase-cli
+    api("info.picocli:picocli:4.7.6")
+    // log
+    api("org.slf4j:slf4j-api:2.0.16")
 
     // test
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
