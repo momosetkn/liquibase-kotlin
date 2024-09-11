@@ -15,14 +15,12 @@ dependencies {
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
 
     // kotlin-script
-    implementation("org.jetbrains.kotlin:kotlin-scripting-common:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-scripting-jvm:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-scripting-jvm-host:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-scripting-dependencies:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-scripting-dependencies-maven:$kotlinVersion")
-//    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
-    implementation("org.jetbrains.kotlin:kotlin-script-util:1.8.22")
-//    implementation(kotlin("reflect"))
+    api("org.jetbrains.kotlin:kotlin-scripting-common:$kotlinVersion")
+    api("org.jetbrains.kotlin:kotlin-scripting-jvm:$kotlinVersion")
+    api("org.jetbrains.kotlin:kotlin-scripting-jvm-host:$kotlinVersion")
+    api("org.jetbrains.kotlin:kotlin-scripting-dependencies:$kotlinVersion")
+    api("org.jetbrains.kotlin:kotlin-scripting-dependencies-maven:$kotlinVersion")
+    api("org.jetbrains.kotlin:kotlin-script-util:1.8.22")
 
     // test
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
