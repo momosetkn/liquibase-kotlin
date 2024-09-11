@@ -1,6 +1,6 @@
 # liquibase-kotlin
 
-Kotlin for Liquibase
+Modules for using Liquibase with Kotlin
 
 ## Features
 
@@ -14,6 +14,7 @@ Both have the same syntax for changeSet.
 > kotlin-typesafe module It is cannot integration with existing SQL, XML, YAML, and JSON.
 
 kotlin-typesafe is read KotlinTypesafeDatabaseChangeLog class. don't use file-system. changelog file is specify the ".kt" extension.
+include/includeAll change of kotlin-typesafe, it cannot use other than changeLog of ".kt" extension.
 
 kotlin-script example
 https://github.com/momosetkn/liquibase-kotlin-example/blob/main/liquibase-kotlin-script-example/src/main/kotlin/Main.kt
