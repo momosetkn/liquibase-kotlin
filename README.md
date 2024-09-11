@@ -17,7 +17,7 @@ repositories {
 dependencies {
     // liquibase
     implementation("org.liquibase:liquibase-core:4.29.2")
-    val liquibaseKotlinVersion = "0.3.2"
+    val liquibaseKotlinVersion = "0.3.3"
     // You can choose to install either kotlin-script or kotlin-typesafe.
     // for kotlin-script
     implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-dsl:$liquibaseKotlinVersion")
