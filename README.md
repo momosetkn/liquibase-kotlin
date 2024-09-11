@@ -1,12 +1,35 @@
 # liquibase-kotlin
 
-Kotlin DSL for Liquibase
+Kotlin for Liquibase
+
+## Features
+
+### Kotlin DSL
+
+You can choose between KotlinScript and Kotlin (not script).
+Both have the same syntax for changeSet.
+
+> [!NOTE]
+> kotlin-script module is It is can integration with existing SQL, XML, YAML, and JSON.
+> kotlin-typesafe module It is cannot integration with existing SQL, XML, YAML, and JSON.
+
+kotlin-typesafe is read KotlinTypesafeDatabaseChangeLog class. don't use file-system. changelog file is specify the ".kt" extension.
+
+kotlin-script example
+https://github.com/momosetkn/liquibase-kotlin-example/blob/main/liquibase-kotlin-script-example/src/main/kotlin/Main.kt
+
+kotlin-typesafe example
+https://github.com/momosetkn/liquibase-kotlin-example/blob/main/liquibase-kotlin-typesafe-example/src/main/kotlin/Main.kt
+
+### Kotlin client
+
+Client module can execute Liquibase commands programmatically.
 
 ## Prerequisite
 
 - JDK 17 or later
 
-# How to install
+## How to install
 
 ```kotlin
 repositories {
@@ -32,8 +55,5 @@ dependencies {
 }
 ```
 
-# example
-## kotlin-script
-https://github.com/momosetkn/liquibase-kotlin/blob/main/integration-test/src/main/resources/db.changelog/parser_input/db.changelog-0.kts
-## kotlin-typesafe
-https://github.com/momosetkn/liquibase-kotlin/blob/main/integration-test/src/main/kotlin/momosetkn/liquibase/changelogs/main/sub/TypesafeDatabaseChangelog1.kt
+# example project
+https://github.com/momosetkn/liquibase-kotlin-example
