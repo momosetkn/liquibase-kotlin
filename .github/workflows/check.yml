@@ -1,0 +1,46 @@
+name: check
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: setup gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run test
+        run: ./gradlew check
+
+      - if: cancelled() != true
+        uses: dorny/test-reporter@v1
+        with:
+          name: 'Test Report'
+          path: '**/build/test-results/*/TEST-*.xml'
+          reporter: 'java-junit'
+          fail-on-error: false
+
+      - name: Upload reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test
+          path: ./**/build/reports
