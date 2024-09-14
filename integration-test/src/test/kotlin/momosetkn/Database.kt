@@ -1,3 +1,5 @@
+package momosetkn
+
 import org.slf4j.LoggerFactory
 import org.testcontainers.containers.Container
 import org.testcontainers.containers.PostgreSQLContainer
@@ -8,7 +10,7 @@ object Database {
     val startedContainer
         get() =
             requireNotNull(container) {
-                "Database is not started"
+                "momosetkn.Database is not started"
             }
 
     fun start() {

@@ -1,8 +1,8 @@
 package momosetkn
 
-import Database
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import momosetkn.ResourceUtils.getResourceAsString
 import momosetkn.liquibase.changelogs.TypesafeDatabaseChangelogAll
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.kotlin.serializer.KotlinTypesafeChangeLogSerializer
@@ -69,13 +69,6 @@ class KotlinTypesafeMigrateAndSerializeSpec : FunSpec({
     }
 })
 
-private fun getResourceAsString(path: String) =
-    Thread.currentThread().contextClassLoader.getResourceAsStream(path).let {
-        String(
-            it.readAllBytes()
-        )
-    }
-
 private fun getFileAsString(path: String) =
     Paths.get(RESOURCE_DIR, path).toFile().readText()
 
@@ -84,7 +77,7 @@ private val changeSetRegex = Regex("""changeSet\(author = "(.+)", id = "(\d+)-(\
 private fun String.maskingChangeSet() =
     this.replace(changeSetRegex, "changeSet(author = \"**********\", id = \"*************-\$3\") {")
 
-private val PARSER_INPUT_CHANGELOG = TypesafeDatabaseChangelogAll::class.qualifiedName + ".kt"
+private val PARSER_INPUT_CHANGELOG = TypesafeDatabaseChangelogAll::class.qualifiedName!!
 private const val SERIALIZER_ACTUAL_CHANGELOG = "KotlinTypesafeMigrateAndSerializeSpec/serializer_actual/ChangeLog0.kt"
 
 // To avoid auto-formatting, do not add a file extension.

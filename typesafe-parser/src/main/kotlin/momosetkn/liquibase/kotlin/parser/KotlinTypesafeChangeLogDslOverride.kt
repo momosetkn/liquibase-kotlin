@@ -172,7 +172,7 @@ class KotlinTypesafeChangeLogDslOverride(
             .acceptPackages(path)
             .scan()
         val files = scanResult.allClasses
-            .map { it.name + ".kt" }
+            .map { it.name }
             .sorted() // same to includeAll order
         return files
     }

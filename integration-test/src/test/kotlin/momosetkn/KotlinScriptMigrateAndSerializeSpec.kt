@@ -1,8 +1,8 @@
 package momosetkn
 
-import Database
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import momosetkn.ResourceUtils.getResourceAsString
 import momosetkn.liquibase.client.LiquibaseClient
 import java.nio.file.Paths
 
@@ -65,13 +65,6 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
         }
     }
 })
-
-private fun getResourceAsString(path: String) =
-    Thread.currentThread().contextClassLoader.getResourceAsStream(path).let {
-        String(
-            it.readAllBytes()
-        )
-    }
 
 private fun getFileAsString(path: String) =
     Paths.get(RESOURCE_DIR, path).toFile().readText()
