@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import momosetkn.ResourceUtils.getResourceAsString
 import momosetkn.liquibase.client.LiquibaseClient
+import momosetkn.liquibase.client.LiquibaseGlobalArgs
 import java.nio.file.Paths
 
 class KotlinScriptMigrateAndSerializeSpec : FunSpec({
@@ -16,6 +17,9 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
 
     context("Migrate and serialize") {
         test("can migrate") {
+            LiquibaseClient.globalArgs = LiquibaseGlobalArgs(
+                showBanner = false
+            )
             val container = Database.startedContainer
             LiquibaseClient.update(
                 driver = "org.postgresql.Driver",

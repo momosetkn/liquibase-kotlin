@@ -3,9 +3,12 @@
 package momosetkn.liquibase.client
 
 import momosetkn.liquibase.client.LiquibaseCommandExecutor.executeLiquibaseCommandLine
+import java.time.temporal.TemporalAccessor
 
 @Suppress("LargeClass", "TooManyFunctions")
 object LiquibaseClient {
+    var globalArgs: LiquibaseGlobalArgs? = null
+
     // init
 
     /**
@@ -15,8 +18,9 @@ object LiquibaseClient {
         recursive: Boolean? = null,
         source: String? = null,
         target: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "init",
             "copy",
             recursive?.let { "--recursive=$it" },
@@ -39,8 +43,9 @@ object LiquibaseClient {
         projectGuide: String? = null,
         url: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "init",
             "project",
             changelogFile?.let { "--changelog-file=$it" },
@@ -67,8 +72,9 @@ object LiquibaseClient {
         password: String? = null,
         username: String? = null,
         webPort: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "init",
             "start-h2",
             bindAddress?.let { "--bind-address=$it" },
@@ -109,8 +115,9 @@ object LiquibaseClient {
         showSummary: String? = null,
         showSummaryOutput: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "update",
             liquibaseCatalogName?.let { "--liquibase-catalog-name=$it" },
             liquibaseSchemaName?.let { "--liquibase-schema-name=$it" },
@@ -156,8 +163,9 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "update-sql",
             outputFile?.let { "--output-file=$it" },
             "--changelog-file=$changelogFile",
@@ -202,8 +210,9 @@ object LiquibaseClient {
         showSummary: String? = null,
         showSummaryOutput: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "update-count",
             "--changelog-file=$changelogFile",
             "--count=$count",
@@ -249,8 +258,9 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "update-count-sql",
             outputFile?.let { "--output-file=$it" },
             "--changelog-file=$changelogFile",
@@ -296,8 +306,9 @@ object LiquibaseClient {
         showSummary: String? = null,
         showSummaryOutput: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "update-to-tag",
             "--changelog-file=$changelogFile",
             "--tag=$tag",
@@ -343,8 +354,9 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "update-to-tag-sql",
             outputFile?.let { "--output-file=$it" },
             "--changelog-file=$changelogFile",
@@ -387,8 +399,9 @@ object LiquibaseClient {
         reportPath: String? = null,
         rollbackOnError: Boolean? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "update-testing-rollback",
             "--changelog-file=$changelogFile",
             "--url=$url",
@@ -437,8 +450,9 @@ object LiquibaseClient {
         reportPath: String? = null,
         rollbackOnError: Boolean? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "update-one-changeset",
             "--license-key=$licenseKey",
             "--changelog-file=$changelogFile",
@@ -487,8 +501,9 @@ object LiquibaseClient {
         labelFilter: String? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "update-one-changeset-sql",
             "--license-key=$licenseKey",
             outputFile?.let { "--output-file=$it" },
@@ -535,8 +550,9 @@ object LiquibaseClient {
         rollbackScript: String? = null,
         tagVersion: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "rollback",
             "--changelog-file=$changelogFile",
             "--tag=$tag",
@@ -582,8 +598,9 @@ object LiquibaseClient {
         rollbackScript: String? = null,
         tagVersion: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "rollback-sql",
             outputFile?.let { "--output-file=$it" },
             "--changelog-file=$changelogFile",
@@ -612,7 +629,7 @@ object LiquibaseClient {
      */
     fun rollbackToDate(
         changelogFile: String,
-        date: String,
+        date: TemporalAccessor,
         url: String,
         changeExecListenerClass: String? = null,
         changeExecListenerPropertiesFile: String? = null,
@@ -628,11 +645,12 @@ object LiquibaseClient {
         reportPath: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "rollback-to-date",
             "--changelog-file=$changelogFile",
-            "--date=$date",
+            "--date=${LiquibaseClientConfig.dateTimeFormatter.format(date)}",
             "--url=$url",
             changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
             changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
@@ -658,7 +676,7 @@ object LiquibaseClient {
     fun rollbackToDateSql(
         outputFile: String? = null,
         changelogFile: String,
-        date: String,
+        date: TemporalAccessor,
         url: String,
         changeExecListenerClass: String? = null,
         changeExecListenerPropertiesFile: String? = null,
@@ -673,12 +691,13 @@ object LiquibaseClient {
         password: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "rollback-to-date-sql",
             outputFile?.let { "--output-file=$it" },
             "--changelog-file=$changelogFile",
-            "--date=$date",
+            "--date=${LiquibaseClientConfig.dateTimeFormatter.format(date)}",
             "--url=$url",
             changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
             changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
@@ -718,8 +737,9 @@ object LiquibaseClient {
         reportPath: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "rollback-count",
             "--changelog-file=$changelogFile",
             "--count=$count",
@@ -763,8 +783,9 @@ object LiquibaseClient {
         password: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "rollback-count-sql",
             outputFile?.let { "--output-file=$it" },
             "--changelog-file=$changelogFile",
@@ -804,8 +825,9 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "future-rollback-sql",
             outputFile?.let { "--output-file=$it" },
             "--changelog-file=$changelogFile",
@@ -842,8 +864,9 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "future-rollback-from-tag-sql",
             outputFile?.let { "--output-file=$it" },
             "--changelog-file=$changelogFile",
@@ -881,8 +904,9 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "future-rollback-count-sql",
             outputFile?.let { "--output-file=$it" },
             "--changelog-file=$changelogFile",
@@ -925,8 +949,9 @@ object LiquibaseClient {
         reportPath: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "rollback-one-changeset",
             "--license-key=$licenseKey",
             "--changelog-file=$changelogFile",
@@ -971,8 +996,9 @@ object LiquibaseClient {
         password: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "rollback-one-changeset-sql",
             "--license-key=$licenseKey",
             outputFile?.let { "--output-file=$it" },
@@ -1015,8 +1041,9 @@ object LiquibaseClient {
         reportPath: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "rollback-one-update",
             "--license-key=$licenseKey",
             "--changelog-file=$changelogFile",
@@ -1057,8 +1084,9 @@ object LiquibaseClient {
         password: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "rollback-one-update-sql",
             "--license-key=$licenseKey",
             outputFile?.let { "--output-file=$it" },
@@ -1114,8 +1142,9 @@ object LiquibaseClient {
         reportPath: String? = null,
         schemas: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "diff",
             "--reference-url=$referenceUrl",
             "--url=$url",
@@ -1196,8 +1225,9 @@ object LiquibaseClient {
         schemas: String? = null,
         skipObjectSorting: Boolean? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "diff-changelog",
             "--changelog-file=$changelogFile",
             "--reference-url=$referenceUrl",
@@ -1258,8 +1288,9 @@ object LiquibaseClient {
         snapshotFilters: String? = null,
         snapshotFormat: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "snapshot",
             outputFile?.let { "--output-file=$it" },
             "--url=$url",
@@ -1292,8 +1323,9 @@ object LiquibaseClient {
         referenceUsername: String? = null,
         snapshotFilters: String? = null,
         snapshotFormat: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "snapshot-reference",
             outputFile?.let { "--output-file=$it" },
             "--reference-url=$referenceUrl",
@@ -1340,8 +1372,9 @@ object LiquibaseClient {
         schemas: String? = null,
         skipObjectSorting: Boolean? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "generate-changelog",
             licenseKey?.let { "--license-key=$it" },
             "--url=$url",
@@ -1407,8 +1440,9 @@ object LiquibaseClient {
         reportPath: String? = null,
         schemas: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "diff",
             "JSON",
             "--reference-url=$referenceUrl",
@@ -1460,8 +1494,9 @@ object LiquibaseClient {
         format: String? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "history",
             outputFile?.let { "--output-file=$it" },
             "--url=$url",
@@ -1491,8 +1526,9 @@ object LiquibaseClient {
         password: String? = null,
         username: String? = null,
         verbose: Boolean? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "status",
             "--changelog-file=$changelogFile",
             "--url=$url",
@@ -1524,8 +1560,9 @@ object LiquibaseClient {
         password: String? = null,
         username: String? = null,
         verbose: Boolean? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "unexpected-changesets",
             "--changelog-file=$changelogFile",
             "--url=$url",
@@ -1553,8 +1590,9 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "connect",
             "--url=$url",
             defaultCatalogName?.let { "--default-catalog-name=$it" },
@@ -1586,8 +1624,9 @@ object LiquibaseClient {
         password: String? = null,
         username: String? = null,
         verbose: Boolean? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "dbcl-history",
             "--license-key=$licenseKey",
             dbclhistoryCaptureExtensions?.let { "--dbclhistory-capture-extensions=$it" },
@@ -1625,8 +1664,9 @@ object LiquibaseClient {
         password: String? = null,
         schemas: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "db-doc",
             "--changelog-file=$changelogFile",
             "--output-directory=$outputDirectory",
@@ -1657,8 +1697,9 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "tag",
             "--tag=$tag",
             "--url=$url",
@@ -1685,8 +1726,9 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "tag-exists",
             "--tag=$tag",
             "--url=$url",
@@ -1712,8 +1754,9 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "validate",
             "--changelog-file=$changelogFile",
             "--url=$url",
@@ -1743,8 +1786,9 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "calculate-checksum",
             "--changelog-file=$changelogFile",
             "--url=$url",
@@ -1773,8 +1817,9 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "clear-checksums",
             "--url=$url",
             defaultCatalogName?.let { "--default-catalog-name=$it" },
@@ -1799,8 +1844,9 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "list-locks",
             "--url=$url",
             changelogFile?.let { "--changelog-file=$it" },
@@ -1826,8 +1872,9 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "release-locks",
             "--url=$url",
             changelogFile?.let { "--changelog-file=$it" },
@@ -1855,8 +1902,9 @@ object LiquibaseClient {
         labelFilter: String? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "changelog-sync",
             "--changelog-file=$changelogFile",
             "--url=$url",
@@ -1889,8 +1937,9 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "changelog-sync-sql",
             outputFile?.let { "--output-file=$it" },
             "--changelog-file=$changelogFile",
@@ -1924,8 +1973,9 @@ object LiquibaseClient {
         labelFilter: String? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "changelog-sync-to-tag",
             "--changelog-file=$changelogFile",
             "--tag=$tag",
@@ -1960,8 +2010,9 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "changelog-sync-to-tag-sql",
             outputFile?.let { "--output-file=$it" },
             "--changelog-file=$changelogFile",
@@ -1995,8 +2046,9 @@ object LiquibaseClient {
         labelFilter: String? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "mark-next-changeset-ran",
             "--changelog-file=$changelogFile",
             "--url=$url",
@@ -2027,8 +2079,9 @@ object LiquibaseClient {
         labelFilter: String? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "mark-next-changeset-ran-sql",
             outputFile?.let { "--output-file=$it" },
             "--changelog-file=$changelogFile",
@@ -2060,8 +2113,9 @@ object LiquibaseClient {
         requireForce: Boolean? = null,
         schemas: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "drop-all",
             "--force=$force",
             "--url=$url",
@@ -2093,8 +2147,9 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "execute-sql",
             outputFile?.let { "--output-file=$it" },
             "--sql=$sql",
@@ -2132,8 +2187,9 @@ object LiquibaseClient {
         password: String? = null,
         url: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "set-contexts",
             "--license-key=$licenseKey",
             "--changelog-file=$changelogFile",
@@ -2177,8 +2233,9 @@ object LiquibaseClient {
         password: String? = null,
         url: String? = null,
         username: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "set-labels",
             "--license-key=$licenseKey",
             "--changelog-file=$changelogFile",
@@ -2215,8 +2272,9 @@ object LiquibaseClient {
         checksSettingsFile: String? = null,
         force: Boolean? = null,
         severity: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "check",
             "bulk-set",
             "--license-key=$licenseKey",
@@ -2241,8 +2299,9 @@ object LiquibaseClient {
         autoEnableNewChecks: Boolean? = null,
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "check",
             "copy",
             "--license-key=$licenseKey",
@@ -2262,8 +2321,9 @@ object LiquibaseClient {
         packageContents: String,
         packageName: String,
         packageFile: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "check",
             "create",
             "--license-key=$licenseKey",
@@ -2283,8 +2343,9 @@ object LiquibaseClient {
         autoEnableNewChecks: Boolean? = null,
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "check",
             "customize",
             "--license-key=$licenseKey",
@@ -2305,8 +2366,9 @@ object LiquibaseClient {
         autoEnableNewChecks: Boolean? = null,
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "check",
             "delete",
             "--license-key=$licenseKey",
@@ -2327,8 +2389,9 @@ object LiquibaseClient {
         autoEnableNewChecks: Boolean? = null,
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "check",
             "disable",
             "--license-key=$licenseKey",
@@ -2349,8 +2412,9 @@ object LiquibaseClient {
         autoEnableNewChecks: Boolean? = null,
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "check",
             "enable",
             "--license-key=$licenseKey",
@@ -2371,8 +2435,9 @@ object LiquibaseClient {
         autoEnableNewChecks: Boolean? = null,
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "check",
             "reset",
             "--license-key=$licenseKey",
@@ -2419,8 +2484,9 @@ object LiquibaseClient {
         sqlParserFailSeverity: String? = null,
         username: String? = null,
         verbose: Boolean? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "check",
             "run",
             "--license-key=$licenseKey",
@@ -2470,8 +2536,9 @@ object LiquibaseClient {
         checksPackages: String? = null,
         checksSettingsFile: String? = null,
         showCols: String? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "check",
             "show",
             "--license-key=$licenseKey",
@@ -2497,8 +2564,9 @@ object LiquibaseClient {
         flowFileStrictParsing: Boolean? = null,
         flowShellInterpreter: String? = null,
         flowShellKeepTempFiles: Boolean? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "flow",
             "--license-key=$licenseKey",
             flowFile?.let { "--flow-file=$it" },
@@ -2518,8 +2586,9 @@ object LiquibaseClient {
         flowFileStrictParsing: Boolean? = null,
         flowShellInterpreter: String? = null,
         flowShellKeepTempFiles: Boolean? = null,
+        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = listOfNotNull(
+        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
             "flow",
             "validate",
             "--license-key=$licenseKey",
