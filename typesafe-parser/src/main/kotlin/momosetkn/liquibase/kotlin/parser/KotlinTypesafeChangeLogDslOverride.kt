@@ -5,8 +5,6 @@ import liquibase.ContextExpression
 import liquibase.Labels
 import liquibase.Scope
 import liquibase.changelog.DatabaseChangeLog
-import liquibase.changelog.DatabaseChangeLog.OnUnknownFileFormat
-import liquibase.changelog.ModifyChangeSets
 import liquibase.exception.LiquibaseException
 import liquibase.exception.SetupException
 import liquibase.parser.ChangeLogParserFactory
@@ -15,12 +13,11 @@ import liquibase.resource.ResourceAccessor
 import momosetkn.liquibase.kotlin.dsl.overridable.ChangeLogDslOverride
 import java.util.Collections
 
+@Suppress("TooGenericExceptionCaught")
 class KotlinTypesafeChangeLogDslOverride(
     private val sourceChangeLog: DatabaseChangeLog,
     private val resourceAccessor: ResourceAccessor,
 ) : ChangeLogDslOverride {
-    private val onUnknownFileFormat = OnUnknownFileFormat.WARN
-
     @Throws(SetupException::class)
     override fun includeAll(
         path: String,
@@ -39,7 +36,6 @@ class KotlinTypesafeChangeLogDslOverride(
         val contextFilterOrContext = contextFilter ?: context
         val includeContexts = ContextExpression(contextFilterOrContext)
         val typedLabels = labels?.let { Labels(it) }
-        val modifyChangeSets = null
         val resources = getResources(path)
 
         if (resources.isEmpty() && errorIfMissingOrEmpty) {
@@ -63,8 +59,6 @@ class KotlinTypesafeChangeLogDslOverride(
                             includeContextFilter = includeContexts,
                             labels = typedLabels,
                             ignore = ignore,
-                            onUnknownFileFormat = onUnknownFileFormat,
-                            modifyChangeSets = modifyChangeSets
                         )
                     }
                 }
@@ -90,12 +84,9 @@ class KotlinTypesafeChangeLogDslOverride(
             includeContextFilter = contextFilter?.let { ContextExpression(it) },
             labels = labels?.let { Labels(it) },
             ignore = ignore,
-            onUnknownFileFormat = onUnknownFileFormat,
-            modifyChangeSets = null,
         )
     }
 
-//
     @Throws(LiquibaseException::class)
     private fun innerInclude(
         fileName: String,
@@ -104,14 +95,13 @@ class KotlinTypesafeChangeLogDslOverride(
         includeContextFilter: ContextExpression?,
         labels: Labels?,
         ignore: Boolean?,
-        onUnknownFileFormat: OnUnknownFileFormat,
-        modifyChangeSets: ModifyChangeSets?
     ): Boolean {
-        // TODO: relative
-//        if (isRelativePath) {
-//            //
-//        }
-        val normalizedFilePath = fileName
+        val normalizedFilePath = if (isRelativePath) {
+            val packageName = this.sourceChangeLog.filePath.substringBeforeLast(".")
+            "$packageName.$fileName"
+        } else {
+            fileName
+        }
 
         try {
             val rootChangeLog = rootChangeLogThreadLocal.get()
@@ -130,6 +120,12 @@ class KotlinTypesafeChangeLogDslOverride(
                 currentChangeLog.includeLabels = labels
                 currentChangeLog.isIncludeIgnore = ignore ?: false
                 currentChangeLog
+            } catch (e: Exception) {
+                Scope.getCurrentScope().getLog(javaClass).warning("Include file '$normalizedFilePath' not found")
+                if (errorIfMissing) {
+                    throw LiquibaseException(e)
+                }
+                return false
             } finally {
                 if (rootChangeLog == null) {
                     rootChangeLogThreadLocal.remove()
