@@ -57,16 +57,15 @@ class KotlinTypesafeLiquibaseChangeLogParser : ChangeLogParser {
     }
 
     override fun supports(
-        fileNameOrExtension: String,
+        changeLogFile: String,
         resourceAccessor: ResourceAccessor,
     ): Boolean {
-        return fileNameOrExtension.endsWith(".kt") ||
-            runCatching {
-                Class.forName(fileNameOrExtension)
-            }.fold(
-                onSuccess = { true },
-                onFailure = { false },
-            )
+        return runCatching {
+            Class.forName(changeLogFile)
+        }.fold(
+            onSuccess = { true },
+            onFailure = { false },
+        )
     }
 
     override fun getPriority() = PRIORITY_DEFAULT
