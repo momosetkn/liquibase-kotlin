@@ -46,7 +46,10 @@ class KotlinTypesafeLiquibaseChangeLogParser : ChangeLogParser {
     @Suppress("UNCHECKED_CAST")
     private fun getTypesafeDatabaseChangeLog(databaseChangeLog: DatabaseChangeLog): KotlinTypesafeDatabaseChangeLog {
         // not support .java, .scala
-        val className = databaseChangeLog.physicalFilePath.removeSuffix(".kt")
+        val className = databaseChangeLog.physicalFilePath
+            .removeSuffix(".kt")
+            .removeSuffix(".class")
+            .replace("/", ".")
         val clazz = Class.forName(className).kotlin as KClass<KotlinTypesafeDatabaseChangeLog>
         val constructor = clazz.constructors.find { it.parameters.isEmpty() }
         requireNotNull(constructor) {
@@ -60,12 +63,14 @@ class KotlinTypesafeLiquibaseChangeLogParser : ChangeLogParser {
         changeLogFile: String,
         resourceAccessor: ResourceAccessor,
     ): Boolean {
-        return runCatching {
-            Class.forName(changeLogFile)
-        }.fold(
-            onSuccess = { true },
-            onFailure = { false },
-        )
+        return changeLogFile.endsWith(".kt") ||
+            changeLogFile.endsWith(".class") ||
+            runCatching {
+                Class.forName(changeLogFile)
+            }.fold(
+                onSuccess = { true },
+                onFailure = { false },
+            )
     }
 
     override fun getPriority() = PRIORITY_DEFAULT
