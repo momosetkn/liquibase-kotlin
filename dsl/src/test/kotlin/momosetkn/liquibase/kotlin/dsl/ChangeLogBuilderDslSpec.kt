@@ -88,8 +88,8 @@ class ChangeLogBuilderDslSpec : FunSpec({
                     indexName = "project_users_id_fk",
                     tableName = "project"
                 ) {
-                    column(name = "column_name1")
-                    column(name = "column_name2")
+                    column(name = "column_name1", type = "varchar(255)")
+                    column(name = "column_name2", type = "varchar(255)")
                 }
             }
         }

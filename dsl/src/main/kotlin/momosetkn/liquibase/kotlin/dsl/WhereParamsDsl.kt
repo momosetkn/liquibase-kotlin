@@ -6,7 +6,6 @@ import liquibase.changelog.DatabaseChangeLog
 @ChangeLogDslMarker
 class WhereParamsDsl(
     private val changeLog: DatabaseChangeLog,
-//    private val change: AbstractModifyDataChange,
 ) {
     private val params = mutableListOf<ColumnConfig>()
 
@@ -22,8 +21,8 @@ class WhereParamsDsl(
         value: String?,
     ) {
         val columnConfig = ColumnConfig()
-        columnConfig.name = name.expandExpressions(changeLog)
-        columnConfig.value = value.expandExpressions(changeLog)
+        columnConfig.name = name.evalExpressions(changeLog)
+        columnConfig.value = value.evalExpressionsOrNull(changeLog)
 
         params.add(columnConfig)
     }

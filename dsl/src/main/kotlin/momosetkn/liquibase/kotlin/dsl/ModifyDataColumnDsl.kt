@@ -4,8 +4,9 @@ import liquibase.change.ColumnConfig
 import liquibase.change.core.LoadDataColumnConfig
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.statement.DatabaseFunction
-import liquibase.util.ISODateFormat
+import momosetkn.liquibase.kotlin.dsl.util.DateUtils.toDate
 import java.math.BigInteger
+import java.time.temporal.TemporalAccessor
 
 @ChangeLogDslMarker
 class ModifyDataColumnDsl(
@@ -38,7 +39,7 @@ class ModifyDataColumnDsl(
         defaultValueBoolean: Boolean? = null,
         defaultValueComputed: String? = null,
         defaultValueConstraintName: String? = null,
-        defaultValueDate: String? = null,
+        defaultValueDate: TemporalAccessor? = null,
         defaultValueNumeric: Number? = null,
         descending: Boolean? = false,
         encoding: String? = null,
@@ -50,33 +51,33 @@ class ModifyDataColumnDsl(
         valueBoolean: Boolean? = null,
         valueClobFile: String? = null,
         valueComputed: String? = null,
-        valueDate: String? = null,
+        valueDate: TemporalAccessor? = null,
         valueNumeric: Number? = null,
     ) {
         val column = columnConfigClass.java.getDeclaredConstructor().newInstance()
 
-        column.name = name
-        column.type = type
-        column.value = value
+        column.name = name.evalExpressions(changeLog)
+        column.type = type.evalExpressionsOrNull(changeLog)
+        column.value = value.evalExpressionsOrNull(changeLog)
         column.isAutoIncrement = autoIncrement
         column.computed = computed
-        column.defaultValue = defaultValue
+        column.defaultValue = defaultValue.evalExpressionsOrNull(changeLog)
         column.defaultValueBoolean = defaultValueBoolean
         defaultValueComputed?.also {
             column.defaultValueComputed = DatabaseFunction(it)
         }
-        column.defaultValueConstraintName = defaultValueConstraintName
+        column.defaultValueConstraintName = defaultValueConstraintName.evalExpressionsOrNull(changeLog)
         defaultValueDate?.also {
-            column.defaultValueDate = ISODateFormat().parse(it)
+            column.defaultValueDate = it.toDate()
         }
         column.defaultValueNumeric = defaultValueNumeric
         column.descending = descending
         column.encoding = encoding
-        column.generationType = generationType
+        column.generationType = generationType.evalExpressionsOrNull(changeLog)
         incrementBy?.also {
             column.incrementBy = BigInteger.valueOf(it)
         }
-        column.remarks = remarks
+        column.remarks = remarks.evalExpressionsOrNull(changeLog)
         startWith?.also {
             column.startWith = BigInteger.valueOf(it)
         }
@@ -87,14 +88,14 @@ class ModifyDataColumnDsl(
             column.valueComputed = DatabaseFunction(it)
         }
         valueDate?.also {
-            column.valueDate = ISODateFormat().parse(it)
+            column.valueDate = it.toDate()
         }
         column.valueNumeric = valueNumeric
         columns.add(column)
     }
 
     fun where(whereClause: String) {
-        val expandedWhereClause = whereClause.expandExpressions(changeLog)
+        val expandedWhereClause = whereClause.evalExpressions(changeLog)
         where = expandedWhereClause
     }
 

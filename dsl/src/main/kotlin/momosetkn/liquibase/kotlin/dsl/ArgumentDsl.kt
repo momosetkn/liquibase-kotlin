@@ -1,7 +1,11 @@
 package momosetkn.liquibase.kotlin.dsl
 
+import liquibase.changelog.DatabaseChangeLog
+
 @ChangeLogDslMarker
-class ArgumentDsl {
+class ArgumentDsl(
+    private val changeLog: DatabaseChangeLog,
+) {
     private val args = mutableListOf<Any>()
 
     internal operator fun invoke(
@@ -12,6 +16,6 @@ class ArgumentDsl {
     }
 
     fun arg(value: String) {
-        args.add(value)
+        args.add(value.evalExpressions(changeLog))
     }
 }

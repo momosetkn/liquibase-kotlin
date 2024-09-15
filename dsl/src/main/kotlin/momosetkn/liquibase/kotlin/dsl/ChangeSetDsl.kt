@@ -72,7 +72,7 @@ class ChangeSetDsl(
         )
 
     fun comment(text: String) {
-        context.changeSet.comments = text.expandExpressions(changeLog)
+        context.changeSet.comments = text.evalExpressions(changeLog)
     }
 
     fun preConditions(
@@ -119,12 +119,12 @@ class ChangeSetDsl(
         changeSetAuthor: String,
         changeSetPath: String? = null,
     ) {
-        val overrideId = changeSetId.expandExpressions(changeLog)
-        val overrideAuthor = changeSetAuthor.expandExpressions(changeLog)
+        val overrideId = changeSetId.evalExpressions(changeLog)
+        val overrideAuthor = changeSetAuthor.evalExpressions(changeLog)
 
         val overrideFilePath =
             changeSetPath?.let {
-                changeSetPath.expandExpressions(changeLog)
+                changeSetPath.evalExpressions(changeLog)
             } ?: changeLog.filePath
 
         val referencedChangeSet =
@@ -379,7 +379,7 @@ class ChangeSetDsl(
         change.remarks = remarks
         change.replaceIfExists = replaceIfExists
         change.schemaName = schemaName
-        change.selectQuery = selectQuery().expandExpressions(changeLog)
+        change.selectQuery = selectQuery().evalExpressions(changeLog)
         change.viewName = viewName
         changeSetSupport.addChange(change)
     }
@@ -428,7 +428,7 @@ class ChangeSetDsl(
         change.dbms = dbms
         change.encoding = encoding
         change.path = path
-        change.procedureText = procedureText().expandExpressions(changeLog)
+        change.procedureText = procedureText().evalExpressions(changeLog)
         change.procedureName = procedureName
         change.isRelativeToChangelogFile = relativeToChangelogFile
         change.replaceIfExists = replaceIfExists
@@ -1180,7 +1180,7 @@ class ChangeSetDsl(
         change.tableName = tableName
         change.usePreparedStatements = usePreparedStatements
 
-        val dsl = LoadDataColumnDsl()
+        val dsl = LoadDataColumnDsl(changeLog)
         val columns = wrapChangeLogParseException { dsl(block) }
         change.columns = columns
 
@@ -1216,7 +1216,7 @@ class ChangeSetDsl(
         change.tableName = tableName
         change.usePreparedStatements = usePreparedStatements
 
-        val dsl = LoadDataColumnDsl()
+        val dsl = LoadDataColumnDsl(changeLog)
         val columns = wrapChangeLogParseException { dsl(block) }
         change.columns = columns
 
@@ -1306,12 +1306,12 @@ class ChangeSetDsl(
                 "Should be specify `class`",
             )
         val change = changeSetSupport.createChange("customChange") as CustomChangeWrapper
-        change.setClass(classOrClazz.expandExpressions(changeLog))
+        change.setClass(classOrClazz.evalExpressions(changeLog))
         block?.let {
-            val dsl = KeyValueDsl()
+            val dsl = KeyValueDsl(changeLog)
             val map = wrapChangeLogParseException { dsl(block) }
             map.forEach { (key, value) ->
-                change.setParam(key, value.expandExpressions(changeLog))
+                change.setParam(key, value.tryEvalExpressionsOrNull(changeLog)?.toString())
             }
         }
         changeSetSupport.addChange(change)
@@ -1331,7 +1331,7 @@ class ChangeSetDsl(
     ) {
         val customChangeWrapper = changeSetSupport.createChange("customChange") as CustomChangeWrapper
         val params = block?.let {
-            val dsl = KeyValueDsl()
+            val dsl = KeyValueDsl(changeLog)
             wrapChangeLogParseException { dsl(block) }
         }
         val change = if (rollback != null) {
@@ -1367,10 +1367,10 @@ class ChangeSetDsl(
         change.executable = executable
         change.setOs(os)
         change.timeout = timeout
-        val dsl = ArgumentDsl()
+        val dsl = ArgumentDsl(changeLog)
         val args = wrapChangeLogParseException { dsl(block) }
         args.forEach {
-            change.args.add(it.expandExpressions(changeLog))
+            change.args.add(it.tryEvalExpressions(changeLog)?.toString())
         }
         changeSetSupport.addChange(change)
     }
@@ -1412,10 +1412,10 @@ class ChangeSetDsl(
         change.endDelimiter = endDelimiter
         change.isSplitStatements = splitStatements
         change.isStripComments = stripComments
-        val dsl = SqlBlockDsl()
+        val dsl = SqlBlockDsl(changeLog)
         val commentDslResult = wrapChangeLogParseException { dsl(block) }
-        change.sql = commentDslResult.sql.expandExpressions(changeLog)
-        change.comment = commentDslResult.comment?.expandExpressions(changeLog)
+        change.sql = commentDslResult.sql.evalExpressions(changeLog)
+        change.comment = commentDslResult.comment?.evalExpressions(changeLog)
         changeSetSupport.addChange(change)
     }
 
@@ -1442,13 +1442,13 @@ class ChangeSetDsl(
 
     fun stop(message: String? = null) {
         val change = changeSetSupport.createChange("stop") as StopChange
-        change.message = message.expandExpressions(changeLog)
+        change.message = message.evalExpressionsOrNull(changeLog)
         changeSetSupport.addChange(change)
     }
 
     fun tagDatabase(tag: String) {
         val change = changeSetSupport.createChange("tagDatabase") as TagDatabaseChange
-        change.tag = tag.expandExpressions(changeLog)
+        change.tag = tag.evalExpressions(changeLog)
         changeSetSupport.addChange(change)
     }
 
