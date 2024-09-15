@@ -1,3 +1,15 @@
+pluginManagement {
+    val kotlinVersion: String by settings
+    repositories {
+        gradlePluginPortal()
+    }
+    plugins {
+        kotlin("jvm") version kotlinVersion
+    }
+}
+
+rootProject.name = "liquibase-kotlin"
+
 // integration-test
 include("integration-test")
 

@@ -7,7 +7,7 @@ val artifactIdPrefix: String by project
 val liquibaseKotlinVersion: String by project
 
 plugins {
-    kotlin("jvm") version "2.0.10"
+    kotlin("jvm")
     id("io.gitlab.arturbosch.detekt") version "1.23.7"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
     `maven-publish`
@@ -17,6 +17,7 @@ group = "momosetkn"
 version = "1.0-SNAPSHOT"
 
 allprojects {
+    apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
 

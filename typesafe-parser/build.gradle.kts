@@ -4,10 +4,6 @@ val kotlinVersion = rootProject.properties["kotlinVersion"] as String
 val liquibaseKotlinVersion = rootProject.properties["liquibaseKotlinVersion"] as String
 val classgraphVersion = rootProject.properties["classgraphVersion"] as String
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     // liquibase-kotlin
     api(project(":dsl"))

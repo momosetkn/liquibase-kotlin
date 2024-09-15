@@ -3,10 +3,6 @@ val kotestVersion = rootProject.properties["kotestVersion"] as String
 val kotlinVersion = rootProject.properties["kotlinVersion"] as String
 val liquibaseKotlinVersion = rootProject.properties["liquibaseKotlinVersion"] as String
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     // db-migration
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
