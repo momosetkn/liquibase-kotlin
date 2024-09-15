@@ -5,8 +5,6 @@ import liquibase.ContextExpression
 import liquibase.Labels
 import liquibase.Scope
 import liquibase.changelog.DatabaseChangeLog
-import liquibase.changelog.DatabaseChangeLog.OnUnknownFileFormat
-import liquibase.changelog.ModifyChangeSets
 import liquibase.exception.LiquibaseException
 import liquibase.exception.SetupException
 import liquibase.parser.ChangeLogParserFactory
@@ -15,12 +13,11 @@ import liquibase.resource.ResourceAccessor
 import momosetkn.liquibase.kotlin.dsl.overridable.ChangeLogDslOverride
 import java.util.Collections
 
+@Suppress("TooGenericExceptionCaught")
 class KotlinTypesafeChangeLogDslOverride(
     private val sourceChangeLog: DatabaseChangeLog,
     private val resourceAccessor: ResourceAccessor,
 ) : ChangeLogDslOverride {
-    private val onUnknownFileFormat = OnUnknownFileFormat.WARN
-
     @Throws(SetupException::class)
     override fun includeAll(
         path: String,
@@ -39,9 +36,17 @@ class KotlinTypesafeChangeLogDslOverride(
         val contextFilterOrContext = contextFilter ?: context
         val includeContexts = ContextExpression(contextFilterOrContext)
         val typedLabels = labels?.let { Labels(it) }
-        val modifyChangeSets = null
-        val resources = getResources(path)
-
+        maxDepth?.also {
+            TODO("not implemented in kotlin-typesafe")
+        }
+        minDepth?.also {
+            TODO("not implemented in kotlin-typesafe")
+        }
+        val resources = getResources(
+            pathName = path,
+            isRelativeToChangelogFile = relativeToChangelogFile,
+            endsWithFilter = endsWithFilter,
+        )
         if (resources.isEmpty() && errorIfMissingOrEmpty) {
             throw SetupException("Specify path is empty class `$path`")
         }
@@ -63,8 +68,6 @@ class KotlinTypesafeChangeLogDslOverride(
                             includeContextFilter = includeContexts,
                             labels = typedLabels,
                             ignore = ignore,
-                            onUnknownFileFormat = onUnknownFileFormat,
-                            modifyChangeSets = modifyChangeSets
                         )
                     }
                 }
@@ -90,12 +93,9 @@ class KotlinTypesafeChangeLogDslOverride(
             includeContextFilter = contextFilter?.let { ContextExpression(it) },
             labels = labels?.let { Labels(it) },
             ignore = ignore,
-            onUnknownFileFormat = onUnknownFileFormat,
-            modifyChangeSets = null,
         )
     }
 
-//
     @Throws(LiquibaseException::class)
     private fun innerInclude(
         fileName: String,
@@ -104,15 +104,8 @@ class KotlinTypesafeChangeLogDslOverride(
         includeContextFilter: ContextExpression?,
         labels: Labels?,
         ignore: Boolean?,
-        onUnknownFileFormat: OnUnknownFileFormat,
-        modifyChangeSets: ModifyChangeSets?
     ): Boolean {
-        // TODO: relative
-//        if (isRelativePath) {
-//            //
-//        }
-        val normalizedFilePath = fileName
-
+        val normalizedFilePath = getPathWithRelative(fileName, isRelativePath)
         try {
             val rootChangeLog = rootChangeLogThreadLocal.get()
             if (rootChangeLog == null) {
@@ -130,6 +123,12 @@ class KotlinTypesafeChangeLogDslOverride(
                 currentChangeLog.includeLabels = labels
                 currentChangeLog.isIncludeIgnore = ignore ?: false
                 currentChangeLog
+            } catch (e: Exception) {
+                Scope.getCurrentScope().getLog(javaClass).warning("Include file '$normalizedFilePath' not found")
+                if (errorIfMissing) {
+                    throw LiquibaseException(e)
+                }
+                return false
             } finally {
                 if (rootChangeLog == null) {
                     rootChangeLogThreadLocal.remove()
@@ -163,18 +162,38 @@ class KotlinTypesafeChangeLogDslOverride(
         return true
     }
 
-    /**
-     *
-     * TODO: same way to [liquibase.changelog.DatabaseChangeLog.findResources]
-     */
-    private fun getResources(path: String): List<String> {
+    @Throws(SetupException::class)
+    private fun getResources(
+        pathName: String,
+        isRelativeToChangelogFile: Boolean,
+        endsWithFilter: String?,
+        // TODO
+//        minDepth: Int,
+        // TODO
+//        maxDepth: Int,
+    ): List<String> {
+        val normalizedPathName = getPathWithRelative(pathName, isRelativeToChangelogFile)
         val scanResult = ClassGraph()
-            .acceptPackages(path)
+            .acceptPackages(normalizedPathName)
             .scan()
         val files = scanResult.allClasses
             .map { it.name }
+            .filter { name ->
+                endsWithFilter?.let { name.endsWith(it) }
+                    ?: true
+            }
             .sorted() // same to includeAll order
         return files
+    }
+
+    private fun getPathWithRelative(
+        fileName: String,
+        isRelativePath: Boolean,
+    ) = if (isRelativePath) {
+        val packageName = this.sourceChangeLog.filePath.substringBeforeLast(".")
+        "$packageName.$fileName"
+    } else {
+        fileName
     }
 
     companion object {
