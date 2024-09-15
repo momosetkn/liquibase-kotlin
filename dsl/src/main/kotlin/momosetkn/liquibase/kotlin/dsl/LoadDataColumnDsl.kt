@@ -1,12 +1,16 @@
 package momosetkn.liquibase.kotlin.dsl
 
 import liquibase.change.core.LoadDataColumnConfig
+import liquibase.changelog.DatabaseChangeLog
 import liquibase.statement.DatabaseFunction
-import liquibase.util.ISODateFormat
+import momosetkn.liquibase.kotlin.dsl.util.DateUtils.toDate
 import java.math.BigInteger
+import java.time.temporal.TemporalAccessor
 
 @ChangeLogDslMarker
-class LoadDataColumnDsl {
+class LoadDataColumnDsl(
+    private val changeLog: DatabaseChangeLog,
+) {
     private val columnConfigClass = LoadDataColumnConfig::class
 
     private val columns = mutableListOf<LoadDataColumnConfig>()
@@ -20,7 +24,7 @@ class LoadDataColumnDsl {
 
     fun column(
         name: String,
-        type: String? = null,
+        type: String,
         value: String? = null,
         autoIncrement: Boolean? = null,
         computed: Boolean? = null,
@@ -28,7 +32,7 @@ class LoadDataColumnDsl {
         defaultValueBoolean: Boolean? = null,
         defaultValueComputed: String? = null,
         defaultValueConstraintName: String? = null,
-        defaultValueDate: String? = null,
+        defaultValueDate: TemporalAccessor? = null,
         defaultValueNumeric: Number? = null,
         descending: Boolean? = false,
         encoding: String? = null,
@@ -40,33 +44,33 @@ class LoadDataColumnDsl {
         valueBoolean: Boolean? = null,
         valueClobFile: String? = null,
         valueComputed: String? = null,
-        valueDate: String? = null,
+        valueDate: TemporalAccessor? = null,
         valueNumeric: Number? = null,
     ) {
         val column = columnConfigClass.java.getDeclaredConstructor().newInstance()
 
-        column.name = name
-        column.type = type
-        column.value = value
+        column.name = name.evalExpressions(changeLog)
+        column.type = type.evalExpressions(changeLog)
+        column.value = value.evalExpressionsOrNull(changeLog)
         column.isAutoIncrement = autoIncrement
         column.computed = computed
-        column.defaultValue = defaultValue
+        column.defaultValue = defaultValue.evalExpressionsOrNull(changeLog)
         column.defaultValueBoolean = defaultValueBoolean
         defaultValueComputed?.also {
             column.defaultValueComputed = DatabaseFunction(it)
         }
-        column.defaultValueConstraintName = defaultValueConstraintName
+        column.defaultValueConstraintName = defaultValueConstraintName.evalExpressionsOrNull(changeLog)
         defaultValueDate?.also {
-            column.defaultValueDate = ISODateFormat().parse(it)
+            column.defaultValueDate = it.toDate()
         }
         column.defaultValueNumeric = defaultValueNumeric
         column.descending = descending
         column.encoding = encoding
-        column.generationType = generationType
+        column.generationType = generationType.evalExpressionsOrNull(changeLog)
         incrementBy?.also {
             column.incrementBy = BigInteger.valueOf(it)
         }
-        column.remarks = remarks
+        column.remarks = remarks.evalExpressionsOrNull(changeLog)
         startWith?.also {
             column.startWith = BigInteger.valueOf(it)
         }
@@ -77,7 +81,7 @@ class LoadDataColumnDsl {
             column.valueComputed = DatabaseFunction(it)
         }
         valueDate?.also {
-            column.valueDate = ISODateFormat().parse(it)
+            column.valueDate = it.toDate()
         }
         column.valueNumeric = valueNumeric
 

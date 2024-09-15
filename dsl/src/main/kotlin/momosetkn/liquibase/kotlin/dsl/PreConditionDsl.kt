@@ -35,15 +35,12 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
     }
 
     fun sqlCheck(
-        expectedResult: Any?,
+        expectedResult: Any,
         block: () -> String,
     ) {
         val precondition = SqlPrecondition()
-        precondition.expectedResult = expectedResult.expandExpressions(changeLog)
-        val sql = block.invoke().expandExpressions(changeLog)
-        if (sql != null && sql != "null") {
-            precondition.sql = sql.toString()
-        }
+        precondition.expectedResult = expectedResult.tryEvalExpressions(changeLog).toString()
+        precondition.sql = block().evalExpressions(changeLog)
         _preConditions.add(precondition)
     }
 
@@ -58,11 +55,11 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         val overrideClassName =
             `class` ?: clazz ?: className
                 ?: error(SHOULD_SPECIFY_CLASS_MESSAGE)
-        precondition.className = overrideClassName.expandExpressions(changeLog)
-        val dsl = KeyValueDsl()
+        precondition.className = overrideClassName.evalExpressions(changeLog)
+        val dsl = KeyValueDsl(changeLog)
         val map = dsl(block)
         map.forEach { (key, value) ->
-            val expandedValue = value.expandExpressions(changeLog)
+            val expandedValue = value.tryEvalExpressionsOrNull(changeLog)?.toString()
             precondition.setParam(key, expandedValue)
         }
 

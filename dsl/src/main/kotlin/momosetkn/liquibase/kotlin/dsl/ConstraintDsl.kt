@@ -41,21 +41,21 @@ class ConstraintDsl(
     ) {
         constraint.apply {
             this.isNullable = nullable
-            this.notNullConstraintName = notNullConstraintName.expandExpressions(changeLog)
+            this.notNullConstraintName = notNullConstraintName.evalExpressionsOrNull(changeLog)
             this.isPrimaryKey = primaryKey
-            this.primaryKeyName = primaryKeyName.expandExpressions(changeLog)
-            this.primaryKeyTablespace = primaryKeyTablespace.expandExpressions(changeLog)
-            this.references = references.expandExpressions(changeLog)
+            this.primaryKeyName = primaryKeyName.evalExpressionsOrNull(changeLog)
+            this.primaryKeyTablespace = primaryKeyTablespace.evalExpressionsOrNull(changeLog)
+            this.references = references.evalExpressionsOrNull(changeLog)
             this.referencedTableCatalogName =
-                referencedTableCatalogName.expandExpressions(changeLog)
-            this.referencedTableSchemaName = referencedTableSchemaName.expandExpressions(changeLog)
-            this.referencedTableName = referencedTableName.expandExpressions(changeLog)
-            this.referencedColumnNames = referencedColumnNames.expandExpressions(changeLog)
+                referencedTableCatalogName.evalExpressionsOrNull(changeLog)
+            this.referencedTableSchemaName = referencedTableSchemaName.evalExpressionsOrNull(changeLog)
+            this.referencedTableName = referencedTableName.evalExpressionsOrNull(changeLog)
+            this.referencedColumnNames = referencedColumnNames.evalExpressionsOrNull(changeLog)
             this.isUnique = unique
-            this.uniqueConstraintName = uniqueConstraintName.expandExpressions(changeLog)
-            this.checkConstraint = checkConstraint.expandExpressions(changeLog)
+            this.uniqueConstraintName = uniqueConstraintName.evalExpressionsOrNull(changeLog)
+            this.checkConstraint = checkConstraint.evalExpressionsOrNull(changeLog)
             this.isDeleteCascade = deleteCascade
-            this.foreignKeyName = foreignKeyName.expandExpressions(changeLog)
+            this.foreignKeyName = foreignKeyName.evalExpressionsOrNull(changeLog)
             this.isInitiallyDeferred = initiallyDeferred
             this.isDeferrable = deferrable
             this.validateNullable = validateNullable

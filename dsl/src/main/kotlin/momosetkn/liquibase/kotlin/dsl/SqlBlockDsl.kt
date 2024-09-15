@@ -1,7 +1,11 @@
 package momosetkn.liquibase.kotlin.dsl
 
+import liquibase.changelog.DatabaseChangeLog
+
 @ChangeLogDslMarker
-class SqlBlockDsl {
+class SqlBlockDsl(
+    private val changeLog: DatabaseChangeLog,
+) {
     private var comment: String? = null
 
     internal operator fun invoke(
@@ -15,9 +19,10 @@ class SqlBlockDsl {
     }
 
     fun comment(value: String) {
+        val evaluatedValue = value.evalExpressions(changeLog)
         comment = comment?.let {
-            "$it $value"
-        } ?: value
+            "$it $evaluatedValue"
+        } ?: evaluatedValue
     }
 }
 

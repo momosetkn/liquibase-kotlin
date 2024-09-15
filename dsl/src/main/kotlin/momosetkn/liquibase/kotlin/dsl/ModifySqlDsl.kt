@@ -27,13 +27,13 @@ class ModifySqlDsl(
 
     fun prepend(value: String) {
         createSqlVisitor<PrependSqlVisitor>().apply {
-            this.value = value.expandExpressions(changeLog)
+            this.value = value.evalExpressions(changeLog)
         }
     }
 
     fun append(value: String) {
         createSqlVisitor<AppendSqlVisitor>().apply {
-            this.value = value.expandExpressions(changeLog)
+            this.value = value.evalExpressions(changeLog)
         }
     }
 
@@ -42,8 +42,8 @@ class ModifySqlDsl(
         with: String,
     ) {
         createSqlVisitor<ReplaceSqlVisitor>().apply {
-            this.replace = replace.expandExpressions(changeLog)
-            this.with = with.expandExpressions(changeLog)
+            this.replace = replace.evalExpressions(changeLog)
+            this.with = with.evalExpressions(changeLog)
         }
     }
 
@@ -52,8 +52,8 @@ class ModifySqlDsl(
         with: String,
     ) {
         createSqlVisitor<RegExpReplaceSqlVisitor>().apply {
-            this.replace = replace.expandExpressions(changeLog)
-            this.with = with.expandExpressions(changeLog)
+            this.replace = replace.evalExpressions(changeLog)
+            this.with = with.evalExpressions(changeLog)
         }
     }
 
@@ -87,13 +87,13 @@ class ModifySqlDsl(
             applyToRollback: Boolean? = null,
         ): ModifySqlDsl {
             val typedDbms: Set<String>? =
-                dbms.expandExpressions(changeLog)?.splitAndTrim()?.toSet()
+                dbms.evalExpressionsOrNull(changeLog)?.splitAndTrim()?.toSet()
             val typedContextFilter: ContextExpression? =
-                contextFilter?.expandExpressions(changeLog)?.let {
+                contextFilter?.evalExpressions(changeLog)?.let {
                     ContextExpression(it)
                 }
             val typedLabels: Labels? =
-                labels?.expandExpressions(changeLog)?.let { Labels(it) }
+                labels?.evalExpressions(changeLog)?.let { Labels(it) }
 
             val context =
                 ModifySqlContext(

@@ -3,8 +3,9 @@ package momosetkn.liquibase.kotlin.dsl
 import liquibase.change.AddColumnConfig
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.statement.DatabaseFunction
-import liquibase.util.ISODateFormat
+import momosetkn.liquibase.kotlin.dsl.util.DateUtils.toDate
 import java.math.BigInteger
+import java.time.temporal.TemporalAccessor
 
 @ChangeLogDslMarker
 class AddColumnDsl(
@@ -23,7 +24,7 @@ class AddColumnDsl(
 
     fun column(
         name: String,
-        type: String? = null,
+        type: String,
         value: String? = null,
         afterColumn: String? = null,
         autoIncrement: Boolean? = null,
@@ -33,7 +34,7 @@ class AddColumnDsl(
         defaultValueBoolean: Boolean? = null,
         defaultValueComputed: String? = null,
         defaultValueConstraintName: String? = null,
-        defaultValueDate: String? = null,
+        defaultValueDate: TemporalAccessor? = null,
         defaultValueNumeric: Number? = null,
         descending: Boolean? = false,
         encoding: String? = null,
@@ -46,37 +47,37 @@ class AddColumnDsl(
     ) {
         val column = columnConfigClass.java.getDeclaredConstructor().newInstance()
 
-        column.name = name
-        column.type = type
-        column.value = value
+        column.name = name.evalExpressions(changeLog)
+        column.type = type.evalExpressions(changeLog)
+        column.value = value.evalExpressionsOrNull(changeLog)
         afterColumn?.also {
-            column.afterColumn = afterColumn
+            column.afterColumn = afterColumn.evalExpressions(changeLog)
         }
         column.isAutoIncrement = autoIncrement
         beforeColumn?.also {
-            column.beforeColumn = beforeColumn
+            column.beforeColumn = it.evalExpressions(changeLog)
         }
         column.computed = computed
-        column.defaultValue = defaultValue
+        column.defaultValue = defaultValue.evalExpressionsOrNull(changeLog)
         column.defaultValueBoolean = defaultValueBoolean
         defaultValueComputed?.also {
             column.defaultValueComputed = DatabaseFunction(it)
         }
-        column.defaultValueConstraintName = defaultValueConstraintName
+        column.defaultValueConstraintName = defaultValueConstraintName.evalExpressionsOrNull(changeLog)
         defaultValueDate?.also {
-            column.defaultValueDate = ISODateFormat().parse(it)
+            column.defaultValueDate = it.toDate()
         }
         column.defaultValueNumeric = defaultValueNumeric
         column.descending = descending
         column.encoding = encoding
-        column.generationType = generationType
+        column.generationType = generationType.evalExpressionsOrNull(changeLog)
         incrementBy?.also {
             column.incrementBy = BigInteger.valueOf(it)
         }
         position?.also {
             column.position = position
         }
-        column.remarks = remarks
+        column.remarks = remarks.evalExpressionsOrNull(changeLog)
         startWith?.also {
             column.startWith = BigInteger.valueOf(it)
         }

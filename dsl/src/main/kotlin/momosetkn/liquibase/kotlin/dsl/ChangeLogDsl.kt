@@ -57,15 +57,15 @@ class ChangeLogDsl(
         val contextFilterOrContext = contextFilter ?: context
         val changeSet =
             ChangeSet(
-                id.expandExpressions(changeLog),
-                author.expandExpressions(changeLog),
+                id.evalExpressions(changeLog),
+                author.evalExpressions(changeLog),
                 runAlways ?: false,
                 runOnChange ?: false,
                 filePath.toString(),
-                contextFilterOrContext.expandExpressions(changeLog),
-                dbms.expandExpressions(changeLog),
-                runWith.expandExpressions(changeLog),
-                runWithSpoolFile.expandExpressions(changeLog),
+                contextFilterOrContext.evalExpressionsOrNull(changeLog),
+                dbms.evalExpressionsOrNull(changeLog),
+                runWith.evalExpressionsOrNull(changeLog),
+                runWithSpoolFile.evalExpressionsOrNull(changeLog),
                 runInTransaction ?: true,
                 enumObjectQuotingStrategy,
                 changeLog,
@@ -147,7 +147,7 @@ class ChangeLogDsl(
     ) {
         changeLogDslOverride?.also {
             changeLogDslOverride.includeAll(
-                path = path,
+                path = path.evalExpressions(changeLog),
                 contextFilter = contextFilter,
                 context = context,
                 endsWithFilter = endsWithFilter,
@@ -176,7 +176,7 @@ class ChangeLogDsl(
         val includeContexts = ContextExpression(contextFilterOrContext)
         val typedLabels = labels?.let { Labels(it) }
         changeLog.includeAll(
-            path,
+            path.evalExpressions(changeLog),
             relativeToChangelogFile,
             filter as IncludeAllFilter?, // FIXME
             errorIfMissingOrEmpty,

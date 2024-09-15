@@ -1,7 +1,11 @@
 package momosetkn.liquibase.kotlin.dsl
 
+import liquibase.changelog.DatabaseChangeLog
+
 @ChangeLogDslMarker
-class KeyValueDsl {
+class KeyValueDsl(
+    private val changeLog: DatabaseChangeLog,
+) {
     private var map = mutableMapOf<String, Any?>()
 
     internal operator fun invoke(
@@ -15,6 +19,6 @@ class KeyValueDsl {
         name: String,
         value: Any?,
     ) {
-        map[name] = value
+        map[name] = value.tryEvalExpressionsOrNull(changeLog)
     }
 }
