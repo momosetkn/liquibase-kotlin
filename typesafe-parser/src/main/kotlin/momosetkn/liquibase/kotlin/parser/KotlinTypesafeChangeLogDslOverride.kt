@@ -36,8 +36,17 @@ class KotlinTypesafeChangeLogDslOverride(
         val contextFilterOrContext = contextFilter ?: context
         val includeContexts = ContextExpression(contextFilterOrContext)
         val typedLabels = labels?.let { Labels(it) }
-        val resources = getResources(path)
-
+        maxDepth?.also {
+            TODO("not implemented in kotlin-typesafe")
+        }
+        minDepth?.also {
+            TODO("not implemented in kotlin-typesafe")
+        }
+        val resources = getResources(
+            pathName = path,
+            isRelativeToChangelogFile = relativeToChangelogFile,
+            endsWithFilter = endsWithFilter,
+        )
         if (resources.isEmpty() && errorIfMissingOrEmpty) {
             throw SetupException("Specify path is empty class `$path`")
         }
@@ -96,13 +105,7 @@ class KotlinTypesafeChangeLogDslOverride(
         labels: Labels?,
         ignore: Boolean?,
     ): Boolean {
-        val normalizedFilePath = if (isRelativePath) {
-            val packageName = this.sourceChangeLog.filePath.substringBeforeLast(".")
-            "$packageName.$fileName"
-        } else {
-            fileName
-        }
-
+        val normalizedFilePath = getPathWithRelative(fileName, isRelativePath)
         try {
             val rootChangeLog = rootChangeLogThreadLocal.get()
             if (rootChangeLog == null) {
@@ -159,18 +162,38 @@ class KotlinTypesafeChangeLogDslOverride(
         return true
     }
 
-    /**
-     *
-     * TODO: same way to [liquibase.changelog.DatabaseChangeLog.findResources]
-     */
-    private fun getResources(path: String): List<String> {
+    @Throws(SetupException::class)
+    private fun getResources(
+        pathName: String,
+        isRelativeToChangelogFile: Boolean,
+        endsWithFilter: String?,
+        // TODO
+//        minDepth: Int,
+        // TODO
+//        maxDepth: Int,
+    ): List<String> {
+        val normalizedPathName = getPathWithRelative(pathName, isRelativeToChangelogFile)
         val scanResult = ClassGraph()
-            .acceptPackages(path)
+            .acceptPackages(normalizedPathName)
             .scan()
         val files = scanResult.allClasses
             .map { it.name }
+            .filter { name ->
+                endsWithFilter?.let { name.endsWith(it) }
+                    ?: true
+            }
             .sorted() // same to includeAll order
         return files
+    }
+
+    private fun getPathWithRelative(
+        fileName: String,
+        isRelativePath: Boolean,
+    ) = if (isRelativePath) {
+        val packageName = this.sourceChangeLog.filePath.substringBeforeLast(".")
+        "$packageName.$fileName"
+    } else {
+        fileName
     }
 
     companion object {
