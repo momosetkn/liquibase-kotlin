@@ -38,7 +38,7 @@ dependencies {
     // testcontainers
     testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
     // postgresql
-    testImplementation("org.postgresql:postgresql:42.7.3")
+    testImplementation("org.postgresql:postgresql:42.7.4")
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
 }
 tasks.test {
