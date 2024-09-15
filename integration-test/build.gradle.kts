@@ -12,7 +12,7 @@ dependencies {
 
     // log
     implementation("org.slf4j:slf4j-api:2.0.16")
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.0")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.5.0")
 
     // test
