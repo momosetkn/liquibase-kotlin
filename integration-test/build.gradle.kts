@@ -2,17 +2,6 @@ val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
 val testcontainersVersion = rootProject.properties["testcontainersVersion"] as String
 
-plugins {
-    kotlin("jvm")
-}
-
-group = "momosetkn"
-version = "1.0-SNAPSHOT"
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation(project(":dsl"))
     implementation(project(":script-serializer"))
