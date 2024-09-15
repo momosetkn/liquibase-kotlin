@@ -12,7 +12,7 @@ import java.nio.file.Paths
 class KotlinTypesafeMigrateAndSerializeSpec : FunSpec({
     beforeSpec {
         Database.start()
-        KotlinTypesafeChangeLogSerializer.sourceRootDirectory = Paths.get(RESOURCE_DIR)
+        KotlinTypesafeChangeLogSerializer.sourceRootPath = Paths.get(RESOURCE_DIR)
     }
     afterSpec {
         Database.stop()
