@@ -49,7 +49,7 @@ class KotlinTypesafeChangeLogSerializer : ChangeLogSerializer {
         val filePath = (changeSets[0] as? ChangeSet)?.filePath
             ?: return ""
         return filePath
-            .removePrefix(sourceRootDirectory.toString())
+            .removePrefix(sourceRootPath.toString())
             .removePrefix("/")
             .substringBeforeLast("/")
             .replace("/", ".")
@@ -72,6 +72,6 @@ class KotlinTypesafeChangeLogSerializer : ChangeLogSerializer {
         )
 
     companion object {
-        var sourceRootDirectory = java.nio.file.Path.of("src.main.kotlin")
+        var sourceRootPath = java.nio.file.Path.of("src/main/kotlin")
     }
 }
