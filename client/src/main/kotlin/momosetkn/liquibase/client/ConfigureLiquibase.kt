@@ -7,6 +7,7 @@ data class ConfigureLiquibaseState(
 )
 
 interface ConfigureLiquibase {
+    // require override
     var configureState: ConfigureLiquibaseState
 
     fun configureGlobalArgs(block: LiquibaseGlobalArgsDslBlock) {
