@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import momosetkn.ResourceUtils.getResourceAsString
 import momosetkn.liquibase.changelogs.TypesafeDatabaseChangelogAll
 import momosetkn.liquibase.client.LiquibaseClient
-import momosetkn.liquibase.client.LiquibaseGlobalArgs
 import momosetkn.liquibase.kotlin.serializer.KotlinTypesafeChangeLogSerializer
 import java.nio.file.Paths
 
@@ -20,9 +19,11 @@ class KotlinTypesafeMigrateAndSerializeSpec : FunSpec({
 
     context("Migrate and serialize") {
         test("can migrate") {
-            LiquibaseClient.globalArgs = LiquibaseGlobalArgs(
-                showBanner = false
-            )
+            LiquibaseClient.configureGlobalArgs {
+                general {
+                    showBanner = false
+                }
+            }
             val container = Database.startedContainer
             LiquibaseClient.update(
                 driver = "org.postgresql.Driver",
