@@ -14,7 +14,6 @@ sealed interface LiquibaseCommandArgs {
     fun serialize(): List<String>
 }
 
-@Suppress("LargeClass", "TooManyFunctions")
 data class LiquibaseInfoArgs(
     var help: Boolean? = null,
     var version: Boolean? = null,
