@@ -2,15 +2,10 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>EmptyFunctionBlock:ChangeSetDsl.kt$ChangeSetDsl${ }</ID>
     <ID>ForbiddenComment:ChangeLogDsl.kt$ChangeLogDsl$// TODO: confirm</ID>
     <ID>ForbiddenComment:ChangeLogDsl.kt$ChangeLogDsl$// TODO: set by user</ID>
     <ID>ForbiddenComment:ChangeSetDsl.kt$ChangeSetDsl$// TODO: support SqlCustomChange</ID>
-    <ID>ForbiddenComment:PreConditionDsl.kt$PreConditionDsl$// TODO: add other precondition</ID>
     <ID>ForbiddenComment:RollbackTaskCustomChange.kt$RollbackTaskCustomChange$// FIXME: CustomTaskRollback has a bug that causes it to be rolled back twice, but there is a workaround.</ID>
     <ID>FunctionParameterNaming:PreConditionDsl.kt$PreConditionDsl$`class`: String? = null</ID>
-    <ID>MatchingDeclarationName:Annotations.kt$ChangeLogDslMarker</ID>
-    <ID>UnusedParameter:ChangeSetDsl.kt$ChangeSetDsl$defaultValueComputed: String? = null</ID>
-    <ID>UnusedParameter:ChangeSetDsl.kt$ChangeSetDsl$defaultValueSequenceNext: String? = null</ID>
   </CurrentIssues>
 </SmellBaseline>

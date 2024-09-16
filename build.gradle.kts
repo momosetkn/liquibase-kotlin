@@ -1,5 +1,3 @@
-import java.net.URI
-
 val kotestVersion: String by project
 val kotlinVersion: String by project
 val liquibaseVersion: String by project
@@ -81,7 +79,7 @@ configure(libraryProjects) {
             }
         }
         repositories {
-            maven { url = URI("https://jitpack.io") }
+            maven { url = uri("https://jitpack.io") }
         }
     }
 }

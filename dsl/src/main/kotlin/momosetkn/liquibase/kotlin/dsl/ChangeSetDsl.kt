@@ -54,6 +54,8 @@ import liquibase.database.Database
 import liquibase.exception.ChangeLogParseException
 import liquibase.exception.RollbackImpossibleException
 import liquibase.exception.ValidationErrors
+import liquibase.statement.DatabaseFunction
+import liquibase.statement.SequenceNextValueFunction
 import momosetkn.liquibase.kotlin.change.ParamsContext
 import kotlin.reflect.KClass
 
@@ -862,11 +864,11 @@ class ChangeSetDsl(
         change.columnName = columnName
         change.defaultValue = defaultValue
         change.defaultValueBoolean = defaultValueBoolean
-//        change.defaultValueComputed = defaultValueComputed // TODO
+        defaultValueComputed?.also { change.defaultValueComputed = DatabaseFunction(it) }
         change.defaultValueConstraintName = defaultValueConstraintName
         change.defaultValueDate = defaultValueDate
         change.defaultValueNumeric = defaultValueNumeric
-//        change.defaultValueSequenceNext = defaultValueSequenceNext // TODO
+        defaultValueSequenceNext?.also { change.defaultValueSequenceNext = SequenceNextValueFunction(it) }
         change.schemaName = schemaName
         change.tableName = tableName
         changeSetSupport.addChange(change)
@@ -1354,8 +1356,7 @@ class ChangeSetDsl(
         changeSetSupport.addChange(customChangeWrapper)
     }
 
-    fun empty() {
-    }
+    fun empty() = Unit
 
     fun executeCommand(
         executable: String,

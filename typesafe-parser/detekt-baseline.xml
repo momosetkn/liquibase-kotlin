@@ -1,13 +1,5 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
-  <CurrentIssues>
-    <ID>ForbiddenComment:KotlinTypesafeChangeLogDslOverride.kt$KotlinTypesafeChangeLogDslOverride$* * TODO: same way to [liquibase.changelog.DatabaseChangeLog.findResources]</ID>
-    <ID>ForbiddenComment:KotlinTypesafeChangeLogDslOverride.kt$KotlinTypesafeChangeLogDslOverride$// TODO: relative</ID>
-    <ID>TooGenericExceptionCaught:KotlinTypesafeChangeLogDslOverride.kt$KotlinTypesafeChangeLogDslOverride$e: Exception</ID>
-    <ID>UnusedParameter:KotlinTypesafeChangeLogDslOverride.kt$KotlinTypesafeChangeLogDslOverride$errorIfMissing: Boolean</ID>
-    <ID>UnusedParameter:KotlinTypesafeChangeLogDslOverride.kt$KotlinTypesafeChangeLogDslOverride$isRelativePath: Boolean</ID>
-    <ID>UnusedParameter:KotlinTypesafeChangeLogDslOverride.kt$KotlinTypesafeChangeLogDslOverride$modifyChangeSets: ModifyChangeSets?</ID>
-    <ID>UnusedParameter:KotlinTypesafeChangeLogDslOverride.kt$KotlinTypesafeChangeLogDslOverride$onUnknownFileFormat: OnUnknownFileFormat</ID>
-  </CurrentIssues>
+  <CurrentIssues></CurrentIssues>
 </SmellBaseline>
