@@ -56,7 +56,9 @@ val libraryProjects =
             "script-serializer",
             "typesafe-serializer",
             // client
-            "client"
+            "client",
+            // custom-change
+            "custom-komapper-jdbc-change",
         )
     }
 configure(libraryProjects) {

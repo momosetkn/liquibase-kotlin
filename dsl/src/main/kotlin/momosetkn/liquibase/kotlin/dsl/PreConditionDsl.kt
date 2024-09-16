@@ -27,6 +27,7 @@ import liquibase.precondition.core.TableExistsPrecondition
 import liquibase.precondition.core.TableIsEmptyPrecondition
 import liquibase.precondition.core.UniqueConstraintExistsPrecondition
 import liquibase.precondition.core.ViewExistsPrecondition
+import momosetkn.liquibase.kotlin.dsl.util.ClassUtil.toClassName
 import kotlin.reflect.KClass
 
 @ChangeLogDslMarker
@@ -235,16 +236,17 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
     }
 
     fun customPrecondition(
-        `class`: String? = null,
-        clazz: String? = null,
+        @Suppress("FunctionParameterNaming")
+        `class`: Any? = null,
+        clazz: Any? = null,
         className: String? = null,
         block: KeyValueDsl.() -> Unit,
     ) {
         val precondition = CustomPreconditionWrapper()
 
-        val overrideClassName =
-            `class` ?: clazz ?: className
-                ?: error(SHOULD_SPECIFY_CLASS_MESSAGE)
+        @Suppress("MaxLineLength")
+        val overrideClassName = (`class` ?: clazz)?.toClassName() ?: className
+            ?: error("Should specify either 'class' or 'clazz' or 'className' property for 'customPrecondition' preConditions")
         precondition.className = overrideClassName.evalExpressions(changeLog)
         val dsl = KeyValueDsl(changeLog)
         val map = dsl(block)
@@ -311,6 +313,3 @@ data class PreconditionContainerContext(
 
 typealias RootPreConditionDsl = PreConditionDsl<PreconditionContainer>
 typealias NestedPreConditionDsl = PreConditionDsl<PreconditionLogic>
-
-const val SHOULD_SPECIFY_CLASS_MESSAGE =
-    "Should specify either 'class' or 'clazz' or 'className' property for 'customPrecondition' preConditions"

@@ -7,5 +7,8 @@
     <ID>ForbiddenComment:ChangeSetDsl.kt$ChangeSetDsl$// TODO: support SqlCustomChange</ID>
     <ID>ForbiddenComment:RollbackTaskCustomChange.kt$RollbackTaskCustomChange$// FIXME: CustomTaskRollback has a bug that causes it to be rolled back twice, but there is a workaround.</ID>
     <ID>FunctionParameterNaming:PreConditionDsl.kt$PreConditionDsl$`class`: String? = null</ID>
+    <ID>MatchingDeclarationName:Annotations.kt$ChangeLogDslMarker</ID>
+    <ID>UnusedParameter:ChangeSetDsl.kt$ChangeSetDsl$defaultValueComputed: String? = null</ID>
+    <ID>UnusedParameter:ChangeSetDsl.kt$ChangeSetDsl$defaultValueSequenceNext: String? = null</ID>
   </CurrentIssues>
 </SmellBaseline>

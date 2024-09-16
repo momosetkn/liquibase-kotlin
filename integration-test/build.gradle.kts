@@ -1,6 +1,7 @@
 val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
 val testcontainersVersion = rootProject.properties["testcontainersVersion"] as String
+val komapperVersion = "3.0.0"
 
 dependencies {
     implementation(project(":dsl"))
@@ -9,11 +10,17 @@ dependencies {
     implementation(project(":script-parser"))
     implementation(project(":typesafe-parser"))
     implementation(project(":client"))
+    implementation(project(":custom-komapper-jdbc-change"))
 
     // log
     implementation("org.slf4j:slf4j-api:2.0.16")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.0")
     implementation("org.apache.logging.log4j:log4j-api-kotlin:1.5.0")
+
+    // komapper
+    implementation("org.komapper:komapper-core:$komapperVersion")
+    implementation("org.komapper:komapper-jdbc:$komapperVersion")
+    implementation("org.komapper:komapper-dialect-postgresql-jdbc:$komapperVersion")
 
     // test
     testImplementation(kotlin("test"))

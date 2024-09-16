@@ -47,28 +47,11 @@ class ChangeLogBuilderDslSpec : FunSpec({
     }
     context("customChange") {
         test("customTaskChange") {
-            var executeCallCount = 0
-            var rollbackCallCount = 0
             val testData = createTestData()
             testData.dsl.databaseChangeLog {
                 changeSet(id = "2", author = "user") {
-                    customChange(
-                        confirmationMessage = "hello world",
-                        execute = {
-                            executeCallCount = executeCallCount + 1
-                            val mockParam = params["MockParam"] as MockParam
-                            mockParam.param1 = mockParam.param1 + 1
-                        },
-                        rollback = {
-                            rollbackCallCount = rollbackCallCount + 1
-                            val mockParam = params["MockParam"] as MockParam
-                            mockParam.param1 = mockParam.param1 - 1
-                        }
-                    ) {
-                        param("key1", 1)
-                        param("key2", "value2")
-                        param("key3", null)
-                        param("MockParam", MockParam)
+                    customChange(`class` = ChangeLogBuilderDslSpecCustomChange::class.qualifiedName!!) {
+                        param("value", "initial")
                     }
                 }
             }

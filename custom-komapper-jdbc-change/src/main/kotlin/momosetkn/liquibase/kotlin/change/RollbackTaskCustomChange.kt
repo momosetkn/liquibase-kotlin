@@ -8,17 +8,12 @@ import liquibase.exception.ValidationErrors
 import liquibase.resource.ResourceAccessor
 
 class RollbackTaskCustomChange(
-    private val executeBlock: ParamsContext.(database: Database) -> Unit,
-    private val validateBlock: ParamsContext.(database: Database) -> ValidationErrors,
-    private val rollbackBlock: ParamsContext.(database: Database) -> Unit,
-    private val confirmationMessage: String,
-    private val params: Map<String, Any?>?,
+    private val define: CustomRollbackableTaskChangeDefineImpl,
 ) : CustomChange, CustomTaskChange, CustomTaskRollback {
-    private var resourceAccessor: ResourceAccessor? = null
-    private val paramsContext = ParamsContext(params ?: emptyMap())
     private var alreadyRollbackFlg = false
+    private var resourceAccessor: ResourceAccessor? = null
     override fun getConfirmationMessage(): String {
-        return confirmationMessage
+        return define.confirmationMessage
     }
 
     override fun setUp() = Unit
@@ -28,17 +23,24 @@ class RollbackTaskCustomChange(
     }
 
     override fun validate(database: Database): ValidationErrors {
-        return validateBlock(paramsContext, database)
+        return withKomapperJdbcContext(database) {
+            define.validateBlock(this)
+        }
     }
 
     override fun execute(database: Database) {
-        executeBlock(paramsContext, database)
+        withKomapperJdbcContext(database) {
+            define.executeBlock(this)
+        }
     }
 
     override fun rollback(database: Database) {
         // FIXME: CustomTaskRollback has a bug that causes it to be rolled back twice, but there is a workaround.
+        // bugfix: https://github.com/liquibase/liquibase/pull/6266
         if (!alreadyRollbackFlg) {
-            rollbackBlock(paramsContext, database)
+            withKomapperJdbcContext(database) {
+                define.rollbackBlock(this)
+            }
             alreadyRollbackFlg = true
         }
     }
