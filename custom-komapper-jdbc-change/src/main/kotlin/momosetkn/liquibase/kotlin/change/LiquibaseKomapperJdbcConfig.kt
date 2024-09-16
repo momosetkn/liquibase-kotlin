@@ -3,7 +3,7 @@ package momosetkn.liquibase.kotlin.change
 import org.komapper.jdbc.JdbcDatabase
 import org.komapper.jdbc.JdbcDialects
 
-object LiquibaseKomapperConfig {
+object LiquibaseKomapperJdbcConfig {
     var provideJdbcDatabase: (
         javaxSqlDataSource: javax.sql.DataSource,
         liquibaseDatabaseShortName: String

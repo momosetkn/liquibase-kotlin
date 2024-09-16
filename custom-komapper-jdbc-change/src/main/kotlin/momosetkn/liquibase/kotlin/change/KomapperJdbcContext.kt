@@ -8,7 +8,7 @@ internal fun <R : Any> withKomapperJdbcContext(
     block: KomapperJdbcContext.() -> R,
 ): R {
     val datasource = database.toJavaxSqlDataSource()
-    val db = LiquibaseKomapperConfig.provideJdbcDatabase(datasource, database.shortName)
+    val db = LiquibaseKomapperJdbcConfig.provideJdbcDatabase(datasource, database.shortName)
     return with(KomapperJdbcContext(db)) {
         block()
     }
