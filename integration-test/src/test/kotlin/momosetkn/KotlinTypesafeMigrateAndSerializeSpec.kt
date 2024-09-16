@@ -19,20 +19,22 @@ class KotlinTypesafeMigrateAndSerializeSpec : FunSpec({
 
     context("Migrate and serialize") {
         test("can migrate") {
-            LiquibaseClient.configureGlobalArgs {
-                general {
-                    showBanner = false
+            val client = LiquibaseClient {
+                globalArgs {
+                    general {
+                        showBanner = false
+                    }
                 }
             }
             val container = Database.startedContainer
-            LiquibaseClient.update(
+            client.update(
                 driver = "org.postgresql.Driver",
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,
                 changelogFile = PARSER_INPUT_CHANGELOG,
             )
-            LiquibaseClient.rollback(
+            client.rollback(
                 driver = "org.postgresql.Driver",
                 url = container.jdbcUrl,
                 username = container.username,
@@ -40,7 +42,7 @@ class KotlinTypesafeMigrateAndSerializeSpec : FunSpec({
                 changelogFile = PARSER_INPUT_CHANGELOG,
                 tag = "started",
             )
-            LiquibaseClient.update(
+            client.update(
                 driver = "org.postgresql.Driver",
                 url = container.jdbcUrl,
                 username = container.username,
@@ -51,7 +53,7 @@ class KotlinTypesafeMigrateAndSerializeSpec : FunSpec({
                 Paths.get(RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
             val f = actualSerializedChangeLogFile.toFile()
             if (f.exists()) f.delete()
-            LiquibaseClient.generateChangelog(
+            client.generateChangelog(
                 driver = "org.postgresql.Driver",
                 url = container.jdbcUrl,
                 username = container.username,

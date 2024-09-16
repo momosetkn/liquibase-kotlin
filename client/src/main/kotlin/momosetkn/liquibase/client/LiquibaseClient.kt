@@ -5,13 +5,17 @@ package momosetkn.liquibase.client
 import momosetkn.liquibase.client.LiquibaseCommandExecutor.executeLiquibaseCommandLine
 import java.time.temporal.TemporalAccessor
 
-typealias LiquibaseGlobalArgsDslBlock = LiquibaseGlobalArgsDsl.() -> Unit
-typealias LiquibaseCommandArgsDslBlock = LiquibaseCommandArgsDsl.() -> Unit
-typealias LiquibaseSystemEnvArgsDslBlock = LiquibaseSystemEnvArgsDsl.() -> Unit
-
 @Suppress("LargeClass", "TooManyFunctions")
-object LiquibaseClient : ConfigureLiquibase {
-    override var configureState: ConfigureLiquibaseState = ConfigureLiquibaseState()
+class LiquibaseClient(
+    override val configureBlock: ConfigureLiquibaseDslBlock,
+) : ConfigureLiquibase {
+    init {
+        setSystemEnvArgs()
+    }
+
+    // memo
+    private val globalArgs = getGlobalArgs()
+    private val commandArgs = getCommandArgs()
 
     // init
 
@@ -23,9 +27,8 @@ object LiquibaseClient : ConfigureLiquibase {
         source: String? = null,
         target: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "init",
                 "copy",
@@ -33,7 +36,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 source?.let { "--source=$it" },
                 target?.let { "--target=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -52,9 +55,8 @@ object LiquibaseClient : ConfigureLiquibase {
         url: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "init",
                 "project",
@@ -68,7 +70,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 url?.let { "--url=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -85,9 +87,8 @@ object LiquibaseClient : ConfigureLiquibase {
         username: String? = null,
         webPort: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "init",
                 "start-h2",
@@ -99,7 +100,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 username?.let { "--username=$it" },
                 webPort?.let { "--web-port=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -132,9 +133,8 @@ object LiquibaseClient : ConfigureLiquibase {
         showSummaryOutput: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "update",
                 liquibaseCatalogName?.let { "--liquibase-catalog-name=$it" },
@@ -159,7 +159,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 showSummaryOutput?.let { "--show-summary-output=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -184,9 +184,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "update-sql",
                 outputFile?.let { "--output-file=$it" },
@@ -205,7 +204,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -235,9 +234,8 @@ object LiquibaseClient : ConfigureLiquibase {
         showSummaryOutput: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "update-count",
                 "--changelog-file=$changelogFile",
@@ -261,7 +259,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 showSummaryOutput?.let { "--show-summary-output=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -287,9 +285,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "update-count-sql",
                 outputFile?.let { "--output-file=$it" },
@@ -309,7 +306,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -339,9 +336,8 @@ object LiquibaseClient : ConfigureLiquibase {
         showSummaryOutput: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "update-to-tag",
                 "--changelog-file=$changelogFile",
@@ -365,7 +361,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 showSummaryOutput?.let { "--show-summary-output=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -391,9 +387,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "update-to-tag-sql",
                 outputFile?.let { "--output-file=$it" },
@@ -413,7 +408,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -440,9 +435,8 @@ object LiquibaseClient : ConfigureLiquibase {
         rollbackOnError: Boolean? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "update-testing-rollback",
                 "--changelog-file=$changelogFile",
@@ -463,7 +457,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 rollbackOnError?.let { "--rollback-on-error=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -495,9 +489,8 @@ object LiquibaseClient : ConfigureLiquibase {
         rollbackOnError: Boolean? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "update-one-changeset",
                 "--license-key=$licenseKey",
@@ -523,7 +516,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 rollbackOnError?.let { "--rollback-on-error=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -550,9 +543,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "update-one-changeset-sql",
                 "--license-key=$licenseKey",
@@ -573,7 +565,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -603,9 +595,8 @@ object LiquibaseClient : ConfigureLiquibase {
         tagVersion: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "rollback",
                 "--changelog-file=$changelogFile",
@@ -627,7 +618,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 tagVersion?.let { "--tag-version=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -655,9 +646,8 @@ object LiquibaseClient : ConfigureLiquibase {
         tagVersion: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "rollback-sql",
                 outputFile?.let { "--output-file=$it" },
@@ -679,7 +669,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 tagVersion?.let { "--tag-version=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -706,9 +696,8 @@ object LiquibaseClient : ConfigureLiquibase {
         rollbackScript: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "rollback-to-date",
                 "--changelog-file=$changelogFile",
@@ -729,7 +718,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 rollbackScript?.let { "--rollback-script=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -756,9 +745,8 @@ object LiquibaseClient : ConfigureLiquibase {
         rollbackScript: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "rollback-to-date-sql",
                 outputFile?.let { "--output-file=$it" },
@@ -779,7 +767,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 rollbackScript?.let { "--rollback-script=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -806,9 +794,8 @@ object LiquibaseClient : ConfigureLiquibase {
         rollbackScript: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "rollback-count",
                 "--changelog-file=$changelogFile",
@@ -829,7 +816,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 rollbackScript?.let { "--rollback-script=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -856,9 +843,8 @@ object LiquibaseClient : ConfigureLiquibase {
         rollbackScript: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "rollback-count-sql",
                 outputFile?.let { "--output-file=$it" },
@@ -879,7 +865,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 rollbackScript?.let { "--rollback-script=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -902,9 +888,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "future-rollback-sql",
                 outputFile?.let { "--output-file=$it" },
@@ -921,7 +906,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -945,9 +930,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "future-rollback-from-tag-sql",
                 outputFile?.let { "--output-file=$it" },
@@ -965,7 +949,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -989,9 +973,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "future-rollback-count-sql",
                 outputFile?.let { "--output-file=$it" },
@@ -1009,7 +992,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1038,9 +1021,8 @@ object LiquibaseClient : ConfigureLiquibase {
         rollbackScript: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "rollback-one-changeset",
                 "--license-key=$licenseKey",
@@ -1063,7 +1045,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 rollbackScript?.let { "--rollback-script=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1089,9 +1071,8 @@ object LiquibaseClient : ConfigureLiquibase {
         rollbackScript: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "rollback-one-changeset-sql",
                 "--license-key=$licenseKey",
@@ -1111,7 +1092,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 rollbackScript?.let { "--rollback-script=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1138,9 +1119,8 @@ object LiquibaseClient : ConfigureLiquibase {
         rollbackScript: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "rollback-one-update",
                 "--license-key=$licenseKey",
@@ -1161,7 +1141,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 rollbackScript?.let { "--rollback-script=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1185,9 +1165,8 @@ object LiquibaseClient : ConfigureLiquibase {
         rollbackScript: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "rollback-one-update-sql",
                 "--license-key=$licenseKey",
@@ -1205,7 +1184,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 rollbackScript?.let { "--rollback-script=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1247,9 +1226,8 @@ object LiquibaseClient : ConfigureLiquibase {
         schemas: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "diff",
                 "--reference-url=$referenceUrl",
@@ -1284,7 +1262,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 schemas?.let { "--schemas=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1334,9 +1312,8 @@ object LiquibaseClient : ConfigureLiquibase {
         skipObjectSorting: Boolean? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "diff-changelog",
                 "--changelog-file=$changelogFile",
@@ -1380,7 +1357,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 skipObjectSorting?.let { "--skip-object-sorting=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1401,9 +1378,8 @@ object LiquibaseClient : ConfigureLiquibase {
         snapshotFormat: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "snapshot",
                 outputFile?.let { "--output-file=$it" },
@@ -1418,7 +1394,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 snapshotFormat?.let { "--snapshot-format=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1440,9 +1416,8 @@ object LiquibaseClient : ConfigureLiquibase {
         snapshotFilters: String? = null,
         snapshotFormat: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "snapshot-reference",
                 outputFile?.let { "--output-file=$it" },
@@ -1458,7 +1433,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 snapshotFilters?.let { "--snapshot-filters=$it" },
                 snapshotFormat?.let { "--snapshot-format=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1493,9 +1468,8 @@ object LiquibaseClient : ConfigureLiquibase {
         skipObjectSorting: Boolean? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "generate-changelog",
                 licenseKey?.let { "--license-key=$it" },
@@ -1524,7 +1498,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 skipObjectSorting?.let { "--skip-object-sorting=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1565,9 +1539,8 @@ object LiquibaseClient : ConfigureLiquibase {
         schemas: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "diff",
                 "JSON",
@@ -1603,7 +1576,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 schemas?.let { "--schemas=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1623,9 +1596,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "history",
                 outputFile?.let { "--output-file=$it" },
@@ -1638,7 +1610,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1659,9 +1631,8 @@ object LiquibaseClient : ConfigureLiquibase {
         username: String? = null,
         verbose: Boolean? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "status",
                 "--changelog-file=$changelogFile",
@@ -1676,7 +1647,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 username?.let { "--username=$it" },
                 verbose?.let { "--verbose=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1697,9 +1668,8 @@ object LiquibaseClient : ConfigureLiquibase {
         username: String? = null,
         verbose: Boolean? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "unexpected-changesets",
                 "--changelog-file=$changelogFile",
@@ -1714,7 +1684,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 username?.let { "--username=$it" },
                 verbose?.let { "--verbose=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1731,9 +1701,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "connect",
                 "--url=$url",
@@ -1744,7 +1713,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1769,9 +1738,8 @@ object LiquibaseClient : ConfigureLiquibase {
         username: String? = null,
         verbose: Boolean? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "dbcl-history",
                 "--license-key=$licenseKey",
@@ -1790,7 +1758,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 username?.let { "--username=$it" },
                 verbose?.let { "--verbose=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1813,9 +1781,8 @@ object LiquibaseClient : ConfigureLiquibase {
         schemas: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "db-doc",
                 "--changelog-file=$changelogFile",
@@ -1831,7 +1798,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 schemas?.let { "--schemas=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1850,9 +1817,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "tag",
                 "--tag=$tag",
@@ -1865,7 +1831,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1883,9 +1849,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "tag-exists",
                 "--tag=$tag",
@@ -1897,7 +1862,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1915,9 +1880,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "validate",
                 "--changelog-file=$changelogFile",
@@ -1929,7 +1893,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1951,9 +1915,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "calculate-checksum",
                 "--changelog-file=$changelogFile",
@@ -1969,7 +1932,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -1986,9 +1949,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "clear-checksums",
                 "--url=$url",
@@ -1999,7 +1961,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2017,9 +1979,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "list-locks",
                 "--url=$url",
@@ -2031,7 +1992,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2049,9 +2010,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "release-locks",
                 "--url=$url",
@@ -2063,7 +2023,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2083,9 +2043,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "changelog-sync",
                 "--changelog-file=$changelogFile",
@@ -2099,7 +2058,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2122,9 +2081,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "changelog-sync-sql",
                 outputFile?.let { "--output-file=$it" },
@@ -2141,7 +2099,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2162,9 +2120,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "changelog-sync-to-tag",
                 "--changelog-file=$changelogFile",
@@ -2179,7 +2136,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2203,9 +2160,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "changelog-sync-to-tag-sql",
                 outputFile?.let { "--output-file=$it" },
@@ -2223,7 +2179,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2243,9 +2199,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "mark-next-changeset-ran",
                 "--changelog-file=$changelogFile",
@@ -2259,7 +2214,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2280,9 +2235,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "mark-next-changeset-ran-sql",
                 outputFile?.let { "--output-file=$it" },
@@ -2297,7 +2251,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2318,9 +2272,8 @@ object LiquibaseClient : ConfigureLiquibase {
         schemas: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "drop-all",
                 "--force=$force",
@@ -2335,7 +2288,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 schemas?.let { "--schemas=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2356,9 +2309,8 @@ object LiquibaseClient : ConfigureLiquibase {
         password: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "execute-sql",
                 outputFile?.let { "--output-file=$it" },
@@ -2373,7 +2325,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 password?.let { "--password=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2400,9 +2352,8 @@ object LiquibaseClient : ConfigureLiquibase {
         url: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "set-contexts",
                 "--license-key=$licenseKey",
@@ -2423,7 +2374,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 url?.let { "--url=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2450,9 +2401,8 @@ object LiquibaseClient : ConfigureLiquibase {
         url: String? = null,
         username: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "set-labels",
                 "--license-key=$licenseKey",
@@ -2473,7 +2423,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 url?.let { "--url=$it" },
                 username?.let { "--username=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2493,9 +2443,8 @@ object LiquibaseClient : ConfigureLiquibase {
         force: Boolean? = null,
         severity: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "check",
                 "bulk-set",
@@ -2509,7 +2458,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 force?.let { "--force=$it" },
                 severity?.let { "--severity=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2524,9 +2473,8 @@ object LiquibaseClient : ConfigureLiquibase {
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "check",
                 "copy",
@@ -2536,7 +2484,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 autoUpdate?.let { "--auto-update=$it" },
                 checksSettingsFile?.let { "--checks-settings-file=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2550,9 +2498,8 @@ object LiquibaseClient : ConfigureLiquibase {
         packageName: String,
         packageFile: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "check",
                 "create",
@@ -2561,7 +2508,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 "--package-name=$packageName",
                 packageFile?.let { "--package-file=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2576,9 +2523,8 @@ object LiquibaseClient : ConfigureLiquibase {
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "check",
                 "customize",
@@ -2588,7 +2534,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 autoUpdate?.let { "--auto-update=$it" },
                 checksSettingsFile?.let { "--checks-settings-file=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2603,9 +2549,8 @@ object LiquibaseClient : ConfigureLiquibase {
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "check",
                 "delete",
@@ -2615,7 +2560,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 autoUpdate?.let { "--auto-update=$it" },
                 checksSettingsFile?.let { "--checks-settings-file=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2630,9 +2575,8 @@ object LiquibaseClient : ConfigureLiquibase {
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "check",
                 "disable",
@@ -2642,7 +2586,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 autoUpdate?.let { "--auto-update=$it" },
                 checksSettingsFile?.let { "--checks-settings-file=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2657,9 +2601,8 @@ object LiquibaseClient : ConfigureLiquibase {
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "check",
                 "enable",
@@ -2669,7 +2612,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 autoUpdate?.let { "--auto-update=$it" },
                 checksSettingsFile?.let { "--checks-settings-file=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2684,9 +2627,8 @@ object LiquibaseClient : ConfigureLiquibase {
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "check",
                 "reset",
@@ -2696,7 +2638,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 autoUpdate?.let { "--auto-update=$it" },
                 checksSettingsFile?.let { "--checks-settings-file=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2737,9 +2679,8 @@ object LiquibaseClient : ConfigureLiquibase {
         username: String? = null,
         verbose: Boolean? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "check",
                 "run",
@@ -2775,7 +2716,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 username?.let { "--username=$it" },
                 verbose?.let { "--verbose=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2793,9 +2734,8 @@ object LiquibaseClient : ConfigureLiquibase {
         checksSettingsFile: String? = null,
         showCols: String? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "check",
                 "show",
@@ -2808,7 +2748,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 checksSettingsFile?.let { "--checks-settings-file=$it" },
                 showCols?.let { "--show-cols=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2825,9 +2765,8 @@ object LiquibaseClient : ConfigureLiquibase {
         flowShellInterpreter: String? = null,
         flowShellKeepTempFiles: Boolean? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "flow",
                 "--license-key=$licenseKey",
@@ -2836,7 +2775,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 flowShellInterpreter?.let { "--flow-shell-interpreter=$it" },
                 flowShellKeepTempFiles?.let { "--flow-shell-keep-temp-files=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
@@ -2851,9 +2790,8 @@ object LiquibaseClient : ConfigureLiquibase {
         flowShellInterpreter: String? = null,
         flowShellKeepTempFiles: Boolean? = null,
     ) {
-        setSystemEnvArgs()
         val argsList = listOf(
-            getGlobalArgs(),
+            globalArgs,
             listOfNotNull(
                 "flow",
                 "validate",
@@ -2863,7 +2801,7 @@ object LiquibaseClient : ConfigureLiquibase {
                 flowShellInterpreter?.let { "--flow-shell-interpreter=$it" },
                 flowShellKeepTempFiles?.let { "--flow-shell-keep-temp-files=$it" },
             ),
-            getCommandArgs()
+            commandArgs,
         ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
