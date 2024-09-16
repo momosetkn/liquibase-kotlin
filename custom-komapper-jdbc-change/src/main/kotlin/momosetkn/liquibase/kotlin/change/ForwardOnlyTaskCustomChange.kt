@@ -21,13 +21,13 @@ class ForwardOnlyTaskCustomChange(
     }
 
     override fun validate(database: Database): ValidationErrors {
-        return withKomapperContext(database) {
+        return withKomapperJdbcContext(database) {
             define.validateBlock(this)
         }
     }
 
     override fun execute(database: Database) {
-        withKomapperContext(database) {
+        withKomapperJdbcContext(database) {
             define.executeBlock(this)
         }
     }

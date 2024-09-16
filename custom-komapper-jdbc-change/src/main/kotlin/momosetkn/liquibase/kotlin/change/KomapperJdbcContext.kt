@@ -3,7 +3,7 @@ package momosetkn.liquibase.kotlin.change
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
 
-internal fun <R : Any> withKomapperContext(
+internal fun <R : Any> withKomapperJdbcContext(
     database: liquibase.database.Database,
     block: KomapperJdbcContext.() -> R,
 ): R {

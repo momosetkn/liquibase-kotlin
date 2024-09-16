@@ -23,13 +23,13 @@ class RollbackTaskCustomChange(
     }
 
     override fun validate(database: Database): ValidationErrors {
-        return withKomapperContext(database) {
+        return withKomapperJdbcContext(database) {
             define.validateBlock(this)
         }
     }
 
     override fun execute(database: Database) {
-        withKomapperContext(database) {
+        withKomapperJdbcContext(database) {
             define.executeBlock(this)
         }
     }
@@ -38,7 +38,7 @@ class RollbackTaskCustomChange(
         // FIXME: CustomTaskRollback has a bug that causes it to be rolled back twice, but there is a workaround.
         // bugfix: https://github.com/liquibase/liquibase/pull/6266
         if (!alreadyRollbackFlg) {
-            withKomapperContext(database) {
+            withKomapperJdbcContext(database) {
                 define.rollbackBlock(this)
             }
             alreadyRollbackFlg = true
