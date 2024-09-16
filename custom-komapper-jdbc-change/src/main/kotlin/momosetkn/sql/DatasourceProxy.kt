@@ -1,4 +1,4 @@
-package momosetkn.liquibase.kotlin.change
+package momosetkn.sql
 
 class DatasourceProxy(
     private val connection: java.sql.Connection,
@@ -33,7 +33,7 @@ class DatasourceProxy(
 
     @Throws(java.sql.SQLException::class)
     override fun getConnection(): java.sql.Connection {
-        return NotCloseConnectionProxy(connection)
+        return connection
     }
 
     @Throws(java.sql.SQLException::class)
