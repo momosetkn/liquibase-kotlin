@@ -3,6 +3,10 @@ package momosetkn.liquibase.kotlin.change
 import java.util.Properties
 import java.util.concurrent.Executor
 
+/**
+ * Not close connection.
+ * Closed by liquibase. therefore not close in custom-komappaer-jdbc-change.
+ */
 @Suppress("TooManyFunctions")
 class NotCloseConnectionProxy(
     private val connection: java.sql.Connection,
