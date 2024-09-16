@@ -54,10 +54,7 @@ object LiquibaseCommandExecutor {
 
     private fun passwordMasking(args: Array<String>): List<String> =
         args.map { arg ->
-            if (
-                arg.startsWith("--password=") ||
-                arg.startsWith("--reference-password=")
-            ) {
+            if ("password" in arg.substringBefore("=")) {
                 arg.replaceAfter("=", "***masked***")
             } else {
                 arg

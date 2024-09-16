@@ -6,8 +6,16 @@ import momosetkn.liquibase.client.LiquibaseCommandExecutor.executeLiquibaseComma
 import java.time.temporal.TemporalAccessor
 
 @Suppress("LargeClass", "TooManyFunctions")
-object LiquibaseClient {
-    var globalArgs: LiquibaseGlobalArgs? = null
+class LiquibaseClient(
+    override val configureBlock: ConfigureLiquibaseDslBlock,
+) : ConfigureLiquibase {
+    init {
+        setSystemEnvArgs()
+    }
+
+    // memo
+    private val globalArgs = getGlobalArgs()
+    private val commandArgs = getCommandArgs()
 
     // init
 
@@ -18,15 +26,18 @@ object LiquibaseClient {
         recursive: Boolean? = null,
         source: String? = null,
         target: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "init",
-            "copy",
-            recursive?.let { "--recursive=$it" },
-            source?.let { "--source=$it" },
-            target?.let { "--target=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "init",
+                "copy",
+                recursive?.let { "--recursive=$it" },
+                source?.let { "--source=$it" },
+                target?.let { "--target=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -43,21 +54,24 @@ object LiquibaseClient {
         projectGuide: String? = null,
         url: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "init",
-            "project",
-            changelogFile?.let { "--changelog-file=$it" },
-            format?.let { "--format=$it" },
-            keepTempFiles?.let { "--keep-temp-files=$it" },
-            password?.let { "--password=$it" },
-            projectDefaultsFile?.let { "--project-defaults-file=$it" },
-            projectDir?.let { "--project-dir=$it" },
-            projectGuide?.let { "--project-guide=$it" },
-            url?.let { "--url=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "init",
+                "project",
+                changelogFile?.let { "--changelog-file=$it" },
+                format?.let { "--format=$it" },
+                keepTempFiles?.let { "--keep-temp-files=$it" },
+                password?.let { "--password=$it" },
+                projectDefaultsFile?.let { "--project-defaults-file=$it" },
+                projectDir?.let { "--project-dir=$it" },
+                projectGuide?.let { "--project-guide=$it" },
+                url?.let { "--url=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -72,19 +86,22 @@ object LiquibaseClient {
         password: String? = null,
         username: String? = null,
         webPort: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "init",
-            "start-h2",
-            bindAddress?.let { "--bind-address=$it" },
-            dbPort?.let { "--db-port=$it" },
-            detached?.let { "--detached=$it" },
-            launchBrowser?.let { "--launch-browser=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-            webPort?.let { "--web-port=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "init",
+                "start-h2",
+                bindAddress?.let { "--bind-address=$it" },
+                dbPort?.let { "--db-port=$it" },
+                detached?.let { "--detached=$it" },
+                launchBrowser?.let { "--launch-browser=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+                webPort?.let { "--web-port=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -115,32 +132,35 @@ object LiquibaseClient {
         showSummary: String? = null,
         showSummaryOutput: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "update",
-            liquibaseCatalogName?.let { "--liquibase-catalog-name=$it" },
-            liquibaseSchemaName?.let { "--liquibase-schema-name=$it" },
-            "--changelog-file=$changelogFile",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            forceOnPartialChanges?.let { "--force-on-partial-changes=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            reportEnabled?.let { "--report-enabled=$it" },
-            reportName?.let { "--report-name=$it" },
-            reportPath?.let { "--report-path=$it" },
-            rollbackOnError?.let { "--rollback-on-error=$it" },
-            showSummary?.let { "--show-summary=$it" },
-            showSummaryOutput?.let { "--show-summary-output=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "update",
+                liquibaseCatalogName?.let { "--liquibase-catalog-name=$it" },
+                liquibaseSchemaName?.let { "--liquibase-schema-name=$it" },
+                "--changelog-file=$changelogFile",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                forceOnPartialChanges?.let { "--force-on-partial-changes=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                reportEnabled?.let { "--report-enabled=$it" },
+                reportName?.let { "--report-name=$it" },
+                reportPath?.let { "--report-path=$it" },
+                rollbackOnError?.let { "--rollback-on-error=$it" },
+                showSummary?.let { "--show-summary=$it" },
+                showSummaryOutput?.let { "--show-summary-output=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -163,26 +183,29 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "update-sql",
-            outputFile?.let { "--output-file=$it" },
-            "--changelog-file=$changelogFile",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            outputDefaultCatalog?.let { "--output-default-catalog=$it" },
-            outputDefaultSchema?.let { "--output-default-schema=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "update-sql",
+                outputFile?.let { "--output-file=$it" },
+                "--changelog-file=$changelogFile",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                outputDefaultCatalog?.let { "--output-default-catalog=$it" },
+                outputDefaultSchema?.let { "--output-default-schema=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -210,31 +233,34 @@ object LiquibaseClient {
         showSummary: String? = null,
         showSummaryOutput: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "update-count",
-            "--changelog-file=$changelogFile",
-            "--count=$count",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            forceOnPartialChanges?.let { "--force-on-partial-changes=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            reportEnabled?.let { "--report-enabled=$it" },
-            reportName?.let { "--report-name=$it" },
-            reportPath?.let { "--report-path=$it" },
-            rollbackOnError?.let { "--rollback-on-error=$it" },
-            showSummary?.let { "--show-summary=$it" },
-            showSummaryOutput?.let { "--show-summary-output=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "update-count",
+                "--changelog-file=$changelogFile",
+                "--count=$count",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                forceOnPartialChanges?.let { "--force-on-partial-changes=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                reportEnabled?.let { "--report-enabled=$it" },
+                reportName?.let { "--report-name=$it" },
+                reportPath?.let { "--report-path=$it" },
+                rollbackOnError?.let { "--rollback-on-error=$it" },
+                showSummary?.let { "--show-summary=$it" },
+                showSummaryOutput?.let { "--show-summary-output=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -258,27 +284,30 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "update-count-sql",
-            outputFile?.let { "--output-file=$it" },
-            "--changelog-file=$changelogFile",
-            "--count=$count",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            outputDefaultCatalog?.let { "--output-default-catalog=$it" },
-            outputDefaultSchema?.let { "--output-default-schema=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "update-count-sql",
+                outputFile?.let { "--output-file=$it" },
+                "--changelog-file=$changelogFile",
+                "--count=$count",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                outputDefaultCatalog?.let { "--output-default-catalog=$it" },
+                outputDefaultSchema?.let { "--output-default-schema=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -306,31 +335,34 @@ object LiquibaseClient {
         showSummary: String? = null,
         showSummaryOutput: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "update-to-tag",
-            "--changelog-file=$changelogFile",
-            "--tag=$tag",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            forceOnPartialChanges?.let { "--force-on-partial-changes=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            reportEnabled?.let { "--report-enabled=$it" },
-            reportName?.let { "--report-name=$it" },
-            reportPath?.let { "--report-path=$it" },
-            rollbackOnError?.let { "--rollback-on-error=$it" },
-            showSummary?.let { "--show-summary=$it" },
-            showSummaryOutput?.let { "--show-summary-output=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "update-to-tag",
+                "--changelog-file=$changelogFile",
+                "--tag=$tag",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                forceOnPartialChanges?.let { "--force-on-partial-changes=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                reportEnabled?.let { "--report-enabled=$it" },
+                reportName?.let { "--report-name=$it" },
+                reportPath?.let { "--report-path=$it" },
+                rollbackOnError?.let { "--rollback-on-error=$it" },
+                showSummary?.let { "--show-summary=$it" },
+                showSummaryOutput?.let { "--show-summary-output=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -354,27 +386,30 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "update-to-tag-sql",
-            outputFile?.let { "--output-file=$it" },
-            "--changelog-file=$changelogFile",
-            "--tag=$tag",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            outputDefaultCatalog?.let { "--output-default-catalog=$it" },
-            outputDefaultSchema?.let { "--output-default-schema=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "update-to-tag-sql",
+                outputFile?.let { "--output-file=$it" },
+                "--changelog-file=$changelogFile",
+                "--tag=$tag",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                outputDefaultCatalog?.let { "--output-default-catalog=$it" },
+                outputDefaultSchema?.let { "--output-default-schema=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -399,28 +434,31 @@ object LiquibaseClient {
         reportPath: String? = null,
         rollbackOnError: Boolean? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "update-testing-rollback",
-            "--changelog-file=$changelogFile",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            forceOnPartialChanges?.let { "--force-on-partial-changes=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            reportEnabled?.let { "--report-enabled=$it" },
-            reportName?.let { "--report-name=$it" },
-            reportPath?.let { "--report-path=$it" },
-            rollbackOnError?.let { "--rollback-on-error=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "update-testing-rollback",
+                "--changelog-file=$changelogFile",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                forceOnPartialChanges?.let { "--force-on-partial-changes=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                reportEnabled?.let { "--report-enabled=$it" },
+                reportName?.let { "--report-name=$it" },
+                reportPath?.let { "--report-path=$it" },
+                rollbackOnError?.let { "--rollback-on-error=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -450,33 +488,36 @@ object LiquibaseClient {
         reportPath: String? = null,
         rollbackOnError: Boolean? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "update-one-changeset",
-            "--license-key=$licenseKey",
-            "--changelog-file=$changelogFile",
-            "--changeset-author=$changesetAuthor",
-            "--changeset-id=$changesetId",
-            "--changeset-path=$changesetPath",
-            "--force=$force",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            forceOnPartialChanges?.let { "--force-on-partial-changes=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            reportEnabled?.let { "--report-enabled=$it" },
-            reportName?.let { "--report-name=$it" },
-            reportPath?.let { "--report-path=$it" },
-            rollbackOnError?.let { "--rollback-on-error=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "update-one-changeset",
+                "--license-key=$licenseKey",
+                "--changelog-file=$changelogFile",
+                "--changeset-author=$changesetAuthor",
+                "--changeset-id=$changesetId",
+                "--changeset-path=$changesetPath",
+                "--force=$force",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                forceOnPartialChanges?.let { "--force-on-partial-changes=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                reportEnabled?.let { "--report-enabled=$it" },
+                reportName?.let { "--report-name=$it" },
+                reportPath?.let { "--report-path=$it" },
+                rollbackOnError?.let { "--rollback-on-error=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -501,28 +542,31 @@ object LiquibaseClient {
         labelFilter: String? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "update-one-changeset-sql",
-            "--license-key=$licenseKey",
-            outputFile?.let { "--output-file=$it" },
-            "--changelog-file=$changelogFile",
-            "--changeset-author=$changesetAuthor",
-            "--changeset-id=$changesetId",
-            "--changeset-path=$changesetPath",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "update-one-changeset-sql",
+                "--license-key=$licenseKey",
+                outputFile?.let { "--output-file=$it" },
+                "--changelog-file=$changelogFile",
+                "--changeset-author=$changesetAuthor",
+                "--changeset-id=$changesetId",
+                "--changeset-path=$changesetPath",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -550,29 +594,32 @@ object LiquibaseClient {
         rollbackScript: String? = null,
         tagVersion: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "rollback",
-            "--changelog-file=$changelogFile",
-            "--tag=$tag",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            reportEnabled?.let { "--report-enabled=$it" },
-            reportName?.let { "--report-name=$it" },
-            reportPath?.let { "--report-path=$it" },
-            rollbackScript?.let { "--rollback-script=$it" },
-            tagVersion?.let { "--tag-version=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "rollback",
+                "--changelog-file=$changelogFile",
+                "--tag=$tag",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                reportEnabled?.let { "--report-enabled=$it" },
+                reportName?.let { "--report-name=$it" },
+                reportPath?.let { "--report-path=$it" },
+                rollbackScript?.let { "--rollback-script=$it" },
+                tagVersion?.let { "--tag-version=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -598,29 +645,32 @@ object LiquibaseClient {
         rollbackScript: String? = null,
         tagVersion: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "rollback-sql",
-            outputFile?.let { "--output-file=$it" },
-            "--changelog-file=$changelogFile",
-            "--tag=$tag",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            outputDefaultCatalog?.let { "--output-default-catalog=$it" },
-            outputDefaultSchema?.let { "--output-default-schema=$it" },
-            password?.let { "--password=$it" },
-            rollbackScript?.let { "--rollback-script=$it" },
-            tagVersion?.let { "--tag-version=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "rollback-sql",
+                outputFile?.let { "--output-file=$it" },
+                "--changelog-file=$changelogFile",
+                "--tag=$tag",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                outputDefaultCatalog?.let { "--output-default-catalog=$it" },
+                outputDefaultSchema?.let { "--output-default-schema=$it" },
+                password?.let { "--password=$it" },
+                rollbackScript?.let { "--rollback-script=$it" },
+                tagVersion?.let { "--tag-version=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -645,28 +695,31 @@ object LiquibaseClient {
         reportPath: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "rollback-to-date",
-            "--changelog-file=$changelogFile",
-            "--date=${LiquibaseClientConfig.dateTimeFormatter.format(date)}",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            reportEnabled?.let { "--report-enabled=$it" },
-            reportName?.let { "--report-name=$it" },
-            reportPath?.let { "--report-path=$it" },
-            rollbackScript?.let { "--rollback-script=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "rollback-to-date",
+                "--changelog-file=$changelogFile",
+                "--date=${LiquibaseClientConfig.dateTimeFormatter.format(date)}",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                reportEnabled?.let { "--report-enabled=$it" },
+                reportName?.let { "--report-name=$it" },
+                reportPath?.let { "--report-path=$it" },
+                rollbackScript?.let { "--rollback-script=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -691,28 +744,31 @@ object LiquibaseClient {
         password: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "rollback-to-date-sql",
-            outputFile?.let { "--output-file=$it" },
-            "--changelog-file=$changelogFile",
-            "--date=${LiquibaseClientConfig.dateTimeFormatter.format(date)}",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            outputDefaultCatalog?.let { "--output-default-catalog=$it" },
-            outputDefaultSchema?.let { "--output-default-schema=$it" },
-            password?.let { "--password=$it" },
-            rollbackScript?.let { "--rollback-script=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "rollback-to-date-sql",
+                outputFile?.let { "--output-file=$it" },
+                "--changelog-file=$changelogFile",
+                "--date=${LiquibaseClientConfig.dateTimeFormatter.format(date)}",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                outputDefaultCatalog?.let { "--output-default-catalog=$it" },
+                outputDefaultSchema?.let { "--output-default-schema=$it" },
+                password?.let { "--password=$it" },
+                rollbackScript?.let { "--rollback-script=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -737,28 +793,31 @@ object LiquibaseClient {
         reportPath: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "rollback-count",
-            "--changelog-file=$changelogFile",
-            "--count=$count",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            reportEnabled?.let { "--report-enabled=$it" },
-            reportName?.let { "--report-name=$it" },
-            reportPath?.let { "--report-path=$it" },
-            rollbackScript?.let { "--rollback-script=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "rollback-count",
+                "--changelog-file=$changelogFile",
+                "--count=$count",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                reportEnabled?.let { "--report-enabled=$it" },
+                reportName?.let { "--report-name=$it" },
+                reportPath?.let { "--report-path=$it" },
+                rollbackScript?.let { "--rollback-script=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -783,28 +842,31 @@ object LiquibaseClient {
         password: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "rollback-count-sql",
-            outputFile?.let { "--output-file=$it" },
-            "--changelog-file=$changelogFile",
-            "--count=$count",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            outputDefaultCatalog?.let { "--output-default-catalog=$it" },
-            outputDefaultSchema?.let { "--output-default-schema=$it" },
-            password?.let { "--password=$it" },
-            rollbackScript?.let { "--rollback-script=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "rollback-count-sql",
+                outputFile?.let { "--output-file=$it" },
+                "--changelog-file=$changelogFile",
+                "--count=$count",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                outputDefaultCatalog?.let { "--output-default-catalog=$it" },
+                outputDefaultSchema?.let { "--output-default-schema=$it" },
+                password?.let { "--password=$it" },
+                rollbackScript?.let { "--rollback-script=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -825,24 +887,27 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "future-rollback-sql",
-            outputFile?.let { "--output-file=$it" },
-            "--changelog-file=$changelogFile",
-            "--url=$url",
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            outputDefaultCatalog?.let { "--output-default-catalog=$it" },
-            outputDefaultSchema?.let { "--output-default-schema=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "future-rollback-sql",
+                outputFile?.let { "--output-file=$it" },
+                "--changelog-file=$changelogFile",
+                "--url=$url",
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                outputDefaultCatalog?.let { "--output-default-catalog=$it" },
+                outputDefaultSchema?.let { "--output-default-schema=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -864,25 +929,28 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "future-rollback-from-tag-sql",
-            outputFile?.let { "--output-file=$it" },
-            "--changelog-file=$changelogFile",
-            "--tag=$tag",
-            "--url=$url",
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            outputDefaultCatalog?.let { "--output-default-catalog=$it" },
-            outputDefaultSchema?.let { "--output-default-schema=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "future-rollback-from-tag-sql",
+                outputFile?.let { "--output-file=$it" },
+                "--changelog-file=$changelogFile",
+                "--tag=$tag",
+                "--url=$url",
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                outputDefaultCatalog?.let { "--output-default-catalog=$it" },
+                outputDefaultSchema?.let { "--output-default-schema=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -904,25 +972,28 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "future-rollback-count-sql",
-            outputFile?.let { "--output-file=$it" },
-            "--changelog-file=$changelogFile",
-            "--count=$count",
-            "--url=$url",
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            outputDefaultCatalog?.let { "--output-default-catalog=$it" },
-            outputDefaultSchema?.let { "--output-default-schema=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "future-rollback-count-sql",
+                outputFile?.let { "--output-file=$it" },
+                "--changelog-file=$changelogFile",
+                "--count=$count",
+                "--url=$url",
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                outputDefaultCatalog?.let { "--output-default-catalog=$it" },
+                outputDefaultSchema?.let { "--output-default-schema=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -949,30 +1020,33 @@ object LiquibaseClient {
         reportPath: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "rollback-one-changeset",
-            "--license-key=$licenseKey",
-            "--changelog-file=$changelogFile",
-            "--changeset-author=$changesetAuthor",
-            "--changeset-id=$changesetId",
-            "--changeset-path=$changesetPath",
-            "--force=$force",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            password?.let { "--password=$it" },
-            reportEnabled?.let { "--report-enabled=$it" },
-            reportName?.let { "--report-name=$it" },
-            reportPath?.let { "--report-path=$it" },
-            rollbackScript?.let { "--rollback-script=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "rollback-one-changeset",
+                "--license-key=$licenseKey",
+                "--changelog-file=$changelogFile",
+                "--changeset-author=$changesetAuthor",
+                "--changeset-id=$changesetId",
+                "--changeset-path=$changesetPath",
+                "--force=$force",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                password?.let { "--password=$it" },
+                reportEnabled?.let { "--report-enabled=$it" },
+                reportName?.let { "--report-name=$it" },
+                reportPath?.let { "--report-path=$it" },
+                rollbackScript?.let { "--rollback-script=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -996,27 +1070,30 @@ object LiquibaseClient {
         password: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "rollback-one-changeset-sql",
-            "--license-key=$licenseKey",
-            outputFile?.let { "--output-file=$it" },
-            "--changelog-file=$changelogFile",
-            "--changeset-author=$changesetAuthor",
-            "--changeset-id=$changesetId",
-            "--changeset-path=$changesetPath",
-            "--url=$url",
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            outputDefaultCatalog?.let { "--output-default-catalog=$it" },
-            outputDefaultSchema?.let { "--output-default-schema=$it" },
-            password?.let { "--password=$it" },
-            rollbackScript?.let { "--rollback-script=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "rollback-one-changeset-sql",
+                "--license-key=$licenseKey",
+                outputFile?.let { "--output-file=$it" },
+                "--changelog-file=$changelogFile",
+                "--changeset-author=$changesetAuthor",
+                "--changeset-id=$changesetId",
+                "--changeset-path=$changesetPath",
+                "--url=$url",
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                outputDefaultCatalog?.let { "--output-default-catalog=$it" },
+                outputDefaultSchema?.let { "--output-default-schema=$it" },
+                password?.let { "--password=$it" },
+                rollbackScript?.let { "--rollback-script=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1041,28 +1118,31 @@ object LiquibaseClient {
         reportPath: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "rollback-one-update",
-            "--license-key=$licenseKey",
-            "--changelog-file=$changelogFile",
-            "--force=$force",
-            "--url=$url",
-            changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
-            changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            deploymentId?.let { "--deployment-id=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            password?.let { "--password=$it" },
-            reportEnabled?.let { "--report-enabled=$it" },
-            reportName?.let { "--report-name=$it" },
-            reportPath?.let { "--report-path=$it" },
-            rollbackScript?.let { "--rollback-script=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "rollback-one-update",
+                "--license-key=$licenseKey",
+                "--changelog-file=$changelogFile",
+                "--force=$force",
+                "--url=$url",
+                changeExecListenerClass?.let { "--change-exec-listener-class=$it" },
+                changeExecListenerPropertiesFile?.let { "--change-exec-listener-properties-file=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                deploymentId?.let { "--deployment-id=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                password?.let { "--password=$it" },
+                reportEnabled?.let { "--report-enabled=$it" },
+                reportName?.let { "--report-name=$it" },
+                reportPath?.let { "--report-path=$it" },
+                rollbackScript?.let { "--rollback-script=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1084,25 +1164,28 @@ object LiquibaseClient {
         password: String? = null,
         rollbackScript: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "rollback-one-update-sql",
-            "--license-key=$licenseKey",
-            outputFile?.let { "--output-file=$it" },
-            "--changelog-file=$changelogFile",
-            "--url=$url",
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            deploymentId?.let { "--deployment-id=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            outputDefaultCatalog?.let { "--output-default-catalog=$it" },
-            outputDefaultSchema?.let { "--output-default-schema=$it" },
-            password?.let { "--password=$it" },
-            rollbackScript?.let { "--rollback-script=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "rollback-one-update-sql",
+                "--license-key=$licenseKey",
+                outputFile?.let { "--output-file=$it" },
+                "--changelog-file=$changelogFile",
+                "--url=$url",
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                deploymentId?.let { "--deployment-id=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                outputDefaultCatalog?.let { "--output-default-catalog=$it" },
+                outputDefaultSchema?.let { "--output-default-schema=$it" },
+                password?.let { "--password=$it" },
+                rollbackScript?.let { "--rollback-script=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1142,42 +1225,45 @@ object LiquibaseClient {
         reportPath: String? = null,
         schemas: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "diff",
-            "--reference-url=$referenceUrl",
-            "--url=$url",
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            diffTypes?.let { "--diff-types=$it" },
-            driftSeverity?.let { "--drift-severity=$it" },
-            driftSeverityChanged?.let { "--drift-severity-changed=$it" },
-            driftSeverityMissing?.let { "--drift-severity-missing=$it" },
-            driftSeverityUnexpected?.let { "--drift-severity-unexpected=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            excludeObjects?.let { "--exclude-objects=$it" },
-            format?.let { "--format=$it" },
-            includeObjects?.let { "--include-objects=$it" },
-            reportOpen?.let { "--report-open=$it" },
-            outputSchemas?.let { "--output-schemas=$it" },
-            password?.let { "--password=$it" },
-            referenceDefaultCatalogName?.let { "--reference-default-catalog-name=$it" },
-            referenceDefaultSchemaName?.let { "--reference-default-schema-name=$it" },
-            referenceDriver?.let { "--reference-driver=$it" },
-            referenceDriverPropertiesFile?.let { "--reference-driver-properties-file=$it" },
-            referenceLiquibaseCatalogName?.let { "--reference-liquibase-catalog-name=$it" },
-            referenceLiquibaseSchemaName?.let { "--reference-liquibase-schema-name=$it" },
-            referencePassword?.let { "--reference-password=$it" },
-            referenceSchemas?.let { "--reference-schemas=$it" },
-            referenceUsername?.let { "--reference-username=$it" },
-            reportEnabled?.let { "--report-enabled=$it" },
-            reportName?.let { "--report-name=$it" },
-            reportPath?.let { "--report-path=$it" },
-            schemas?.let { "--schemas=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "diff",
+                "--reference-url=$referenceUrl",
+                "--url=$url",
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                diffTypes?.let { "--diff-types=$it" },
+                driftSeverity?.let { "--drift-severity=$it" },
+                driftSeverityChanged?.let { "--drift-severity-changed=$it" },
+                driftSeverityMissing?.let { "--drift-severity-missing=$it" },
+                driftSeverityUnexpected?.let { "--drift-severity-unexpected=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                excludeObjects?.let { "--exclude-objects=$it" },
+                format?.let { "--format=$it" },
+                includeObjects?.let { "--include-objects=$it" },
+                reportOpen?.let { "--report-open=$it" },
+                outputSchemas?.let { "--output-schemas=$it" },
+                password?.let { "--password=$it" },
+                referenceDefaultCatalogName?.let { "--reference-default-catalog-name=$it" },
+                referenceDefaultSchemaName?.let { "--reference-default-schema-name=$it" },
+                referenceDriver?.let { "--reference-driver=$it" },
+                referenceDriverPropertiesFile?.let { "--reference-driver-properties-file=$it" },
+                referenceLiquibaseCatalogName?.let { "--reference-liquibase-catalog-name=$it" },
+                referenceLiquibaseSchemaName?.let { "--reference-liquibase-schema-name=$it" },
+                referencePassword?.let { "--reference-password=$it" },
+                referenceSchemas?.let { "--reference-schemas=$it" },
+                referenceUsername?.let { "--reference-username=$it" },
+                reportEnabled?.let { "--report-enabled=$it" },
+                reportName?.let { "--report-name=$it" },
+                reportPath?.let { "--report-path=$it" },
+                schemas?.let { "--schemas=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1225,51 +1311,54 @@ object LiquibaseClient {
         schemas: String? = null,
         skipObjectSorting: Boolean? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "diff-changelog",
-            "--changelog-file=$changelogFile",
-            "--reference-url=$referenceUrl",
-            "--url=$url",
-            author?.let { "--author=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            diffTypes?.let { "--diff-types=$it" },
-            driftSeverity?.let { "--drift-severity=$it" },
-            driftSeverityChanged?.let { "--drift-severity-changed=$it" },
-            driftSeverityMissing?.let { "--drift-severity-missing=$it" },
-            driftSeverityUnexpected?.let { "--drift-severity-unexpected=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            excludeObjects?.let { "--exclude-objects=$it" },
-            includeCatalog?.let { "--include-catalog=$it" },
-            includeObjects?.let { "--include-objects=$it" },
-            includeSchema?.let { "--include-schema=$it" },
-            includeTablespace?.let { "--include-tablespace=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            reportOpen?.let { "--report-open=$it" },
-            outputSchemas?.let { "--output-schemas=$it" },
-            password?.let { "--password=$it" },
-            referenceDefaultCatalogName?.let { "--reference-default-catalog-name=$it" },
-            referenceDefaultSchemaName?.let { "--reference-default-schema-name=$it" },
-            referenceDriver?.let { "--reference-driver=$it" },
-            referenceDriverPropertiesFile?.let { "--reference-driver-properties-file=$it" },
-            referenceLiquibaseCatalogName?.let { "--reference-liquibase-catalog-name=$it" },
-            referenceLiquibaseSchemaName?.let { "--reference-liquibase-schema-name=$it" },
-            referencePassword?.let { "--reference-password=$it" },
-            referenceSchemas?.let { "--reference-schemas=$it" },
-            referenceUsername?.let { "--reference-username=$it" },
-            replaceIfExistsTypes?.let { "--replace-if-exists-types=$it" },
-            reportEnabled?.let { "--report-enabled=$it" },
-            reportName?.let { "--report-name=$it" },
-            reportPath?.let { "--report-path=$it" },
-            runOnChangeTypes?.let { "--run-on-change-types=$it" },
-            schemas?.let { "--schemas=$it" },
-            skipObjectSorting?.let { "--skip-object-sorting=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "diff-changelog",
+                "--changelog-file=$changelogFile",
+                "--reference-url=$referenceUrl",
+                "--url=$url",
+                author?.let { "--author=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                diffTypes?.let { "--diff-types=$it" },
+                driftSeverity?.let { "--drift-severity=$it" },
+                driftSeverityChanged?.let { "--drift-severity-changed=$it" },
+                driftSeverityMissing?.let { "--drift-severity-missing=$it" },
+                driftSeverityUnexpected?.let { "--drift-severity-unexpected=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                excludeObjects?.let { "--exclude-objects=$it" },
+                includeCatalog?.let { "--include-catalog=$it" },
+                includeObjects?.let { "--include-objects=$it" },
+                includeSchema?.let { "--include-schema=$it" },
+                includeTablespace?.let { "--include-tablespace=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                reportOpen?.let { "--report-open=$it" },
+                outputSchemas?.let { "--output-schemas=$it" },
+                password?.let { "--password=$it" },
+                referenceDefaultCatalogName?.let { "--reference-default-catalog-name=$it" },
+                referenceDefaultSchemaName?.let { "--reference-default-schema-name=$it" },
+                referenceDriver?.let { "--reference-driver=$it" },
+                referenceDriverPropertiesFile?.let { "--reference-driver-properties-file=$it" },
+                referenceLiquibaseCatalogName?.let { "--reference-liquibase-catalog-name=$it" },
+                referenceLiquibaseSchemaName?.let { "--reference-liquibase-schema-name=$it" },
+                referencePassword?.let { "--reference-password=$it" },
+                referenceSchemas?.let { "--reference-schemas=$it" },
+                referenceUsername?.let { "--reference-username=$it" },
+                replaceIfExistsTypes?.let { "--replace-if-exists-types=$it" },
+                reportEnabled?.let { "--report-enabled=$it" },
+                reportName?.let { "--report-name=$it" },
+                reportPath?.let { "--report-path=$it" },
+                runOnChangeTypes?.let { "--run-on-change-types=$it" },
+                schemas?.let { "--schemas=$it" },
+                skipObjectSorting?.let { "--skip-object-sorting=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1288,22 +1377,25 @@ object LiquibaseClient {
         snapshotFilters: String? = null,
         snapshotFormat: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "snapshot",
-            outputFile?.let { "--output-file=$it" },
-            "--url=$url",
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            password?.let { "--password=$it" },
-            schemas?.let { "--schemas=$it" },
-            snapshotFilters?.let { "--snapshot-filters=$it" },
-            snapshotFormat?.let { "--snapshot-format=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "snapshot",
+                outputFile?.let { "--output-file=$it" },
+                "--url=$url",
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                password?.let { "--password=$it" },
+                schemas?.let { "--schemas=$it" },
+                snapshotFilters?.let { "--snapshot-filters=$it" },
+                snapshotFormat?.let { "--snapshot-format=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1323,23 +1415,26 @@ object LiquibaseClient {
         referenceUsername: String? = null,
         snapshotFilters: String? = null,
         snapshotFormat: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "snapshot-reference",
-            outputFile?.let { "--output-file=$it" },
-            "--reference-url=$referenceUrl",
-            referenceDefaultCatalogName?.let { "--reference-default-catalog-name=$it" },
-            referenceDefaultSchemaName?.let { "--reference-default-schema-name=$it" },
-            referenceDriver?.let { "--reference-driver=$it" },
-            referenceDriverPropertiesFile?.let { "--reference-driver-properties-file=$it" },
-            referenceLiquibaseCatalogName?.let { "--reference-liquibase-catalog-name=$it" },
-            referenceLiquibaseSchemaName?.let { "--reference-liquibase-schema-name=$it" },
-            referencePassword?.let { "--reference-password=$it" },
-            referenceUsername?.let { "--reference-username=$it" },
-            snapshotFilters?.let { "--snapshot-filters=$it" },
-            snapshotFormat?.let { "--snapshot-format=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "snapshot-reference",
+                outputFile?.let { "--output-file=$it" },
+                "--reference-url=$referenceUrl",
+                referenceDefaultCatalogName?.let { "--reference-default-catalog-name=$it" },
+                referenceDefaultSchemaName?.let { "--reference-default-schema-name=$it" },
+                referenceDriver?.let { "--reference-driver=$it" },
+                referenceDriverPropertiesFile?.let { "--reference-driver-properties-file=$it" },
+                referenceLiquibaseCatalogName?.let { "--reference-liquibase-catalog-name=$it" },
+                referenceLiquibaseSchemaName?.let { "--reference-liquibase-schema-name=$it" },
+                referencePassword?.let { "--reference-password=$it" },
+                referenceUsername?.let { "--reference-username=$it" },
+                snapshotFilters?.let { "--snapshot-filters=$it" },
+                snapshotFormat?.let { "--snapshot-format=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1372,36 +1467,39 @@ object LiquibaseClient {
         schemas: String? = null,
         skipObjectSorting: Boolean? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "generate-changelog",
-            licenseKey?.let { "--license-key=$it" },
-            "--url=$url",
-            author?.let { "--author=$it" },
-            changelogFile?.let { "--changelog-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            dataOutputDirectory?.let { "--data-output-directory=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            diffTypes?.let { "--diff-types=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            excludeObjects?.let { "--exclude-objects=$it" },
-            includeCatalog?.let { "--include-catalog=$it" },
-            includeObjects?.let { "--include-objects=$it" },
-            includeSchema?.let { "--include-schema=$it" },
-            includeTablespace?.let { "--include-tablespace=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            outputSchemas?.let { "--output-schemas=$it" },
-            overwriteOutputFile?.let { "--overwrite-output-file=$it" },
-            password?.let { "--password=$it" },
-            replaceIfExistsTypes?.let { "--replace-if-exists-types=$it" },
-            runOnChangeTypes?.let { "--run-on-change-types=$it" },
-            schemas?.let { "--schemas=$it" },
-            skipObjectSorting?.let { "--skip-object-sorting=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "generate-changelog",
+                licenseKey?.let { "--license-key=$it" },
+                "--url=$url",
+                author?.let { "--author=$it" },
+                changelogFile?.let { "--changelog-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                dataOutputDirectory?.let { "--data-output-directory=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                diffTypes?.let { "--diff-types=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                excludeObjects?.let { "--exclude-objects=$it" },
+                includeCatalog?.let { "--include-catalog=$it" },
+                includeObjects?.let { "--include-objects=$it" },
+                includeSchema?.let { "--include-schema=$it" },
+                includeTablespace?.let { "--include-tablespace=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                outputSchemas?.let { "--output-schemas=$it" },
+                overwriteOutputFile?.let { "--overwrite-output-file=$it" },
+                password?.let { "--password=$it" },
+                replaceIfExistsTypes?.let { "--replace-if-exists-types=$it" },
+                runOnChangeTypes?.let { "--run-on-change-types=$it" },
+                schemas?.let { "--schemas=$it" },
+                skipObjectSorting?.let { "--skip-object-sorting=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1440,43 +1538,46 @@ object LiquibaseClient {
         reportPath: String? = null,
         schemas: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "diff",
-            "JSON",
-            "--reference-url=$referenceUrl",
-            "--url=$url",
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            diffTypes?.let { "--diff-types=$it" },
-            driftSeverity?.let { "--drift-severity=$it" },
-            driftSeverityChanged?.let { "--drift-severity-changed=$it" },
-            driftSeverityMissing?.let { "--drift-severity-missing=$it" },
-            driftSeverityUnexpected?.let { "--drift-severity-unexpected=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            excludeObjects?.let { "--exclude-objects=$it" },
-            format?.let { "--format=$it" },
-            includeObjects?.let { "--include-objects=$it" },
-            reportOpen?.let { "--report-open=$it" },
-            outputSchemas?.let { "--output-schemas=$it" },
-            password?.let { "--password=$it" },
-            referenceDefaultCatalogName?.let { "--reference-default-catalog-name=$it" },
-            referenceDefaultSchemaName?.let { "--reference-default-schema-name=$it" },
-            referenceDriver?.let { "--reference-driver=$it" },
-            referenceDriverPropertiesFile?.let { "--reference-driver-properties-file=$it" },
-            referenceLiquibaseCatalogName?.let { "--reference-liquibase-catalog-name=$it" },
-            referenceLiquibaseSchemaName?.let { "--reference-liquibase-schema-name=$it" },
-            referencePassword?.let { "--reference-password=$it" },
-            referenceSchemas?.let { "--reference-schemas=$it" },
-            referenceUsername?.let { "--reference-username=$it" },
-            reportEnabled?.let { "--report-enabled=$it" },
-            reportName?.let { "--report-name=$it" },
-            reportPath?.let { "--report-path=$it" },
-            schemas?.let { "--schemas=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "diff",
+                "JSON",
+                "--reference-url=$referenceUrl",
+                "--url=$url",
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                diffTypes?.let { "--diff-types=$it" },
+                driftSeverity?.let { "--drift-severity=$it" },
+                driftSeverityChanged?.let { "--drift-severity-changed=$it" },
+                driftSeverityMissing?.let { "--drift-severity-missing=$it" },
+                driftSeverityUnexpected?.let { "--drift-severity-unexpected=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                excludeObjects?.let { "--exclude-objects=$it" },
+                format?.let { "--format=$it" },
+                includeObjects?.let { "--include-objects=$it" },
+                reportOpen?.let { "--report-open=$it" },
+                outputSchemas?.let { "--output-schemas=$it" },
+                password?.let { "--password=$it" },
+                referenceDefaultCatalogName?.let { "--reference-default-catalog-name=$it" },
+                referenceDefaultSchemaName?.let { "--reference-default-schema-name=$it" },
+                referenceDriver?.let { "--reference-driver=$it" },
+                referenceDriverPropertiesFile?.let { "--reference-driver-properties-file=$it" },
+                referenceLiquibaseCatalogName?.let { "--reference-liquibase-catalog-name=$it" },
+                referenceLiquibaseSchemaName?.let { "--reference-liquibase-schema-name=$it" },
+                referencePassword?.let { "--reference-password=$it" },
+                referenceSchemas?.let { "--reference-schemas=$it" },
+                referenceUsername?.let { "--reference-username=$it" },
+                reportEnabled?.let { "--report-enabled=$it" },
+                reportName?.let { "--report-name=$it" },
+                reportPath?.let { "--report-path=$it" },
+                schemas?.let { "--schemas=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1494,20 +1595,23 @@ object LiquibaseClient {
         format: String? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "history",
-            outputFile?.let { "--output-file=$it" },
-            "--url=$url",
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            format?.let { "--format=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "history",
+                outputFile?.let { "--output-file=$it" },
+                "--url=$url",
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                format?.let { "--format=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1526,22 +1630,25 @@ object LiquibaseClient {
         password: String? = null,
         username: String? = null,
         verbose: Boolean? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "status",
-            "--changelog-file=$changelogFile",
-            "--url=$url",
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-            verbose?.let { "--verbose=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "status",
+                "--changelog-file=$changelogFile",
+                "--url=$url",
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+                verbose?.let { "--verbose=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1560,22 +1667,25 @@ object LiquibaseClient {
         password: String? = null,
         username: String? = null,
         verbose: Boolean? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "unexpected-changesets",
-            "--changelog-file=$changelogFile",
-            "--url=$url",
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-            verbose?.let { "--verbose=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "unexpected-changesets",
+                "--changelog-file=$changelogFile",
+                "--url=$url",
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+                verbose?.let { "--verbose=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1590,18 +1700,21 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "connect",
-            "--url=$url",
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "connect",
+                "--url=$url",
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1624,26 +1737,29 @@ object LiquibaseClient {
         password: String? = null,
         username: String? = null,
         verbose: Boolean? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "dbcl-history",
-            "--license-key=$licenseKey",
-            dbclhistoryCaptureExtensions?.let { "--dbclhistory-capture-extensions=$it" },
-            dbclhistoryCaptureSql?.let { "--dbclhistory-capture-sql=$it" },
-            dbclhistoryEnabled?.let { "--dbclhistory-enabled=$it" },
-            dbclhistorySeverity?.let { "--dbclhistory-severity=$it" },
-            outputFile?.let { "--output-file=$it" },
-            "--url=$url",
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            format?.let { "--format=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-            verbose?.let { "--verbose=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "dbcl-history",
+                "--license-key=$licenseKey",
+                dbclhistoryCaptureExtensions?.let { "--dbclhistory-capture-extensions=$it" },
+                dbclhistoryCaptureSql?.let { "--dbclhistory-capture-sql=$it" },
+                dbclhistoryEnabled?.let { "--dbclhistory-enabled=$it" },
+                dbclhistorySeverity?.let { "--dbclhistory-severity=$it" },
+                outputFile?.let { "--output-file=$it" },
+                "--url=$url",
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                format?.let { "--format=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+                verbose?.let { "--verbose=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1664,23 +1780,26 @@ object LiquibaseClient {
         password: String? = null,
         schemas: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "db-doc",
-            "--changelog-file=$changelogFile",
-            "--output-directory=$outputDirectory",
-            "--url=$url",
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            schemas?.let { "--schemas=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "db-doc",
+                "--changelog-file=$changelogFile",
+                "--output-directory=$outputDirectory",
+                "--url=$url",
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                schemas?.let { "--schemas=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1697,20 +1816,23 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "tag",
-            "--tag=$tag",
-            "--url=$url",
-            addRow?.let { "--add-row=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "tag",
+                "--tag=$tag",
+                "--url=$url",
+                addRow?.let { "--add-row=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1726,19 +1848,22 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "tag-exists",
-            "--tag=$tag",
-            "--url=$url",
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "tag-exists",
+                "--tag=$tag",
+                "--url=$url",
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1754,19 +1879,22 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "validate",
-            "--changelog-file=$changelogFile",
-            "--url=$url",
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "validate",
+                "--changelog-file=$changelogFile",
+                "--url=$url",
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1786,23 +1914,26 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "calculate-checksum",
-            "--changelog-file=$changelogFile",
-            "--url=$url",
-            changesetAuthor?.let { "--changeset-author=$it" },
-            changesetId?.let { "--changeset-id=$it" },
-            changesetIdentifier?.let { "--changeset-identifier=$it" },
-            changesetPath?.let { "--changeset-path=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "calculate-checksum",
+                "--changelog-file=$changelogFile",
+                "--url=$url",
+                changesetAuthor?.let { "--changeset-author=$it" },
+                changesetId?.let { "--changeset-id=$it" },
+                changesetIdentifier?.let { "--changeset-identifier=$it" },
+                changesetPath?.let { "--changeset-path=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1817,18 +1948,21 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "clear-checksums",
-            "--url=$url",
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "clear-checksums",
+                "--url=$url",
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1844,19 +1978,22 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "list-locks",
-            "--url=$url",
-            changelogFile?.let { "--changelog-file=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "list-locks",
+                "--url=$url",
+                changelogFile?.let { "--changelog-file=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1872,19 +2009,22 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "release-locks",
-            "--url=$url",
-            changelogFile?.let { "--changelog-file=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "release-locks",
+                "--url=$url",
+                changelogFile?.let { "--changelog-file=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1902,21 +2042,24 @@ object LiquibaseClient {
         labelFilter: String? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "changelog-sync",
-            "--changelog-file=$changelogFile",
-            "--url=$url",
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "changelog-sync",
+                "--changelog-file=$changelogFile",
+                "--url=$url",
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1937,24 +2080,27 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "changelog-sync-sql",
-            outputFile?.let { "--output-file=$it" },
-            "--changelog-file=$changelogFile",
-            "--url=$url",
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            outputDefaultCatalog?.let { "--output-default-catalog=$it" },
-            outputDefaultSchema?.let { "--output-default-schema=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "changelog-sync-sql",
+                outputFile?.let { "--output-file=$it" },
+                "--changelog-file=$changelogFile",
+                "--url=$url",
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                outputDefaultCatalog?.let { "--output-default-catalog=$it" },
+                outputDefaultSchema?.let { "--output-default-schema=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -1973,22 +2119,25 @@ object LiquibaseClient {
         labelFilter: String? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "changelog-sync-to-tag",
-            "--changelog-file=$changelogFile",
-            "--tag=$tag",
-            "--url=$url",
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "changelog-sync-to-tag",
+                "--changelog-file=$changelogFile",
+                "--tag=$tag",
+                "--url=$url",
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2010,25 +2159,28 @@ object LiquibaseClient {
         outputDefaultSchema: Boolean? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "changelog-sync-to-tag-sql",
-            outputFile?.let { "--output-file=$it" },
-            "--changelog-file=$changelogFile",
-            "--tag=$tag",
-            "--url=$url",
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            outputDefaultCatalog?.let { "--output-default-catalog=$it" },
-            outputDefaultSchema?.let { "--output-default-schema=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "changelog-sync-to-tag-sql",
+                outputFile?.let { "--output-file=$it" },
+                "--changelog-file=$changelogFile",
+                "--tag=$tag",
+                "--url=$url",
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                outputDefaultCatalog?.let { "--output-default-catalog=$it" },
+                outputDefaultSchema?.let { "--output-default-schema=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2046,21 +2198,24 @@ object LiquibaseClient {
         labelFilter: String? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "mark-next-changeset-ran",
-            "--changelog-file=$changelogFile",
-            "--url=$url",
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "mark-next-changeset-ran",
+                "--changelog-file=$changelogFile",
+                "--url=$url",
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2079,22 +2234,25 @@ object LiquibaseClient {
         labelFilter: String? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "mark-next-changeset-ran-sql",
-            outputFile?.let { "--output-file=$it" },
-            "--changelog-file=$changelogFile",
-            "--url=$url",
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "mark-next-changeset-ran-sql",
+                outputFile?.let { "--output-file=$it" },
+                "--changelog-file=$changelogFile",
+                "--url=$url",
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2113,22 +2271,25 @@ object LiquibaseClient {
         requireForce: Boolean? = null,
         schemas: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "drop-all",
-            "--force=$force",
-            "--url=$url",
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            dropDbclhistory?.let { "--drop-dbclhistory=$it" },
-            password?.let { "--password=$it" },
-            requireForce?.let { "--require-force=$it" },
-            schemas?.let { "--schemas=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "drop-all",
+                "--force=$force",
+                "--url=$url",
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                dropDbclhistory?.let { "--drop-dbclhistory=$it" },
+                password?.let { "--password=$it" },
+                requireForce?.let { "--require-force=$it" },
+                schemas?.let { "--schemas=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2147,22 +2308,25 @@ object LiquibaseClient {
         driverPropertiesFile: String? = null,
         password: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "execute-sql",
-            outputFile?.let { "--output-file=$it" },
-            "--sql=$sql",
-            "--sql-file=$sqlFile",
-            "--url=$url",
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            delimiter?.let { "--delimiter=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            password?.let { "--password=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "execute-sql",
+                outputFile?.let { "--output-file=$it" },
+                "--sql=$sql",
+                "--sql-file=$sqlFile",
+                "--url=$url",
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                delimiter?.let { "--delimiter=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                password?.let { "--password=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2187,28 +2351,31 @@ object LiquibaseClient {
         password: String? = null,
         url: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "set-contexts",
-            "--license-key=$licenseKey",
-            "--changelog-file=$changelogFile",
-            "--set-as=$setAs",
-            changesetAuthor?.let { "--changeset-author=$it" },
-            changesetId?.let { "--changeset-id=$it" },
-            changesetPath?.let { "--changeset-path=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            dbms?.let { "--dbms=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            forceReplace?.let { "--force-replace=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            url?.let { "--url=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "set-contexts",
+                "--license-key=$licenseKey",
+                "--changelog-file=$changelogFile",
+                "--set-as=$setAs",
+                changesetAuthor?.let { "--changeset-author=$it" },
+                changesetId?.let { "--changeset-id=$it" },
+                changesetPath?.let { "--changeset-path=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                dbms?.let { "--dbms=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                forceReplace?.let { "--force-replace=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                url?.let { "--url=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2233,28 +2400,31 @@ object LiquibaseClient {
         password: String? = null,
         url: String? = null,
         username: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "set-labels",
-            "--license-key=$licenseKey",
-            "--changelog-file=$changelogFile",
-            "--set-as=$setAs",
-            changesetAuthor?.let { "--changeset-author=$it" },
-            changesetId?.let { "--changeset-id=$it" },
-            changesetPath?.let { "--changeset-path=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            dbms?.let { "--dbms=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            forceReplace?.let { "--force-replace=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            url?.let { "--url=$it" },
-            username?.let { "--username=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "set-labels",
+                "--license-key=$licenseKey",
+                "--changelog-file=$changelogFile",
+                "--set-as=$setAs",
+                changesetAuthor?.let { "--changeset-author=$it" },
+                changesetId?.let { "--changeset-id=$it" },
+                changesetPath?.let { "--changeset-path=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                dbms?.let { "--dbms=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                forceReplace?.let { "--force-replace=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                url?.let { "--url=$it" },
+                username?.let { "--username=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2272,21 +2442,24 @@ object LiquibaseClient {
         checksSettingsFile: String? = null,
         force: Boolean? = null,
         severity: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "check",
-            "bulk-set",
-            "--license-key=$licenseKey",
-            disable?.let { "--disable=$it" },
-            enable?.let { "--enable=$it" },
-            autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
-            autoUpdate?.let { "--auto-update=$it" },
-            checkName?.let { "--check-name=$it" },
-            checksSettingsFile?.let { "--checks-settings-file=$it" },
-            force?.let { "--force=$it" },
-            severity?.let { "--severity=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "check",
+                "bulk-set",
+                "--license-key=$licenseKey",
+                disable?.let { "--disable=$it" },
+                enable?.let { "--enable=$it" },
+                autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
+                autoUpdate?.let { "--auto-update=$it" },
+                checkName?.let { "--check-name=$it" },
+                checksSettingsFile?.let { "--checks-settings-file=$it" },
+                force?.let { "--force=$it" },
+                severity?.let { "--severity=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2299,17 +2472,20 @@ object LiquibaseClient {
         autoEnableNewChecks: Boolean? = null,
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "check",
-            "copy",
-            "--license-key=$licenseKey",
-            "--check-name=$checkName",
-            autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
-            autoUpdate?.let { "--auto-update=$it" },
-            checksSettingsFile?.let { "--checks-settings-file=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "check",
+                "copy",
+                "--license-key=$licenseKey",
+                "--check-name=$checkName",
+                autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
+                autoUpdate?.let { "--auto-update=$it" },
+                checksSettingsFile?.let { "--checks-settings-file=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2321,16 +2497,19 @@ object LiquibaseClient {
         packageContents: String,
         packageName: String,
         packageFile: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "check",
-            "create",
-            "--license-key=$licenseKey",
-            "--package-contents=$packageContents",
-            "--package-name=$packageName",
-            packageFile?.let { "--package-file=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "check",
+                "create",
+                "--license-key=$licenseKey",
+                "--package-contents=$packageContents",
+                "--package-name=$packageName",
+                packageFile?.let { "--package-file=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2343,17 +2522,20 @@ object LiquibaseClient {
         autoEnableNewChecks: Boolean? = null,
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "check",
-            "customize",
-            "--license-key=$licenseKey",
-            "--check-name=$checkName",
-            autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
-            autoUpdate?.let { "--auto-update=$it" },
-            checksSettingsFile?.let { "--checks-settings-file=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "check",
+                "customize",
+                "--license-key=$licenseKey",
+                "--check-name=$checkName",
+                autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
+                autoUpdate?.let { "--auto-update=$it" },
+                checksSettingsFile?.let { "--checks-settings-file=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2366,17 +2548,20 @@ object LiquibaseClient {
         autoEnableNewChecks: Boolean? = null,
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "check",
-            "delete",
-            "--license-key=$licenseKey",
-            "--check-name=$checkName",
-            autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
-            autoUpdate?.let { "--auto-update=$it" },
-            checksSettingsFile?.let { "--checks-settings-file=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "check",
+                "delete",
+                "--license-key=$licenseKey",
+                "--check-name=$checkName",
+                autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
+                autoUpdate?.let { "--auto-update=$it" },
+                checksSettingsFile?.let { "--checks-settings-file=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2389,17 +2574,20 @@ object LiquibaseClient {
         autoEnableNewChecks: Boolean? = null,
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "check",
-            "disable",
-            "--license-key=$licenseKey",
-            "--check-name=$checkName",
-            autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
-            autoUpdate?.let { "--auto-update=$it" },
-            checksSettingsFile?.let { "--checks-settings-file=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "check",
+                "disable",
+                "--license-key=$licenseKey",
+                "--check-name=$checkName",
+                autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
+                autoUpdate?.let { "--auto-update=$it" },
+                checksSettingsFile?.let { "--checks-settings-file=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2412,17 +2600,20 @@ object LiquibaseClient {
         autoEnableNewChecks: Boolean? = null,
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "check",
-            "enable",
-            "--license-key=$licenseKey",
-            "--check-name=$checkName",
-            autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
-            autoUpdate?.let { "--auto-update=$it" },
-            checksSettingsFile?.let { "--checks-settings-file=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "check",
+                "enable",
+                "--license-key=$licenseKey",
+                "--check-name=$checkName",
+                autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
+                autoUpdate?.let { "--auto-update=$it" },
+                checksSettingsFile?.let { "--checks-settings-file=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2435,17 +2626,20 @@ object LiquibaseClient {
         autoEnableNewChecks: Boolean? = null,
         autoUpdate: String? = null,
         checksSettingsFile: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "check",
-            "reset",
-            "--license-key=$licenseKey",
-            "--check-name=$checkName",
-            autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
-            autoUpdate?.let { "--auto-update=$it" },
-            checksSettingsFile?.let { "--checks-settings-file=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "check",
+                "reset",
+                "--license-key=$licenseKey",
+                "--check-name=$checkName",
+                autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
+                autoUpdate?.let { "--auto-update=$it" },
+                checksSettingsFile?.let { "--checks-settings-file=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2484,43 +2678,46 @@ object LiquibaseClient {
         sqlParserFailSeverity: String? = null,
         username: String? = null,
         verbose: Boolean? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "check",
-            "run",
-            "--license-key=$licenseKey",
-            changelogFile?.let { "--changelog-file=$it" },
-            url?.let { "--url=$it" },
-            autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
-            autoUpdate?.let { "--auto-update=$it" },
-            cacheChangelogFileContents?.let { "--cache-changelog-file-contents=$it" },
-            changesetFilter?.let { "--changeset-filter=$it" },
-            checkName?.let { "--check-name=$it" },
-            checkRollbacks?.let { "--check-rollbacks=$it" },
-            checksOutput?.let { "--checks-output=$it" },
-            checksPackages?.let { "--checks-packages=$it" },
-            checksScope?.let { "--checks-scope=$it" },
-            checksScriptsEnabled?.let { "--checks-scripts-enabled=$it" },
-            checksScriptsPath?.let { "--checks-scripts-path=$it" },
-            checksSettingsFile?.let { "--checks-settings-file=$it" },
-            contextFilter?.let { "--context-filter=$it" },
-            defaultCatalogName?.let { "--default-catalog-name=$it" },
-            defaultSchemaName?.let { "--default-schema-name=$it" },
-            driver?.let { "--driver=$it" },
-            driverPropertiesFile?.let { "--driver-properties-file=$it" },
-            format?.let { "--format=$it" },
-            labelFilter?.let { "--label-filter=$it" },
-            password?.let { "--password=$it" },
-            propertySubstitutionEnabled?.let { "--property-substitution-enabled=$it" },
-            reportEnabled?.let { "--report-enabled=$it" },
-            reportName?.let { "--report-name=$it" },
-            reportPath?.let { "--report-path=$it" },
-            schemas?.let { "--schemas=$it" },
-            sqlParserFailSeverity?.let { "--sql-parser-fail-severity=$it" },
-            username?.let { "--username=$it" },
-            verbose?.let { "--verbose=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "check",
+                "run",
+                "--license-key=$licenseKey",
+                changelogFile?.let { "--changelog-file=$it" },
+                url?.let { "--url=$it" },
+                autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
+                autoUpdate?.let { "--auto-update=$it" },
+                cacheChangelogFileContents?.let { "--cache-changelog-file-contents=$it" },
+                changesetFilter?.let { "--changeset-filter=$it" },
+                checkName?.let { "--check-name=$it" },
+                checkRollbacks?.let { "--check-rollbacks=$it" },
+                checksOutput?.let { "--checks-output=$it" },
+                checksPackages?.let { "--checks-packages=$it" },
+                checksScope?.let { "--checks-scope=$it" },
+                checksScriptsEnabled?.let { "--checks-scripts-enabled=$it" },
+                checksScriptsPath?.let { "--checks-scripts-path=$it" },
+                checksSettingsFile?.let { "--checks-settings-file=$it" },
+                contextFilter?.let { "--context-filter=$it" },
+                defaultCatalogName?.let { "--default-catalog-name=$it" },
+                defaultSchemaName?.let { "--default-schema-name=$it" },
+                driver?.let { "--driver=$it" },
+                driverPropertiesFile?.let { "--driver-properties-file=$it" },
+                format?.let { "--format=$it" },
+                labelFilter?.let { "--label-filter=$it" },
+                password?.let { "--password=$it" },
+                propertySubstitutionEnabled?.let { "--property-substitution-enabled=$it" },
+                reportEnabled?.let { "--report-enabled=$it" },
+                reportName?.let { "--report-name=$it" },
+                reportPath?.let { "--report-path=$it" },
+                schemas?.let { "--schemas=$it" },
+                sqlParserFailSeverity?.let { "--sql-parser-fail-severity=$it" },
+                username?.let { "--username=$it" },
+                verbose?.let { "--verbose=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2536,20 +2733,23 @@ object LiquibaseClient {
         checksPackages: String? = null,
         checksSettingsFile: String? = null,
         showCols: String? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "check",
-            "show",
-            "--license-key=$licenseKey",
-            autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
-            autoUpdate?.let { "--auto-update=$it" },
-            checkName?.let { "--check-name=$it" },
-            checkStatus?.let { "--check-status=$it" },
-            checksPackages?.let { "--checks-packages=$it" },
-            checksSettingsFile?.let { "--checks-settings-file=$it" },
-            showCols?.let { "--show-cols=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "check",
+                "show",
+                "--license-key=$licenseKey",
+                autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
+                autoUpdate?.let { "--auto-update=$it" },
+                checkName?.let { "--check-name=$it" },
+                checkStatus?.let { "--check-status=$it" },
+                checksPackages?.let { "--checks-packages=$it" },
+                checksSettingsFile?.let { "--checks-settings-file=$it" },
+                showCols?.let { "--show-cols=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2564,16 +2764,19 @@ object LiquibaseClient {
         flowFileStrictParsing: Boolean? = null,
         flowShellInterpreter: String? = null,
         flowShellKeepTempFiles: Boolean? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "flow",
-            "--license-key=$licenseKey",
-            flowFile?.let { "--flow-file=$it" },
-            flowFileStrictParsing?.let { "--flow-file-strict-parsing=$it" },
-            flowShellInterpreter?.let { "--flow-shell-interpreter=$it" },
-            flowShellKeepTempFiles?.let { "--flow-shell-keep-temp-files=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "flow",
+                "--license-key=$licenseKey",
+                flowFile?.let { "--flow-file=$it" },
+                flowFileStrictParsing?.let { "--flow-file-strict-parsing=$it" },
+                flowShellInterpreter?.let { "--flow-shell-interpreter=$it" },
+                flowShellKeepTempFiles?.let { "--flow-shell-keep-temp-files=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 
@@ -2586,17 +2789,20 @@ object LiquibaseClient {
         flowFileStrictParsing: Boolean? = null,
         flowShellInterpreter: String? = null,
         flowShellKeepTempFiles: Boolean? = null,
-        args: List<LiquibaseArgs> = globalArgs?.let { listOf(it) } ?: emptyList(),
     ) {
-        val argsList = args.flatMap { it.serialize() } + listOfNotNull(
-            "flow",
-            "validate",
-            "--license-key=$licenseKey",
-            flowFile?.let { "--flow-file=$it" },
-            flowFileStrictParsing?.let { "--flow-file-strict-parsing=$it" },
-            flowShellInterpreter?.let { "--flow-shell-interpreter=$it" },
-            flowShellKeepTempFiles?.let { "--flow-shell-keep-temp-files=$it" },
-        )
+        val argsList = listOf(
+            globalArgs,
+            listOfNotNull(
+                "flow",
+                "validate",
+                "--license-key=$licenseKey",
+                flowFile?.let { "--flow-file=$it" },
+                flowFileStrictParsing?.let { "--flow-file-strict-parsing=$it" },
+                flowShellInterpreter?.let { "--flow-shell-interpreter=$it" },
+                flowShellKeepTempFiles?.let { "--flow-shell-keep-temp-files=$it" },
+            ),
+            commandArgs,
+        ).flatten()
         executeLiquibaseCommandLine(argsList)
     }
 }

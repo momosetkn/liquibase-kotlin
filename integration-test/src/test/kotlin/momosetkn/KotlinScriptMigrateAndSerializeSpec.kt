@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import momosetkn.ResourceUtils.getResourceAsString
 import momosetkn.liquibase.client.LiquibaseClient
-import momosetkn.liquibase.client.LiquibaseGlobalArgs
 import java.nio.file.Paths
 
 class KotlinScriptMigrateAndSerializeSpec : FunSpec({
@@ -17,18 +16,22 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
 
     context("Migrate and serialize") {
         test("can migrate") {
-            LiquibaseClient.globalArgs = LiquibaseGlobalArgs(
-                showBanner = false
-            )
+            val client = LiquibaseClient {
+                globalArgs {
+                    general {
+                        showBanner = false
+                    }
+                }
+            }
             val container = Database.startedContainer
-            LiquibaseClient.update(
+            client.update(
                 driver = "org.postgresql.Driver",
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,
                 changelogFile = PARSER_INPUT_CHANGELOG,
             )
-            LiquibaseClient.rollback(
+            client.rollback(
                 driver = "org.postgresql.Driver",
                 url = container.jdbcUrl,
                 username = container.username,
@@ -36,7 +39,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
                 changelogFile = PARSER_INPUT_CHANGELOG,
                 tag = "started",
             )
-            LiquibaseClient.update(
+            client.update(
                 driver = "org.postgresql.Driver",
                 url = container.jdbcUrl,
                 username = container.username,
@@ -47,7 +50,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
                 Paths.get(RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
             val f = actualSerializedChangeLogFile.toFile()
             if (f.exists()) f.delete()
-            LiquibaseClient.generateChangelog(
+            client.generateChangelog(
                 driver = "org.postgresql.Driver",
                 url = container.jdbcUrl,
                 username = container.username,
@@ -81,10 +84,12 @@ private fun String.maskingChangeSet() =
 private const val PARSER_INPUT_CHANGELOG = "KotlinScriptMigrateAndSerializeSpec/parser_input/db.changelog-all.kts"
 
 @Suppress("MaxLineLength")
-private const val SERIALIZER_ACTUAL_CHANGELOG = "KotlinScriptMigrateAndSerializeSpec/serializer_actual/db.changelog-0.kts"
+private const val SERIALIZER_ACTUAL_CHANGELOG =
+    "KotlinScriptMigrateAndSerializeSpec/serializer_actual/db.changelog-0.kts"
 
 // To avoid auto-formatting, do not add a file extension.
 @Suppress("MaxLineLength")
-private const val SERIALIZER_EXPECT_CHANGELOG = "KotlinScriptMigrateAndSerializeSpec/serializer_expect/db.changelog-0_kts"
+private const val SERIALIZER_EXPECT_CHANGELOG =
+    "KotlinScriptMigrateAndSerializeSpec/serializer_expect/db.changelog-0_kts"
 private const val PARSER_EXPECT_DDL = "KotlinScriptMigrateAndSerializeSpec/parser_expect/db.ddl-0.sql"
 private const val RESOURCE_DIR = "src/main/resources"

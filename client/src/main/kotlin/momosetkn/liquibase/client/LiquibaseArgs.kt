@@ -4,15 +4,20 @@ package momosetkn.liquibase.client
 
 import java.time.temporal.TemporalAccessor
 
-interface LiquibaseArgs {
+sealed interface LiquibaseGlobalArgs {
+    fun serialize(): List<String>
+}
+sealed interface LiquibaseSystemEnvArgs {
+    fun serialize(): List<Pair<String, String>>
+}
+sealed interface LiquibaseCommandArgs {
     fun serialize(): List<String>
 }
 
-@Suppress("LargeClass", "TooManyFunctions")
-data class LiquibaseInfoArgs0(
-    val help: Boolean? = null,
-    val version: Boolean? = null,
-) : LiquibaseArgs {
+data class LiquibaseInfoArgs(
+    var help: Boolean? = null,
+    var version: Boolean? = null,
+) : LiquibaseGlobalArgs {
     override fun serialize(): List<String> {
         return listOfNotNull(
             help?.let { "-h=$it" },
@@ -21,72 +26,72 @@ data class LiquibaseInfoArgs0(
     }
 }
 
-data class LiquibaseGlobalArgs(
-    val allowDuplicatedChangesetIdentifiers: Boolean? = null,
-    val alwaysDropInsteadOfReplace: Boolean? = null,
-    val alwaysOverrideStoredLogicSchema: String? = null,
-    val autoReorg: Boolean? = null,
-    val changelogLockPollRate: Int? = null,
-    val changelogLockWaitTimeInMinutes: Int? = null,
-    val changelogParseMode: String? = null,
-    val classpath: String? = null,
-    val convertDataTypes: Boolean? = null,
-    val databaseChangelogLockTableName: String? = null,
-    val databaseChangelogTableName: String? = null,
-    val databaseClass: String? = null,
-    val ddlLockTimeout: Int? = null,
-    val defaultsFile: String? = null,
-    val diffColumnOrder: Boolean? = null,
-    val driver: String? = null,
-    val driverPropertiesFile: String? = null,
-    val duplicateFileMode: String? = null,
-    val errorOnCircularIncludeAll: Boolean? = null,
-    val fileEncoding: String? = null,
-    val generateChangesetCreatedValues: Boolean? = null,
-    val generatedChangesetIdsContainsDescription: String? = null,
-    val headless: String? = null,
-    val includeCatalogInSpecification: Boolean? = null,
-    val includeRelationsForComputedColumns: Boolean? = null,
-    val includeSystemClasspath: Boolean? = null,
-    val licenseKey: String? = null,
-    val liquibaseCatalogName: String? = null,
-    val liquibaseSchemaName: String? = null,
-    val liquibaseTablespaceName: String? = null,
-    val logChannels: String? = null,
-    val logFile: String? = null,
-    val logFormat: String? = null,
-    val logLevel: String? = null,
-    val mirrorConsoleMessagesToLog: Boolean? = null,
-    val missingPropertyMode: String? = null,
-    val monitorPerformance: Boolean? = null,
-    val onMissingIncludeChangelog: String? = null,
-    val outputFile: String? = null,
-    val outputFileEncoding: String? = null,
-    val outputLineSeparator: String? = null,
-    val preserveSchemaCase: Boolean? = null,
-    val proGlobalEndDelimiter: String? = null,
-    val proGlobalEndDelimiterPrioritized: Boolean? = null,
-    val proMarkUnusedNotDrop: Boolean? = null,
-    val proSqlInline: Boolean? = null,
-    val proStrict: Boolean? = null,
-    val proSynonymsDropPublic: Boolean? = null,
-    val promptForNonLocalDatabase: Boolean? = null,
-    val propertyProviderClass: String? = null,
-    val searchPath: String? = null,
-    val secureParsing: Boolean? = null,
-    val shouldRun: Boolean? = null,
-    val shouldSnapshotData: Boolean? = null,
-    val showBanner: Boolean? = null,
-    val sqlLogLevel: String? = null,
-    val sqlShowSqlWarnings: Boolean? = null,
-    val strict: Boolean? = null,
-    val supportPropertyEscaping: Boolean? = null,
-    val supportsMethodValidationLevel: String? = null,
-    val trimLoadDataFileHeader: Boolean? = null,
-    val uiService: String? = null,
-    val useProcedureSchema: Boolean? = null,
-    val validateXmlChangelogFiles: Boolean? = null,
-) : LiquibaseArgs {
+data class LiquibaseGeneralGlobalArgs(
+    var allowDuplicatedChangesetIdentifiers: Boolean? = null,
+    var alwaysDropInsteadOfReplace: Boolean? = null,
+    var alwaysOverrideStoredLogicSchema: String? = null,
+    var autoReorg: Boolean? = null,
+    var changelogLockPollRate: Int? = null,
+    var changelogLockWaitTimeInMinutes: Int? = null,
+    var changelogParseMode: String? = null,
+    var classpath: String? = null,
+    var convertDataTypes: Boolean? = null,
+    var databaseChangelogLockTableName: String? = null,
+    var databaseChangelogTableName: String? = null,
+    var databaseClass: String? = null,
+    var ddlLockTimeout: Int? = null,
+    var defaultsFile: String? = null,
+    var diffColumnOrder: Boolean? = null,
+    var driver: String? = null,
+    var driverPropertiesFile: String? = null,
+    var duplicateFileMode: String? = null,
+    var errorOnCircularIncludeAll: Boolean? = null,
+    var fileEncoding: String? = null,
+    var generateChangesetCreatedvarues: Boolean? = null,
+    var generatedChangesetIdsContainsDescription: String? = null,
+    var headless: String? = null,
+    var includeCatalogInSpecification: Boolean? = null,
+    var includeRelationsForComputedColumns: Boolean? = null,
+    var includeSystemClasspath: Boolean? = null,
+    var licenseKey: String? = null,
+    var liquibaseCatalogName: String? = null,
+    var liquibaseSchemaName: String? = null,
+    var liquibaseTablespaceName: String? = null,
+    var logChannels: String? = null,
+    var logFile: String? = null,
+    var logFormat: String? = null,
+    var logLevel: String? = null,
+    var mirrorConsoleMessagesToLog: Boolean? = null,
+    var missingPropertyMode: String? = null,
+    var monitorPerformance: Boolean? = null,
+    var onMissingIncludeChangelog: String? = null,
+    var outputFile: String? = null,
+    var outputFileEncoding: String? = null,
+    var outputLineSeparator: String? = null,
+    var preserveSchemaCase: Boolean? = null,
+    var proGlobalEndDelimiter: String? = null,
+    var proGlobalEndDelimiterPrioritized: Boolean? = null,
+    var proMarkUnusedNotDrop: Boolean? = null,
+    var proSqlInline: Boolean? = null,
+    var proStrict: Boolean? = null,
+    var proSynonymsDropPublic: Boolean? = null,
+    var promptForNonLocalDatabase: Boolean? = null,
+    var propertyProviderClass: String? = null,
+    var searchPath: String? = null,
+    var secureParsing: Boolean? = null,
+    var shouldRun: Boolean? = null,
+    var shouldSnapshotData: Boolean? = null,
+    var showBanner: Boolean? = null,
+    var sqlLogLevel: String? = null,
+    var sqlShowSqlWarnings: Boolean? = null,
+    var strict: Boolean? = null,
+    var supportPropertyEscaping: Boolean? = null,
+    var supportsMethodvaridationLevel: String? = null,
+    var trimLoadDataFileHeader: Boolean? = null,
+    var uiService: String? = null,
+    var useProcedureSchema: Boolean? = null,
+    var varidateXmlChangelogFiles: Boolean? = null,
+) : LiquibaseGlobalArgs {
     override fun serialize(): List<String> {
         return listOfNotNull(
             allowDuplicatedChangesetIdentifiers?.let { "--allow-duplicated-changeset-identifiers=$it" },
@@ -109,7 +114,7 @@ data class LiquibaseGlobalArgs(
             duplicateFileMode?.let { "--duplicate-file-mode=$it" },
             errorOnCircularIncludeAll?.let { "--error-on-circular-include-all=$it" },
             fileEncoding?.let { "--file-encoding=$it" },
-            generateChangesetCreatedValues?.let { "--generate-changeset-created-values=$it" },
+            generateChangesetCreatedvarues?.let { "--generate-changeset-created-varues=$it" },
             generatedChangesetIdsContainsDescription?.let { "--generated-changeset-ids-contains-description=$it" },
             headless?.let { "--headless=$it" },
             includeCatalogInSpecification?.let { "--include-catalog-in-specification=$it" },
@@ -148,22 +153,21 @@ data class LiquibaseGlobalArgs(
             sqlShowSqlWarnings?.let { "--sql-show-sql-warnings=$it" },
             strict?.let { "--strict=$it" },
             supportPropertyEscaping?.let { "--support-property-escaping=$it" },
-            supportsMethodValidationLevel?.let { "--supports-method-validation-level=$it" },
+            supportsMethodvaridationLevel?.let { "--supports-method-varidation-level=$it" },
             trimLoadDataFileHeader?.let { "--trim-load-data-file-header=$it" },
             uiService?.let { "--ui-service=$it" },
             useProcedureSchema?.let { "--use-procedure-schema=$it" },
-            validateXmlChangelogFiles?.let { "--validate-xml-changelog-files=$it" },
+            varidateXmlChangelogFiles?.let { "--varidate-xml-changelog-files=$it" },
         )
     }
 }
 
 data class LiquibaseDbclhistoryArgs(
-    // Args
-    val dbclhistoryCaptureExtensions: Boolean? = null,
-    val dbclhistoryCaptureSql: Boolean? = null,
-    val dbclhistoryEnabled: Boolean? = null,
-    val dbclhistorySeverity: String? = null,
-) : LiquibaseArgs {
+    var dbclhistoryCaptureExtensions: Boolean? = null,
+    var dbclhistoryCaptureSql: Boolean? = null,
+    var dbclhistoryEnabled: Boolean? = null,
+    var dbclhistorySeverity: String? = null,
+) : LiquibaseGlobalArgs {
     override fun serialize(): List<String> {
         return listOfNotNull(
             dbclhistoryCaptureExtensions?.let { "--dbclhistory-capture-extensions=$it" },
@@ -175,35 +179,34 @@ data class LiquibaseDbclhistoryArgs(
 }
 
 data class LiquibaseExecutorsArgs(
-    // Args
-    val psqlArgs: String? = null,
-    val psqlKeepTemp: Boolean? = null,
-    val psqlKeepTempName: String? = null,
-    val psqlKeepTempPath: String? = null,
-    val psqlLogFile: String? = null,
-    val psqlPath: String? = null,
-    val psqlTimeout: Int? = null,
-    val sqlcmdArgs: String? = null,
-    val sqlcmdCatalogName: String? = null,
-    val sqlcmdKeepTemp: Boolean? = null,
-    val sqlcmdKeepTempName: String? = null,
-    val sqlcmdKeepTempOverwrite: Boolean? = null,
-    val sqlcmdKeepTempPath: String? = null,
-    val sqlcmdLogFile: String? = null,
-    val sqlcmdPath: String? = null,
-    val sqlcmdTimeout: Int? = null,
-    val sqlplusArgs: String? = null,
-    val sqlplusCreateSpool: Boolean? = null,
-    val sqlplusKeepTemp: Boolean? = null,
-    val sqlplusKeepTempName: String? = null,
-    val sqlplusKeepTempOverwrite: Boolean? = null,
-    val sqlplusKeepTempPath: String? = null,
-    val sqlplusPassword: String? = null,
-    val sqlplusPath: String? = null,
-    val sqlplusSqlerror: String? = null,
-    val sqlplusTimeout: Int? = null,
-    val sqlplusUsername: String? = null,
-) : LiquibaseArgs {
+    var psqlArgs: String? = null,
+    var psqlKeepTemp: Boolean? = null,
+    var psqlKeepTempName: String? = null,
+    var psqlKeepTempPath: String? = null,
+    var psqlLogFile: String? = null,
+    var psqlPath: String? = null,
+    var psqlTimeout: Int? = null,
+    var sqlcmdArgs: String? = null,
+    var sqlcmdCatalogName: String? = null,
+    var sqlcmdKeepTemp: Boolean? = null,
+    var sqlcmdKeepTempName: String? = null,
+    var sqlcmdKeepTempOverwrite: Boolean? = null,
+    var sqlcmdKeepTempPath: String? = null,
+    var sqlcmdLogFile: String? = null,
+    var sqlcmdPath: String? = null,
+    var sqlcmdTimeout: Int? = null,
+    var sqlplusArgs: String? = null,
+    var sqlplusCreateSpool: Boolean? = null,
+    var sqlplusKeepTemp: Boolean? = null,
+    var sqlplusKeepTempName: String? = null,
+    var sqlplusKeepTempOverwrite: Boolean? = null,
+    var sqlplusKeepTempPath: String? = null,
+    var sqlplusPassword: String? = null,
+    var sqlplusPath: String? = null,
+    var sqlplusSqlerror: String? = null,
+    var sqlplusTimeout: Int? = null,
+    var sqlplusUsername: String? = null,
+) : LiquibaseGlobalArgs {
     override fun serialize(): List<String> {
         return listOfNotNull(
             psqlArgs?.let { "--psql-args=$it" },
@@ -237,11 +240,10 @@ data class LiquibaseExecutorsArgs(
     }
 }
 
-data class LiquibaseCustomLoggingArgs(
-    // Args
-    val customLogDataFile: String? = null,
-    val customLogDataFrequency: String? = null,
-) : LiquibaseArgs {
+data class LiquibaseCustomLoggingCommandArgs(
+    var customLogDataFile: String? = null,
+    var customLogDataFrequency: String? = null,
+) : LiquibaseCommandArgs {
     override fun serialize(): List<String> {
         return listOfNotNull(
             customLogDataFile?.let { "--custom-log-data-file=$it" },
@@ -251,24 +253,23 @@ data class LiquibaseCustomLoggingArgs(
 }
 
 data class LiquibaseExtensionsArgs(
-    // Args
-    val dynamodbTrackingTablesBillingMode: String? = null,
-    val dynamodbTrackingTablesProvisionedThroughputReadCapacityUnits: Int? = null,
-    val dynamodbTrackingTablesProvisionedThroughputWriteCapacityUnits: Int? = null,
-    val dynamodbWaitersEnabled: Boolean? = null,
-    val dynamodbWaitersFailOnTimeout: Boolean? = null,
-    val dynamodbWaitersLogNotificationEnabled: Boolean? = null,
-    val dynamodbWaitersLogNotificationInterval: Int? = null,
-    val dynamodbWaiterCreateFixedDelayBackoffStrategyDuration: Int? = null,
-    val dynamodbWaiterCreateMaxAttempts: Int? = null,
-    val dynamodbWaiterCreateTotalTimeout: Int? = null,
-    val dynamodbWaiterDeleteFixedDelayBackoffStrategyDuration: Int? = null,
-    val dynamodbWaiterDeleteMaxAttempts: Int? = null,
-    val dynamodbWaiterDeleteTotalTimeout: Int? = null,
-    val dynamodbWaiterUpdateFixedDelayBackoffStrategyDuration: Int? = null,
-    val dynamodbWaiterUpdateMaxAttempts: Int? = null,
-    val dynamodbWaiterUpdateTotalTimeout: Int? = null,
-) : LiquibaseArgs {
+    var dynamodbTrackingTablesBillingMode: String? = null,
+    var dynamodbTrackingTablesProvisionedThroughputReadCapacityUnits: Int? = null,
+    var dynamodbTrackingTablesProvisionedThroughputWriteCapacityUnits: Int? = null,
+    var dynamodbWaitersEnabled: Boolean? = null,
+    var dynamodbWaitersFailOnTimeout: Boolean? = null,
+    var dynamodbWaitersLogNotificationEnabled: Boolean? = null,
+    var dynamodbWaitersLogNotificationIntervar: Int? = null,
+    var dynamodbWaiterCreateFixedDelayBackoffStrategyDuration: Int? = null,
+    var dynamodbWaiterCreateMaxAttempts: Int? = null,
+    var dynamodbWaiterCreateTotalTimeout: Int? = null,
+    var dynamodbWaiterDeleteFixedDelayBackoffStrategyDuration: Int? = null,
+    var dynamodbWaiterDeleteMaxAttempts: Int? = null,
+    var dynamodbWaiterDeleteTotalTimeout: Int? = null,
+    var dynamodbWaiterUpdateFixedDelayBackoffStrategyDuration: Int? = null,
+    var dynamodbWaiterUpdateMaxAttempts: Int? = null,
+    var dynamodbWaiterUpdateTotalTimeout: Int? = null,
+) : LiquibaseGlobalArgs {
     override fun serialize(): List<String> {
         return listOfNotNull(
             dynamodbTrackingTablesBillingMode?.let { "--dynamodb-tracking-tables-billing-mode=$it" },
@@ -281,7 +282,7 @@ data class LiquibaseExtensionsArgs(
             dynamodbWaitersEnabled?.let { "--dynamodb-waiters-enabled=$it" },
             dynamodbWaitersFailOnTimeout?.let { "--dynamodb-waiters-fail-on-timeout=$it" },
             dynamodbWaitersLogNotificationEnabled?.let { "--dynamodb-waiters-log-notification-enabled=$it" },
-            dynamodbWaitersLogNotificationInterval?.let { "--dynamodb-waiters-log-notification-interval=$it" },
+            dynamodbWaitersLogNotificationIntervar?.let { "--dynamodb-waiters-log-notification-intervar=$it" },
             dynamodbWaiterCreateFixedDelayBackoffStrategyDuration?.let {
                 "--dynamodb-waiter-create-fixed-delay-backoff-strategy-duration=$it"
             },
@@ -302,52 +303,49 @@ data class LiquibaseExtensionsArgs(
 }
 
 data class LiquibaseMongoDBArgs(
-    // Args
-    val adjustTrackingTablesOnStartup: Boolean? = null,
-    val retryWrites: Boolean? = null,
-    val supportsValidator: Boolean? = null,
-) : LiquibaseArgs {
+    var adjustTrackingTablesOnStartup: Boolean? = null,
+    var retryWrites: Boolean? = null,
+    var supportsvaridator: Boolean? = null,
+) : LiquibaseGlobalArgs {
     override fun serialize(): List<String> {
         return listOfNotNull(
             adjustTrackingTablesOnStartup?.let { "--adjust-tracking-tables-on-startup=$it" },
             retryWrites?.let { "--retry-writes=$it" },
-            supportsValidator?.let { "--supports-validator=$it" },
+            supportsvaridator?.let { "--supports-varidator=$it" },
         )
     }
 }
 
 data class LiquibaseConfigurationArgs(
-    // Args
-    val liquibaseHome: String? = null,
-    val liquibaseLauncherDebug: String? = null,
-    val liquibaseLauncherParentClassloader: String? = null,
-) : LiquibaseArgs {
-    override fun serialize(): List<String> {
+    var liquibaseHome: String? = null,
+    var liquibaseLauncherDebug: String? = null,
+    var liquibaseLauncherParentClassloader: String? = null,
+) : LiquibaseSystemEnvArgs {
+    override fun serialize(): List<Pair<String, String>> {
         return listOfNotNull(
-            liquibaseHome?.let { "liquibase.home=$it" },
-            liquibaseLauncherDebug?.let { "liquibase.launcher.debug=$it" },
-            liquibaseLauncherParentClassloader?.let { "liquibase.launcher.parent.classloader=$it" },
+            liquibaseHome?.let { "liquibase.home" to it },
+            liquibaseLauncherDebug?.let { "liquibase.launcher.debug" to it },
+            liquibaseLauncherParentClassloader?.let { "liquibase.launcher.parent.classloader" to it },
         )
     }
 }
 
 data class LiquibaseConnectionArgs(
-    // Args
-    val changelogFile: String? = null,
-    val driver: String? = null,
-    val driverPropertiesFile: String? = null,
-    val password: String? = null,
-    val referenceDefaultCatalogName: String? = null,
-    val referenceDefaultSchemaName: String? = null,
-    val referenceDriver: String? = null,
-    val referenceDriverPropertiesFile: String? = null,
-    val referencePassword: String? = null,
-    val referenceSchemas: String? = null,
-    val referenceUrl: String? = null,
-    val referenceUsername: String? = null,
-    val url: String? = null,
-    val username: String? = null,
-) : LiquibaseArgs {
+    var changelogFile: String? = null,
+    var driver: String? = null,
+    var driverPropertiesFile: String? = null,
+    var password: String? = null,
+    var referenceDefaultCatalogName: String? = null,
+    var referenceDefaultSchemaName: String? = null,
+    var referenceDriver: String? = null,
+    var referenceDriverPropertiesFile: String? = null,
+    var referencePassword: String? = null,
+    var referenceSchemas: String? = null,
+    var referenceUrl: String? = null,
+    var referenceUsername: String? = null,
+    var url: String? = null,
+    var username: String? = null,
+) : LiquibaseCommandArgs {
     override fun serialize(): List<String> {
         return listOfNotNull(
             changelogFile?.let { "--changelog-file=$it" },
@@ -369,24 +367,23 @@ data class LiquibaseConnectionArgs(
 }
 
 data class LiquibaseInitArgs(
-    // Args
-    val recursive: Boolean? = null,
-    val source: String? = null,
-    val target: String? = null,
-    val changelogFile: String? = null,
-    val format: String? = null,
-    val keepTempFiles: Boolean? = null,
-    val projectDefaultsFile: String? = null,
-    val projectDir: String? = null,
-    val projectGuide: String? = null,
-    val url: String? = null,
-    val bindAddress: String? = null,
-    val dbPort: String? = null,
-    val launchBrowser: Boolean? = null,
-    val password: String? = null,
-    val username: String? = null,
-    val webPort: String? = null,
-) : LiquibaseArgs {
+    var recursive: Boolean? = null,
+    var source: String? = null,
+    var target: String? = null,
+    var changelogFile: String? = null,
+    var format: String? = null,
+    var keepTempFiles: Boolean? = null,
+    var projectDefaultsFile: String? = null,
+    var projectDir: String? = null,
+    var projectGuide: String? = null,
+    var url: String? = null,
+    var bindAddress: String? = null,
+    var dbPort: String? = null,
+    var launchBrowser: Boolean? = null,
+    var password: String? = null,
+    var username: String? = null,
+    var webPort: String? = null,
+) : LiquibaseCommandArgs {
     override fun serialize(): List<String> {
         return listOfNotNull(
             recursive?.let { "--recursive=$it" },
@@ -410,12 +407,11 @@ data class LiquibaseInitArgs(
 }
 
 data class LiquibaseFlowFilesArgs(
-    // Args
-    val flowFile: String? = null,
-    val flowFileStrictParsing: Boolean? = null,
-    val flowShellInterpreter: String? = null,
-    val flowShellKeepTempFiles: Boolean? = null,
-) : LiquibaseArgs {
+    var flowFile: String? = null,
+    var flowFileStrictParsing: Boolean? = null,
+    var flowShellInterpreter: String? = null,
+    var flowShellKeepTempFiles: Boolean? = null,
+) : LiquibaseCommandArgs {
     override fun serialize(): List<String> {
         return listOfNotNull(
             flowFile?.let { "--flow-file=$it" },
@@ -427,33 +423,32 @@ data class LiquibaseFlowFilesArgs(
 }
 
 data class LiquibasePolicyChecksArgs(
-    // Args
-    val autoEnableNewChecks: Boolean? = null,
-    val autoUpdate: String? = null,
-    val cacheChangelogFileContents: Boolean? = null,
-    val changelogFile: String? = null,
-    val changesetFilter: String? = null,
-    val checkName: String? = null,
-    val checkRollbacks: String? = null,
-    val checkStatus: String? = null,
-    val checksOutput: String? = null,
-    val checksPackages: String? = null,
-    val checksScope: String? = null,
-    val checksSettingsFile: String? = null,
-    val disable: Boolean? = null,
-    val enable: Boolean? = null,
-    val force: Boolean? = null,
-    val format: String? = null,
-    val packageContents: String? = null,
-    val packageFile: String? = null,
-    val packageName: String? = null,
-    val propertySubstitutionEnabled: Boolean? = null,
-    val schemas: String? = null,
-    val severity: String? = null,
-    val showCols: String? = null,
-    val sqlParserFailSeverity: String? = null,
-    val url: String? = null,
-) : LiquibaseArgs {
+    var autoEnableNewChecks: Boolean? = null,
+    var autoUpdate: String? = null,
+    var cacheChangelogFileContents: Boolean? = null,
+    var changelogFile: String? = null,
+    var changesetFilter: String? = null,
+    var checkName: String? = null,
+    var checkRollbacks: String? = null,
+    var checkStatus: String? = null,
+    var checksOutput: String? = null,
+    var checksPackages: String? = null,
+    var checksScope: String? = null,
+    var checksSettingsFile: String? = null,
+    var disable: Boolean? = null,
+    var enable: Boolean? = null,
+    var force: Boolean? = null,
+    var format: String? = null,
+    var packageContents: String? = null,
+    var packageFile: String? = null,
+    var packageName: String? = null,
+    var propertySubstitutionEnabled: Boolean? = null,
+    var schemas: String? = null,
+    var severity: String? = null,
+    var showCols: String? = null,
+    var sqlParserFailSeverity: String? = null,
+    var url: String? = null,
+) : LiquibaseCommandArgs {
     override fun serialize(): List<String> {
         return listOfNotNull(
             autoEnableNewChecks?.let { "--auto-enable-new-checks=$it" },
@@ -486,16 +481,15 @@ data class LiquibasePolicyChecksArgs(
 }
 
 data class LiquibaseOperationReportsArgs(
-    // Args
-    val driftSeverity: String? = null,
-    val driftSeverityChanged: String? = null,
-    val driftSeverityMissing: String? = null,
-    val driftSeverityUnexpected: String? = null,
-    val openReport: Boolean? = null,
-    val reportEnabled: Boolean? = null,
-    val reportName: String? = null,
-    val reportPath: String? = null,
-) : LiquibaseArgs {
+    var driftSeverity: String? = null,
+    var driftSeverityChanged: String? = null,
+    var driftSeverityMissing: String? = null,
+    var driftSeverityUnexpected: String? = null,
+    var openReport: Boolean? = null,
+    var reportEnabled: Boolean? = null,
+    var reportName: String? = null,
+    var reportPath: String? = null,
+) : LiquibaseCommandArgs {
     override fun serialize(): List<String> {
         return listOfNotNull(
             driftSeverity?.let { "--drift-severity=$it" },
@@ -510,53 +504,52 @@ data class LiquibaseOperationReportsArgs(
     }
 }
 
-data class LiquibaseGeneralArgs(
-    // Args
-    val addRow: Boolean? = null,
-    val changeExecListenerClass: String? = null,
-    val changeExecListenerPropertiesFile: String? = null,
-    val changesetAuthor: String? = null,
-    val changesetId: String? = null,
-    val changesetIdentifier: String? = null,
-    val changesetPath: String? = null,
-    val contextFilter: String? = null,
-    val count: Int? = null,
-    val dataOutputDirectory: String? = null,
-    val date: TemporalAccessor? = null,
-    val dropDbclhistory: Boolean? = null,
-    val dbms: String? = null,
-    val defaultCatalogName: String? = null,
-    val defaultSchemaName: String? = null,
-    val diffTypes: String? = null,
-    val dropAllRequireForce: Boolean? = null,
-    val excludeObjects: String? = null,
-    val forceOnPartialChanges: Boolean? = null,
-    val includeCatalog: Boolean? = null,
-    val includeObjects: String? = null,
-    val includeSchema: Boolean? = null,
-    val includeTablespace: Boolean? = null,
-    val labels: String? = null,
-    val outputDirectory: String? = null,
-    val outputSchemas: String? = null,
-    val overwriteOutputFile: Boolean? = null,
-    val referenceLiquibaseCatalogName: String? = null,
-    val referenceLiquibaseSchemaName: String? = null,
-    val replaceIfExistsTypes: String? = null,
-    val rollbackOnError: Boolean? = null,
-    val rollbackScript: String? = null,
-    val runOnChangeTypes: String? = null,
-    val schemas: String? = null,
-    val showSummary: String? = null,
-    val showSummaryOutput: String? = null,
-    val skipObjectSorting: Boolean? = null,
-    val snapshotFilters: String? = null,
-    val snapshotFormat: String? = null,
-    val sql: String? = null,
-    val sqlFile: String? = null,
-    val tag: String? = null,
-    val tagVersion: String? = null,
-    val verbose: Boolean? = null,
-) : LiquibaseArgs {
+data class LiquibaseGeneralCommandArgs(
+    var addRow: Boolean? = null,
+    var changeExecListenerClass: String? = null,
+    var changeExecListenerPropertiesFile: String? = null,
+    var changesetAuthor: String? = null,
+    var changesetId: String? = null,
+    var changesetIdentifier: String? = null,
+    var changesetPath: String? = null,
+    var contextFilter: String? = null,
+    var count: Int? = null,
+    var dataOutputDirectory: String? = null,
+    var date: TemporalAccessor? = null,
+    var dropDbclhistory: Boolean? = null,
+    var dbms: String? = null,
+    var defaultCatalogName: String? = null,
+    var defaultSchemaName: String? = null,
+    var diffTypes: String? = null,
+    var dropAllRequireForce: Boolean? = null,
+    var excludeObjects: String? = null,
+    var forceOnPartialChanges: Boolean? = null,
+    var includeCatalog: Boolean? = null,
+    var includeObjects: String? = null,
+    var includeSchema: Boolean? = null,
+    var includeTablespace: Boolean? = null,
+    var labels: String? = null,
+    var outputDirectory: String? = null,
+    var outputSchemas: String? = null,
+    var overwriteOutputFile: Boolean? = null,
+    var referenceLiquibaseCatalogName: String? = null,
+    var referenceLiquibaseSchemaName: String? = null,
+    var replaceIfExistsTypes: String? = null,
+    var rollbackOnError: Boolean? = null,
+    var rollbackScript: String? = null,
+    var runOnChangeTypes: String? = null,
+    var schemas: String? = null,
+    var showSummary: String? = null,
+    var showSummaryOutput: String? = null,
+    var skipObjectSorting: Boolean? = null,
+    var snapshotFilters: String? = null,
+    var snapshotFormat: String? = null,
+    var sql: String? = null,
+    var sqlFile: String? = null,
+    var tag: String? = null,
+    var tagVersion: String? = null,
+    var verbose: Boolean? = null,
+) : LiquibaseCommandArgs {
     override fun serialize(): List<String> {
         return listOfNotNull(
             addRow?.let { "--add-row=$it" },
