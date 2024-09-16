@@ -11,7 +11,11 @@ import java.io.InputStreamReader
 import java.util.ServiceLoader
 
 class KotlinScriptLiquibaseChangeLogParser : ChangeLogParser {
-    private val imports = ServiceLoader.load(KotlinScriptImports::class.java)
+    private val imports = ServiceLoader.load(KotlinScriptParserImports::class.java)
+        .flatMap { it.imports() } +
+        listOf(
+            "momosetkn.liquibase.kotlin.parser.databaseChangeLog"
+        )
 
     override fun parse(
         physicalChangeLogLocation: String,
@@ -50,7 +54,7 @@ class KotlinScriptLiquibaseChangeLogParser : ChangeLogParser {
         EvaluateLiquibaseDsl.evaluate(
             filePath = filePath,
             changeLogScript = changeLogScript,
-            imports = imports.flatMap { it.imports() },
+            imports = imports,
         )
         ChangeLogDslBlocks.items.forEach { block ->
             val dsl =
