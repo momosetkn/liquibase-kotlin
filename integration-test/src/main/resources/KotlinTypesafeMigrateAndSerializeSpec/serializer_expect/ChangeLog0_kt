@@ -3,7 +3,7 @@ package KotlinTypesafeMigrateAndSerializeSpec.serializer_actual
 import momosetkn.liquibase.kotlin.parser.KotlinTypesafeDatabaseChangeLog
 
 class ChangeLog0 : KotlinTypesafeDatabaseChangeLog({
-    changeSet(author = "momose (generated)", id = "1725791709915-1") {
+    changeSet(author = "**********", id = "*************-1") {
         createTable(tableName = "company") {
             column(name = "id", type = "UUID") {
                 constraints(nullable = false, primaryKey = true, primaryKeyName = "company_pkey")
@@ -12,7 +12,16 @@ class ChangeLog0 : KotlinTypesafeDatabaseChangeLog({
         }
     }
 
-    changeSet(author = "momose (generated)", id = "1725791709915-2") {
+    changeSet(author = "**********", id = "*************-2") {
+        createTable(tableName = "created_by_komapper") {
+            column(name = "id", type = "UUID") {
+                constraints(nullable = false)
+            }
+            column(name = "name", type = "VARCHAR(256)")
+        }
+    }
+
+    changeSet(author = "**********", id = "*************-3") {
         createTable(tableName = "employee") {
             column(name = "id", type = "UUID") {
                 constraints(nullable = false, primaryKey = true, primaryKeyName = "employee_pkey")
@@ -27,7 +36,7 @@ class ChangeLog0 : KotlinTypesafeDatabaseChangeLog({
         }
     }
 
-    changeSet(author = "momose (generated)", id = "1725791709915-3") {
+    changeSet(author = "**********", id = "*************-4") {
         addForeignKeyConstraint(baseColumnNames = "company_id", baseTableName = "employee", constraintName = "employee_company_id_fkey", deferrable = false, initiallyDeferred = false, onDelete = "CASCADE", onUpdate = "RESTRICT", referencedColumnNames = "id", referencedTableName = "company", validate = true)
     }
 

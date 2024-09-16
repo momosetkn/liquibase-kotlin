@@ -5,7 +5,7 @@ import liquibase.changelog.DatabaseChangeLog
 @Suppress("UNCHECKED_CAST")
 internal fun <E : Any> E.tryEvalExpressions(changeLog: DatabaseChangeLog): E {
     return when (this) {
-        is String -> this.evalExpressions(changeLog)!!
+        is String -> checkNotNull(this.evalExpressions(changeLog))
         else -> this
     } as E
 }

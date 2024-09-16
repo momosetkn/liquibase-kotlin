@@ -47,15 +47,11 @@ import liquibase.change.core.StopChange
 import liquibase.change.core.TagDatabaseChange
 import liquibase.change.core.UpdateDataChange
 import liquibase.change.custom.CustomChangeWrapper
-import liquibase.change.custom.setCustomChange
 import liquibase.changelog.ChangeSet
 import liquibase.changelog.DatabaseChangeLog
-import liquibase.database.Database
 import liquibase.exception.ChangeLogParseException
 import liquibase.exception.RollbackImpossibleException
-import liquibase.exception.ValidationErrors
-import momosetkn.liquibase.kotlin.change.ParamsContext
-import kotlin.reflect.KClass
+import momosetkn.liquibase.kotlin.dsl.util.ClassUtil.toClassName
 
 @Suppress("LargeClass", "TooManyFunctions")
 @ChangeLogDslMarker
@@ -65,7 +61,7 @@ class ChangeSetDsl(
 ) {
     private val log = Scope.getCurrentScope().getLog(javaClass)
 
-    private val changeSetSupport =
+    val changeSetSupport =
         ChangeSetSupport(
             changeSet = context.changeSet,
             inRollback = context.inRollback,
@@ -1291,22 +1287,15 @@ class ChangeSetDsl(
     // Miscellaneous
     fun customChange(
         @Suppress("FunctionParameterNaming")
-        `class`: Any,
+        `class`: Any?,
+        clazz: Any? = null,
+        className: String? = null,
         block: (KeyValueDsl.() -> Unit)? = null,
     ) {
-        fun Any?.toClassName(): String? {
-            return when (this) {
-                is KClass<*> -> checkNotNull(this.qualifiedName)
-                null -> null
-                else -> this.toString()
-            }
-        }
-        val classOrClazz =
-            `class`.toClassName() ?: throw ChangeLogParseException(
-                "Should be specify `class`",
-            )
+        val overrideClassName = (`class` ?: clazz)?.toClassName() ?: className
+            ?: error("Should specify either 'class' or 'clazz' or 'className' property for 'customChange'")
         val change = changeSetSupport.createChange("customChange") as CustomChangeWrapper
-        change.setClass(classOrClazz.evalExpressions(changeLog))
+        change.setClass(overrideClassName.evalExpressions(changeLog))
         block?.let {
             val dsl = KeyValueDsl(changeLog)
             val map = wrapChangeLogParseException { dsl(block) }
@@ -1315,43 +1304,6 @@ class ChangeSetDsl(
             }
         }
         changeSetSupport.addChange(change)
-    }
-
-    // TODO: support SqlCustomChange
-    fun customChange(
-        confirmationMessage: String = "custom_change",
-        execute: ParamsContext.(database: Database) -> Unit,
-        validate: (
-            ParamsContext.(database: Database) -> ValidationErrors
-        )? = null,
-        rollback: (
-            ParamsContext.(database: Database) -> Unit
-        )? = null,
-        block: (KeyValueDsl.() -> Unit)? = null,
-    ) {
-        val customChangeWrapper = changeSetSupport.createChange("customChange") as CustomChangeWrapper
-        val params = block?.let {
-            val dsl = KeyValueDsl(changeLog)
-            wrapChangeLogParseException { dsl(block) }
-        }
-        val change = if (rollback != null) {
-            momosetkn.liquibase.kotlin.change.RollbackTaskCustomChange(
-                executeBlock = execute,
-                validateBlock = validate ?: { ValidationErrors() },
-                rollbackBlock = rollback,
-                confirmationMessage = confirmationMessage,
-                params = params,
-            )
-        } else {
-            momosetkn.liquibase.kotlin.change.ForwardOnlyTaskCustomChange(
-                executeBlock = execute,
-                validateBlock = validate ?: { ValidationErrors() },
-                confirmationMessage = confirmationMessage,
-                params = params,
-            )
-        }
-        customChangeWrapper.setCustomChange(change)
-        changeSetSupport.addChange(customChangeWrapper)
     }
 
     fun empty() {
@@ -1370,7 +1322,7 @@ class ChangeSetDsl(
         val dsl = ArgumentDsl(changeLog)
         val args = wrapChangeLogParseException { dsl(block) }
         args.forEach {
-            change.args.add(it.tryEvalExpressions(changeLog)?.toString())
+            change.args.add(it.tryEvalExpressions(changeLog).toString())
         }
         changeSetSupport.addChange(change)
     }

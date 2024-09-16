@@ -8,6 +8,7 @@ import kotlin.script.experimental.api.ScriptCompilationConfiguration
 import kotlin.script.experimental.api.ScriptDiagnostic
 import kotlin.script.experimental.api.ScriptEvaluationConfiguration
 import kotlin.script.experimental.api.compilerOptions
+import kotlin.script.experimental.api.defaultImports
 import kotlin.script.experimental.api.valueOrNull
 import kotlin.script.experimental.api.valueOrThrow
 import kotlin.script.experimental.host.toScriptSource
@@ -15,8 +16,9 @@ import kotlin.script.experimental.jvm.dependenciesFromCurrentContext
 import kotlin.script.experimental.jvm.jvm
 import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
 
-class LiquibaseDslCompilationConfiguration :
-    ScriptCompilationConfiguration({
+class LiquibaseDslCompilationConfiguration(
+    private val imports: List<String> = emptyList()
+) : ScriptCompilationConfiguration({
         jvm {
             dependenciesFromCurrentContext(wholeClasspath = true)
         }
@@ -24,6 +26,8 @@ class LiquibaseDslCompilationConfiguration :
         // https://youtrack.jetbrains.com/issue/KT-57907/Scripts-Module-kotlin.stdlib-cannot-be-found-in-the-module-graph-with-fatJar
         // https://github.com/apache/camel-quarkus/issues/5268
         compilerOptions.append("-Xadd-modules=ALL-MODULE-PATH")
+        @Suppress("SpreadOperator")
+        defaultImports(*imports.toTypedArray())
     })
 
 object EvaluateLiquibaseDsl {
@@ -32,17 +36,23 @@ object EvaluateLiquibaseDsl {
     fun evaluate(
         filePath: String,
         changeLogScript: String,
+        imports: List<String>,
     ) {
-        val result = evaluateWithConfiguration(filePath = filePath, script = changeLogScript)
+        val result = evaluateWithConfiguration(
+            filePath = filePath,
+            script = changeLogScript,
+            imports = imports
+        )
         logResult(filePath = filePath, result = result)
     }
 
     private fun evaluateWithConfiguration(
         filePath: String,
         script: String,
+        imports: List<String>,
     ): ResultWithDiagnostics<EvaluationResult> {
         val scriptSource = script.toScriptSource(filePath)
-        val compilationConfiguration = LiquibaseDslCompilationConfiguration()
+        val compilationConfiguration = LiquibaseDslCompilationConfiguration(imports)
         val evaluationConfiguration = ScriptEvaluationConfiguration()
 
         val host = BasicJvmScriptingHost()

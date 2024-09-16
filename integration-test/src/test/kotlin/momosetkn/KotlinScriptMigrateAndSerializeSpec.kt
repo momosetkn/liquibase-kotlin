@@ -71,25 +71,28 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
             actual shouldBe expect
         }
     }
-})
+}) {
+    companion object {
+        private fun getFileAsString(path: String) =
+            Paths.get(RESOURCE_DIR, path).toFile().readText()
 
-private fun getFileAsString(path: String) =
-    Paths.get(RESOURCE_DIR, path).toFile().readText()
+        private val changeSetRegex = Regex("""changeSet\(author = "(.+)", id = "(\d+)-(\d)"\) \{""")
 
-private val changeSetRegex = Regex("""changeSet\(author = "(.+)", id = "(\d+)-(\d)"\) \{""")
+        private fun String.maskingChangeSet() =
+            this.replace(changeSetRegex, "changeSet(author = \"**********\", id = \"*************-\$3\") {")
 
-private fun String.maskingChangeSet() =
-    this.replace(changeSetRegex, "changeSet(author = \"**********\", id = \"*************-\$3\") {")
+        private const val PARSER_INPUT_CHANGELOG =
+            "KotlinScriptMigrateAndSerializeSpec/parser_input/db.changelog-all.kts"
 
-private const val PARSER_INPUT_CHANGELOG = "KotlinScriptMigrateAndSerializeSpec/parser_input/db.changelog-all.kts"
+        @Suppress("MaxLineLength")
+        private const val SERIALIZER_ACTUAL_CHANGELOG =
+            "KotlinScriptMigrateAndSerializeSpec/serializer_actual/db.changelog-0.kts"
 
-@Suppress("MaxLineLength")
-private const val SERIALIZER_ACTUAL_CHANGELOG =
-    "KotlinScriptMigrateAndSerializeSpec/serializer_actual/db.changelog-0.kts"
-
-// To avoid auto-formatting, do not add a file extension.
-@Suppress("MaxLineLength")
-private const val SERIALIZER_EXPECT_CHANGELOG =
-    "KotlinScriptMigrateAndSerializeSpec/serializer_expect/db.changelog-0_kts"
-private const val PARSER_EXPECT_DDL = "KotlinScriptMigrateAndSerializeSpec/parser_expect/db.ddl-0.sql"
-private const val RESOURCE_DIR = "src/main/resources"
+        // To avoid auto-formatting, do not add a file extension.
+        @Suppress("MaxLineLength")
+        private const val SERIALIZER_EXPECT_CHANGELOG =
+            "KotlinScriptMigrateAndSerializeSpec/serializer_expect/db.changelog-0_kts"
+        private const val PARSER_EXPECT_DDL = "KotlinScriptMigrateAndSerializeSpec/parser_expect/db.ddl-0.sql"
+        private const val RESOURCE_DIR = "src/main/resources"
+    }
+}

@@ -33,6 +33,18 @@ CREATE TABLE public.company (
 ALTER TABLE public.company OWNER TO test;
 
 --
+-- Name: created_by_komapper; Type: TABLE; Schema: public; Owner: test
+--
+
+CREATE TABLE public.created_by_komapper (
+    id uuid NOT NULL,
+    name character varying(256)
+);
+
+
+ALTER TABLE public.created_by_komapper OWNER TO test;
+
+--
 -- Name: databasechangelog; Type: TABLE; Schema: public; Owner: test
 --
 

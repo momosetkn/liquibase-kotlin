@@ -8,8 +8,11 @@ import liquibase.parser.ChangeLogParser
 import liquibase.resource.ResourceAccessor
 import momosetkn.liquibase.kotlin.dsl.ChangeLogDsl
 import java.io.InputStreamReader
+import java.util.ServiceLoader
 
 class KotlinScriptLiquibaseChangeLogParser : ChangeLogParser {
+    private val imports = ServiceLoader.load(KotlinScriptImports::class.java)
+
     override fun parse(
         physicalChangeLogLocation: String,
         changeLogParameters: ChangeLogParameters,
@@ -47,6 +50,7 @@ class KotlinScriptLiquibaseChangeLogParser : ChangeLogParser {
         EvaluateLiquibaseDsl.evaluate(
             filePath = filePath,
             changeLogScript = changeLogScript,
+            imports = imports.flatMap { it.imports() },
         )
         ChangeLogDslBlocks.items.forEach { block ->
             val dsl =

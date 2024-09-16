@@ -7,15 +7,11 @@ import liquibase.exception.ValidationErrors
 import liquibase.resource.ResourceAccessor
 
 class ForwardOnlyTaskCustomChange(
-    private val executeBlock: ParamsContext.(database: Database) -> Unit,
-    private val validateBlock: ParamsContext.(database: Database) -> ValidationErrors,
-    private val confirmationMessage: String,
-    private val params: Map<String, Any?>?,
+    private val define: CustomTaskChangeDefineImpl,
 ) : CustomChange, CustomTaskChange {
     private var resourceAccessor: ResourceAccessor? = null
-    private val paramsContext = ParamsContext(params ?: emptyMap())
     override fun getConfirmationMessage(): String {
-        return confirmationMessage
+        return define.confirmationMessage
     }
 
     override fun setUp() = Unit
@@ -25,10 +21,14 @@ class ForwardOnlyTaskCustomChange(
     }
 
     override fun validate(database: Database): ValidationErrors {
-        return validateBlock(paramsContext, database)
+        return withKomapperContext(database) {
+            define.validateBlock(this)
+        }
     }
 
     override fun execute(database: Database) {
-        executeBlock(paramsContext, database)
+        withKomapperContext(database) {
+            define.executeBlock(this)
+        }
     }
 }
