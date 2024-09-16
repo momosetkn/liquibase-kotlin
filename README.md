@@ -1,6 +1,6 @@
 # liquibase-kotlin
 
-Modules for using Liquibase with Kotlin
+Modules for using [Liquibase](https://www.liquibase.com/) with Kotlin
 
 ## Features
 
