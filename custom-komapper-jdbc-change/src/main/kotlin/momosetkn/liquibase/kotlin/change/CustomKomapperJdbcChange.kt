@@ -8,9 +8,9 @@ import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
 
 fun ChangeSetDsl.customKomapperJdbcChange(
     confirmationMessage: String = "Executed CustomKomapperChange.",
-    rollback: (KomapperJdbcContext.() -> Unit)? = null,
-    validate: KomapperJdbcContext.() -> ValidationErrors = { ValidationErrors() },
-    execute: KomapperJdbcContext.() -> Unit,
+    rollback: ((org.komapper.jdbc.JdbcDatabase) -> Unit)? = null,
+    validate: (org.komapper.jdbc.JdbcDatabase) -> ValidationErrors = { ValidationErrors() },
+    execute: (org.komapper.jdbc.JdbcDatabase) -> Unit,
 ) {
     val change = if (rollback != null) {
         val define = CustomRollbackableTaskChangeDefineImpl(
