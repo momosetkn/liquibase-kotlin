@@ -54,7 +54,7 @@ databaseChangeLog {
 
     changeSet(author = "momose (generated)", id = "1715520327312-40") {
         customKomapperJdbcChange(
-            execute = {
+            execute = { db ->
                 val query = QueryDsl.executeScript(
                     """
                     CREATE TABLE created_by_komapper (
@@ -65,7 +65,7 @@ databaseChangeLog {
                 )
                 db.runQuery(query)
             },
-            rollback = {
+            rollback = { db ->
                 val query = QueryDsl.executeScript("DROP TABLE created_by_komapper")
                 db.runQuery(query)
             },

@@ -5,15 +5,10 @@ import momosetkn.sql.NotCloseConnectionProxy
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible
 
-internal fun <R : Any> withKomapperJdbcContext(
-    database: liquibase.database.Database,
-    block: KomapperJdbcContext.() -> R,
-): R {
-    val datasource = database.toJavaxSqlDataSource()
-    val db = LiquibaseKomapperJdbcConfig.provideJdbcDatabase(datasource, database.shortName)
-    return with(KomapperJdbcContext(db)) {
-        block()
-    }
+internal fun liquibase.database.Database.toKomapperJdbcDatabase(): org.komapper.jdbc.JdbcDatabase {
+    val datasource = this.toJavaxSqlDataSource()
+    val database = LiquibaseKomapperJdbcConfig.provideJdbcDatabase(datasource, this.shortName)
+    return database
 }
 
 private fun liquibase.database.Database.toJavaxSqlDataSource(): DatasourceProxy {
@@ -27,7 +22,3 @@ private val connectionProperty = liquibase.database.jvm.JdbcConnection::class.de
     .apply {
         isAccessible = true
     }
-
-data class KomapperJdbcContext(
-    val db: org.komapper.jdbc.JdbcDatabase,
-)

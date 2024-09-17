@@ -58,7 +58,7 @@ Client module can execute Liquibase commands programmatically.
 
 example
 ```kotlin
- val client = LiquibaseClient {
+val client = LiquibaseClient {
     globalArgs {
         general {
             showBanner = false
@@ -84,14 +84,14 @@ client.update(
 add bellow dependencies.
 
 ```kotlin
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-komapper-jdbc-change:$liquibaseKotlinVersion")
+implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-komapper-jdbc-change:$liquibaseKotlinVersion")
 ```
 
 changeSet example
 ```kotlin
 changeSet(author = "momose (generated)", id = "1715520327312-40") {
     customKomapperJdbcChange(
-        execute = {
+        execute = { db ->
             val query = QueryDsl.executeScript(
                 """
                 CREATE TABLE created_by_komapper (
@@ -102,7 +102,7 @@ changeSet(author = "momose (generated)", id = "1715520327312-40") {
             )
             db.runQuery(query)
         },
-        rollback = {
+        rollback = { db ->
             val query = QueryDsl.executeScript("DROP TABLE created_by_komapper")
             db.runQuery(query)
         },
