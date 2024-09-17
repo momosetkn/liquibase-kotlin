@@ -12,10 +12,7 @@ import java.util.ServiceLoader
 
 class KotlinScriptLiquibaseChangeLogParser : ChangeLogParser {
     private val imports = ServiceLoader.load(KotlinScriptParserImports::class.java)
-        .flatMap { it.imports() } +
-        listOf(
-            "momosetkn.liquibase.kotlin.parser.databaseChangeLog"
-        )
+        .flatMap { it.imports() }
 
     override fun parse(
         physicalChangeLogLocation: String,
