@@ -27,8 +27,12 @@ import liquibase.precondition.core.TableExistsPrecondition
 import liquibase.precondition.core.TableIsEmptyPrecondition
 import liquibase.precondition.core.UniqueConstraintExistsPrecondition
 import liquibase.precondition.core.ViewExistsPrecondition
-import momosetkn.liquibase.kotlin.dsl.util.ClassUtil.toClassName
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalClassNameExpressions
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
+import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressions
+import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressionsOrNull
 import kotlin.reflect.KClass
+import kotlin.reflect.full.primaryConstructor
 
 @ChangeLogDslMarker
 @Suppress("TooManyFunctions")
@@ -245,9 +249,9 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         val precondition = CustomPreconditionWrapper()
 
         @Suppress("MaxLineLength")
-        val overrideClassName = (`class` ?: clazz)?.toClassName() ?: className
+        val overrideClassName = (`class` ?: clazz ?: className)
             ?: error("Should specify either 'class' or 'clazz' or 'className' property for 'customPrecondition' preConditions")
-        precondition.className = overrideClassName.evalExpressions(changeLog)
+        precondition.className = overrideClassName.evalClassNameExpressions(changeLog)
         val dsl = KeyValueDsl(changeLog)
         val map = dsl(block)
         map.forEach { (key, value) ->
@@ -266,9 +270,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
             PreConditionDsl(
                 changeLog = changeLog,
                 buildPreconditionContainer = {
-                    preconditionClass.java
-                        .getDeclaredConstructor()
-                        .newInstance()
+                    preconditionClass.primaryConstructor!!.call()
                 },
             )
         return dsl(block)

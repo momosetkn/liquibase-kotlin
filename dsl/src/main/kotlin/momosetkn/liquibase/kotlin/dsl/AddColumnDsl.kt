@@ -3,6 +3,8 @@ package momosetkn.liquibase.kotlin.dsl
 import liquibase.change.AddColumnConfig
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.statement.DatabaseFunction
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
 import momosetkn.liquibase.kotlin.dsl.util.DateUtils.toDate
 import java.math.BigInteger
 import java.time.temporal.TemporalAccessor
@@ -11,8 +13,6 @@ import java.time.temporal.TemporalAccessor
 class AddColumnDsl(
     private val changeLog: DatabaseChangeLog,
 ) {
-    private val columnConfigClass = AddColumnConfig::class
-
     private val columns = mutableListOf<AddColumnConfig>()
 
     internal operator fun invoke(
@@ -45,7 +45,7 @@ class AddColumnDsl(
         startWith: Long? = null,
         block: (ConstraintDsl.() -> Unit)? = null,
     ) {
-        val column = columnConfigClass.java.getDeclaredConstructor().newInstance()
+        val column = AddColumnConfig()
 
         column.name = name.evalExpressions(changeLog)
         column.type = type.evalExpressions(changeLog)

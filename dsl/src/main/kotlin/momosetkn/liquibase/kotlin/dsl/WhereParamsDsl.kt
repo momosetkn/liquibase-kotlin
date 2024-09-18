@@ -2,6 +2,8 @@ package momosetkn.liquibase.kotlin.dsl
 
 import liquibase.change.ColumnConfig
 import liquibase.changelog.DatabaseChangeLog
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
 
 @ChangeLogDslMarker
 class WhereParamsDsl(

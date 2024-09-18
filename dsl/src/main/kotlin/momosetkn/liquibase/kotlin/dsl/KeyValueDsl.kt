@@ -1,6 +1,7 @@
 package momosetkn.liquibase.kotlin.dsl
 
 import liquibase.changelog.DatabaseChangeLog
+import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressionsOrNull
 
 @ChangeLogDslMarker
 class KeyValueDsl(

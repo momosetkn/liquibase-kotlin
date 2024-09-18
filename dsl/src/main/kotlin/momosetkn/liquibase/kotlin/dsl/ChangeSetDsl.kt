@@ -53,7 +53,11 @@ import liquibase.exception.ChangeLogParseException
 import liquibase.exception.RollbackImpossibleException
 import liquibase.statement.DatabaseFunction
 import liquibase.statement.SequenceNextValueFunction
-import momosetkn.liquibase.kotlin.dsl.util.ClassUtil.toClassName
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalClassNameExpressions
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
+import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressions
+import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressionsOrNull
 
 @Suppress("LargeClass", "TooManyFunctions")
 @ChangeLogDslMarker
@@ -1294,10 +1298,10 @@ class ChangeSetDsl(
         className: String? = null,
         block: (KeyValueDsl.() -> Unit)? = null,
     ) {
-        val overrideClassName = (`class` ?: clazz)?.toClassName() ?: className
+        val overrideClassName = (`class` ?: clazz ?: className)
             ?: error("Should specify either 'class' or 'clazz' or 'className' property for 'customChange'")
         val change = changeSetSupport.createChange("customChange") as CustomChangeWrapper
-        change.setClass(overrideClassName.evalExpressions(changeLog))
+        change.setClass(overrideClassName.evalClassNameExpressions(changeLog))
         block?.let {
             val dsl = KeyValueDsl(changeLog)
             val map = wrapChangeLogParseException { dsl(block) }
