@@ -8,6 +8,8 @@ import liquibase.sql.visitor.PrependSqlVisitor
 import liquibase.sql.visitor.RegExpReplaceSqlVisitor
 import liquibase.sql.visitor.ReplaceSqlVisitor
 import liquibase.sql.visitor.SqlVisitor
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
 import momosetkn.liquibase.kotlin.dsl.util.StringsUtil.splitAndTrim
 
 @ChangeLogDslMarker

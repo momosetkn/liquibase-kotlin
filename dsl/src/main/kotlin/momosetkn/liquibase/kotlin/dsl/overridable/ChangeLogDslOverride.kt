@@ -13,7 +13,7 @@ interface ChangeLogDslOverride {
         maxDepth: Int?,
         minDepth: Int?,
         relativeToChangelogFile: Boolean, // optional
-        resourceComparator: String?,
+        resourceComparator: Comparator<String>,
     )
 
     fun include(

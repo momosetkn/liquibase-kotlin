@@ -11,9 +11,14 @@ import liquibase.database.DatabaseList
 import liquibase.database.ObjectQuotingStrategy
 import liquibase.exception.ChangeLogParseException
 import liquibase.resource.ResourceAccessor
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
 import momosetkn.liquibase.kotlin.dsl.overridable.ChangeLogDslOverride
+import momosetkn.liquibase.kotlin.dsl.util.ReflectionUtils.loadKClass
+import momosetkn.liquibase.kotlin.dsl.util.ReflectionUtils.new
 import momosetkn.liquibase.kotlin.dsl.util.StringsUtil.splitAndTrim
 import java.util.Properties
+import kotlin.reflect.KClass
 
 @ChangeLogDslMarker
 class ChangeLogDsl(
@@ -143,10 +148,12 @@ class ChangeLogDsl(
         maxDepth: Int? = null,
         minDepth: Int? = null,
         relativeToChangelogFile: Boolean = false, // optional
-        resourceComparator: String? = null,
+        resourceComparator: Any? = null,
     ) {
+        @Suppress("UNCHECKED_CAST")
+        val typedResourceComparator: Comparator<String> = getComparatorByAny(resourceComparator)
         changeLogDslOverride?.also {
-            changeLogDslOverride.includeAll(
+            return changeLogDslOverride.includeAll(
                 path = path.evalExpressions(changeLog),
                 contextFilter = contextFilter,
                 context = context,
@@ -158,20 +165,9 @@ class ChangeLogDsl(
                 maxDepth = maxDepth,
                 minDepth = minDepth,
                 relativeToChangelogFile = relativeToChangelogFile,
-                resourceComparator = resourceComparator
+                resourceComparator = typedResourceComparator
             )
-            return
         }
-        @Suppress("UNCHECKED_CAST")
-        val typedResourceComparator =
-            resourceComparator?.let {
-                // TODO: confirm
-                this::class.java.classLoader
-                    .loadClass(
-                        it,
-                    ).getDeclaredConstructor()
-                    .newInstance() as Comparator<String>
-            } ?: Comparator.comparing { it.replace("WEB-INF/classes/", "") }
         val contextFilterOrContext = contextFilter ?: context
         val includeContexts = ContextExpression(contextFilterOrContext)
         val typedLabels = labels?.let { Labels(it) }
@@ -319,5 +315,23 @@ class ChangeLogDsl(
             )
 
         changeLog.changeVisitors.add(overrideChangeVisitor)
+    }
+
+    private fun getComparatorByAny(resourceComparator: Any?): Comparator<String> {
+        @Suppress("UNCHECKED_CAST")
+        val typedResourceComparator: Comparator<String> = resourceComparator?.let {
+            when (it) {
+                is KClass<*> -> (it as KClass<Comparator<String>>).new()
+                is Class<*> -> (it as Class<Comparator<String>>).kotlin.new()
+                is Comparator<*> -> it as Comparator<String>
+                is String -> run {
+                    val clazz: KClass<Comparator<String>> = loadKClass(it.evalExpressions(changeLog))
+                    clazz.new()
+                }
+
+                else -> error("KClass<*> or Class<*> or Comparator<*> or String required. but was $it")
+            }
+        } ?: Comparator.comparing { it.replace("WEB-INF/classes/", "") }
+        return typedResourceComparator
     }
 }
