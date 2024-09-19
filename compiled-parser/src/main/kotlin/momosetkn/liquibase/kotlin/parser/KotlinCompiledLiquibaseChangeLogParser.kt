@@ -7,6 +7,7 @@ import liquibase.parser.ChangeLogParser
 import liquibase.resource.ResourceAccessor
 import momosetkn.liquibase.kotlin.dsl.ChangeLogDsl
 import kotlin.reflect.KClass
+import kotlin.reflect.full.primaryConstructor
 
 class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
     override fun parse(
@@ -48,7 +49,7 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
         // not support .java, .scala
         val className = databaseChangeLog.physicalFilePath.toClassName()
         val clazz = Class.forName(className).kotlin as KClass<KotlinCompiledDatabaseChangeLog>
-        val constructor = clazz.constructors.find { it.parameters.isEmpty() }
+        val constructor = clazz.primaryConstructor
         requireNotNull(constructor) {
             "$className constructor is not found"
         }
