@@ -31,7 +31,7 @@ class KotlinTypesafeChangeLogDslOverride(
         maxDepth: Int?,
         minDepth: Int?,
         relativeToChangelogFile: Boolean, // optional
-        resourceComparator: String?,
+        resourceComparator: Comparator<String>, // TODO: require sort by this method?
     ) {
         val contextFilterOrContext = contextFilter ?: context
         val includeContexts = ContextExpression(contextFilterOrContext)

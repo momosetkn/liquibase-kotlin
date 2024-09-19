@@ -2,6 +2,7 @@ package momosetkn.liquibase.kotlin.dsl
 
 import liquibase.change.ConstraintsConfig
 import liquibase.changelog.DatabaseChangeLog
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
 
 @ChangeLogDslMarker
 class ConstraintDsl(

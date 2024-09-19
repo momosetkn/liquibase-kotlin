@@ -3,6 +3,8 @@ package momosetkn.liquibase.kotlin.dsl
 import liquibase.change.core.LoadDataColumnConfig
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.statement.DatabaseFunction
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
 import momosetkn.liquibase.kotlin.dsl.util.DateUtils.toDate
 import java.math.BigInteger
 import java.time.temporal.TemporalAccessor
@@ -11,8 +13,6 @@ import java.time.temporal.TemporalAccessor
 class LoadDataColumnDsl(
     private val changeLog: DatabaseChangeLog,
 ) {
-    private val columnConfigClass = LoadDataColumnConfig::class
-
     private val columns = mutableListOf<LoadDataColumnConfig>()
 
     internal operator fun invoke(
@@ -47,7 +47,7 @@ class LoadDataColumnDsl(
         valueDate: TemporalAccessor? = null,
         valueNumeric: Number? = null,
     ) {
-        val column = columnConfigClass.java.getDeclaredConstructor().newInstance()
+        val column = LoadDataColumnConfig()
 
         column.name = name.evalExpressions(changeLog)
         column.type = type.evalExpressions(changeLog)
