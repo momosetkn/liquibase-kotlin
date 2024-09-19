@@ -11,7 +11,7 @@ Both have the same syntax for changeSet.
 
 > [!NOTE]
 > kotlin-script module is It is can integration with existing migration files.
-> But when integrating the kotlin-typesafe module, you need to load kotlin-typesafe migration using include or includeAll.
+> But when integrating the kotlin-compiled module, you need to load kotlin-compiled migration using include or includeAll.
 
 #### kotlin-script
 
@@ -20,20 +20,20 @@ Please place the kts files under `src/main/resources`.
 kotlin-script example
 https://github.com/momosetkn/liquibase-kotlin-example/blob/main/liquibase-kotlin-script-example/src/main/kotlin/Main.kt
 
-#### kotlin-typesafe
+#### kotlin-compiled
 
-kotlin-typesafe is read KotlinTypesafeDatabaseChangeLog class in classpath with using `Class.forName`.
+kotlin-compiled is read KotlinCompiledDatabaseChangeLog class in classpath with using `Class.forName`.
 the changelog file is specifying the class name.
 
 example
 ```kotlin
-class DatabaseChangelogAll : KotlinTypesafeDatabaseChangeLog({
+class DatabaseChangelogAll : KotlinCompiledDatabaseChangeLog({
     includeAll("changelogs.main") // specify package
 })
 ```
 
 ```kotlin
-class DatabaseChangelog0 : KotlinTypesafeDatabaseChangeLog({
+class DatabaseChangelog0 : KotlinCompiledDatabaseChangeLog({
     changeSet(author = "momose (generated)", id = "1715520327312-0") {
         tagDatabase("started")
     }
@@ -49,8 +49,8 @@ class DatabaseChangelog0 : KotlinTypesafeDatabaseChangeLog({
 })
 ```
 
-kotlin-typesafe example
-https://github.com/momosetkn/liquibase-kotlin-example/blob/main/liquibase-kotlin-typesafe-example/src/main/kotlin/Main.kt
+kotlin-compiled example
+https://github.com/momosetkn/liquibase-kotlin-example/blob/main/liquibase-kotlin-compiled-example/src/main/kotlin/Main.kt
 
 ### Kotlin client
 
@@ -79,7 +79,7 @@ client.update(
 `liquibase-kotlin-custom-komapper-jdbc-change` module can use [Komapper](https://www.komapper.org/) on customChange
 
 > [!NOTE]
-> can use both the `kotlin-script` and `kotlin-typesafe`.
+> can use both the `kotlin-script` and `kotlin-compiled`.
 
 add bellow dependencies.
 
@@ -126,15 +126,15 @@ dependencies {
     // liquibase
     implementation("org.liquibase:liquibase-core:4.29.2")
     val liquibaseKotlinVersion = "0.5.0"
-    // You can choose to install either kotlin-script or kotlin-typesafe.
+    // You can choose to install either kotlin-script or kotlin-compiled.
     // for kotlin-script
     implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-dsl:$liquibaseKotlinVersion")
     implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-script-parser:$liquibaseKotlinVersion")
     implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-script-serializer:$liquibaseKotlinVersion")
-    // for kotlin-typesafe
+    // for kotlin-compiled
     implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-dsl:$liquibaseKotlinVersion")
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-typesafe-parser:$liquibaseKotlinVersion")
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-typesafe-serializer:$liquibaseKotlinVersion")
+    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-compiled-parser:$liquibaseKotlinVersion")
+    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-compiled-serializer:$liquibaseKotlinVersion")
     // If you want to use call liquibase-command by kotlin, add the following code.
     implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-client:$liquibaseKotlinVersion")
     // If you want to use komapper on customChange, add the following code.

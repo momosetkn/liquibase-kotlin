@@ -50,11 +50,11 @@ val libraryProjects =
             "dsl",
             // parser
             "script-parser",
-            "typesafe-parser",
+            "compiled-parser",
             // serializer
             "serializer-core",
             "script-serializer",
-            "typesafe-serializer",
+            "compiled-serializer",
             // client
             "client",
             // custom-change

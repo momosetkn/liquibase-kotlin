@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>ForbiddenComment:KotlinCompiledChangeLogDslOverride.kt$KotlinCompiledChangeLogDslOverride$// TODO: require sort by this method?</ID>
+  </CurrentIssues>
+</SmellBaseline>

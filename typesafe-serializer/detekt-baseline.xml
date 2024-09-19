@@ -1,7 +1,0 @@
-<?xml version="1.0" ?>
-<SmellBaseline>
-  <ManuallySuppressedIssues></ManuallySuppressedIssues>
-  <CurrentIssues>
-    <ID>InvalidPackageDeclaration:KotlinTypesafeChangeLogSerializer.kt$package momosetkn.liquibase.kotlin.serializer</ID>
-  </CurrentIssues>
-</SmellBaseline>

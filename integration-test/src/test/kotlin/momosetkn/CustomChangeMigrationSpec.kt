@@ -5,14 +5,14 @@ import io.kotest.matchers.shouldBe
 import momosetkn.Constants.RESOURCE_DIR
 import momosetkn.liquibase.changelogs.customechannge.ExecuteCountTaskCustomChange
 import momosetkn.liquibase.client.LiquibaseClient
-import momosetkn.liquibase.kotlin.parser.KotlinTypesafeDatabaseChangeLog
-import momosetkn.liquibase.kotlin.serializer.KotlinTypesafeChangeLogSerializer
+import momosetkn.liquibase.kotlin.parser.KotlinCompiledDatabaseChangeLog
+import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import java.nio.file.Paths
 
 class CustomChangeMigrationSpec : FunSpec({
     beforeSpec {
         Database.start()
-        KotlinTypesafeChangeLogSerializer.sourceRootPath = Paths.get(RESOURCE_DIR)
+        KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(RESOURCE_DIR)
     }
     afterSpec {
         Database.stop()
@@ -41,7 +41,7 @@ class CustomChangeMigrationSpec : FunSpec({
     }
 })
 
-class CustomChangeMigrationSpecChangelog1 : KotlinTypesafeDatabaseChangeLog({
+class CustomChangeMigrationSpecChangelog1 : KotlinCompiledDatabaseChangeLog({
     changeSet(author = "momose (generated)", id = "100-10") {
         customChange(`class` = ExecuteCountTaskCustomChange::class)
     }
