@@ -46,7 +46,6 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
 
     @Suppress("UNCHECKED_CAST")
     private fun getCompiledDatabaseChangeLog(databaseChangeLog: DatabaseChangeLog): KotlinCompiledDatabaseChangeLog {
-        // not support .java, .scala
         val className = databaseChangeLog.physicalFilePath.toClassName()
         val clazz = Class.forName(className).kotlin as KClass<KotlinCompiledDatabaseChangeLog>
         val constructor = clazz.primaryConstructor
