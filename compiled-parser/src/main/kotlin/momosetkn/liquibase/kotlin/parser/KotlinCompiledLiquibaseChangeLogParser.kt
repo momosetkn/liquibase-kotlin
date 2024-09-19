@@ -44,10 +44,10 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun getCompiledDatabaseChangeLog(databaseChangeLog: DatabaseChangeLog): KotlinCompiledDatabaseChangeLog {
+    private fun getCompiledDatabaseChangeLog(databaseChangeLog: DatabaseChangeLog): KotlinDatabaseChangeLog {
         // not support .java, .scala
         val className = databaseChangeLog.physicalFilePath.toClassName()
-        val clazz = Class.forName(className).kotlin as KClass<KotlinCompiledDatabaseChangeLog>
+        val clazz = Class.forName(className).kotlin as KClass<KotlinDatabaseChangeLog>
         val constructor = clazz.constructors.find { it.parameters.isEmpty() }
         requireNotNull(constructor) {
             "$className constructor is not found"
@@ -64,7 +64,7 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
             Class.forName(changeLogFile.toClassName())
         }.fold(
             onSuccess = {
-                KotlinCompiledDatabaseChangeLog::class.java.isAssignableFrom(it)
+                KotlinDatabaseChangeLog::class.java.isAssignableFrom(it)
             },
             onFailure = { false },
         )

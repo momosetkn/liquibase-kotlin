@@ -1,8 +1,8 @@
 package momosetkn.liquibase.changelogs
 
-import momosetkn.liquibase.kotlin.parser.KotlinCompiledDatabaseChangeLog
+import momosetkn.liquibase.kotlin.parser.KotlinDatabaseChangeLog
 
-class CompiledDatabaseChangelogAll : KotlinCompiledDatabaseChangeLog({
+class CompiledDatabaseChangelogAll : KotlinDatabaseChangeLog({
     property(name = "includeDir", value = "momosetkn.liquibase.changelogs.main")
     includeAll("\${includeDir}")
 })
