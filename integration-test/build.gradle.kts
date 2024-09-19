@@ -6,9 +6,9 @@ val komapperVersion = "3.0.0"
 dependencies {
     implementation(project(":dsl"))
     implementation(project(":script-serializer"))
-    implementation(project(":typesafe-serializer"))
+    implementation(project(":compiled-serializer"))
     implementation(project(":script-parser"))
-    implementation(project(":typesafe-parser"))
+    implementation(project(":compiled-parser"))
     implementation(project(":client"))
     implementation(project(":custom-komapper-jdbc-change"))
 

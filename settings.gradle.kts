@@ -18,11 +18,11 @@ include("integration-test")
 include("dsl")
 // parser
 include("script-parser")
-include("typesafe-parser")
+include("compiled-parser")
 // serializer
 include("serializer-core")
 include("script-serializer")
-include("typesafe-serializer")
+include("compiled-serializer")
 // client
 include("client")
 include("custom-komapper-jdbc-change")
