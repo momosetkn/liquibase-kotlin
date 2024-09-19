@@ -2,6 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>ForbiddenComment:KotlinTypesafeChangeLogDslOverride.kt$KotlinTypesafeChangeLogDslOverride$// TODO: require sort by this method?</ID>
+    <ID>ForbiddenComment:KotlinCompiledChangeLogDslOverride.kt$KotlinCompiledChangeLogDslOverride$// TODO: require sort by this method?</ID>
   </CurrentIssues>
 </SmellBaseline>
