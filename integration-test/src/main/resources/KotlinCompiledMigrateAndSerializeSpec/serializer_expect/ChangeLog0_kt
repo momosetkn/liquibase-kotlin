@@ -1,8 +1,8 @@
 package KotlinCompiledMigrateAndSerializeSpec.serializer_actual
 
-import momosetkn.liquibase.kotlin.parser.KotlinDatabaseChangeLog
+import momosetkn.liquibase.kotlin.parser.KotlinCompiledDatabaseChangeLog
 
-class ChangeLog0 : KotlinDatabaseChangeLog({
+class ChangeLog0 : KotlinCompiledDatabaseChangeLog({
     changeSet(author = "**********", id = "*************-1") {
         createTable(tableName = "company") {
             column(name = "id", type = "UUID") {

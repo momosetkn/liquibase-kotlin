@@ -1,10 +1,10 @@
 package momosetkn.liquibase.changelogs.main.sub
 
 import momosetkn.liquibase.kotlin.change.customKomapperJdbcChange
-import momosetkn.liquibase.kotlin.parser.KotlinDatabaseChangeLog
+import momosetkn.liquibase.kotlin.parser.KotlinCompiledDatabaseChangeLog
 import org.komapper.core.dsl.QueryDsl
 
-class CompiledDatabaseChangelog1 : KotlinDatabaseChangeLog({
+class CompiledDatabaseChangelog1 : KotlinCompiledDatabaseChangeLog({
     // employee
     changeSet(author = "momose (generated)", id = "1715520327312-20") {
         createTable(tableName = "employee") {

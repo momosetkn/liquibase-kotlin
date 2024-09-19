@@ -22,18 +22,18 @@ https://github.com/momosetkn/liquibase-kotlin-example/blob/main/liquibase-kotlin
 
 #### kotlin-compiled
 
-kotlin-compiled is read KotlinDatabaseChangeLog class in classpath with using `Class.forName`.
+kotlin-compiled is read KotlinCompiledDatabaseChangeLog class in classpath with using `Class.forName`.
 the changelog file is specifying the class name.
 
 example
 ```kotlin
-class DatabaseChangelogAll : KotlinDatabaseChangeLog({
+class DatabaseChangelogAll : KotlinCompiledDatabaseChangeLog({
     includeAll("changelogs.main") // specify package
 })
 ```
 
 ```kotlin
-class DatabaseChangelog0 : KotlinDatabaseChangeLog({
+class DatabaseChangelog0 : KotlinCompiledDatabaseChangeLog({
     changeSet(author = "momose (generated)", id = "1715520327312-0") {
         tagDatabase("started")
     }
