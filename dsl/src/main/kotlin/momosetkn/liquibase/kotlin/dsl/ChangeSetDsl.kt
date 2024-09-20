@@ -58,6 +58,7 @@ import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
 import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
 import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressions
 import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressionsOrNull
+import org.intellij.lang.annotations.Language
 
 @Suppress("LargeClass", "TooManyFunctions")
 @ChangeLogDslMarker
@@ -1361,7 +1362,7 @@ class ChangeSetDsl(
         dbms: String? = null,
         endDelimiter: String? = null,
         splitStatements: Boolean? = null,
-        stripComments: Boolean? = null,
+        stripComments: Boolean? = true,
         block: SqlBlockDsl.() -> String,
     ) {
         val change = changeSetSupport.createChange("sql") as RawSQLChange
@@ -1373,6 +1374,24 @@ class ChangeSetDsl(
         val commentDslResult = wrapChangeLogParseException { dsl(block) }
         change.sql = commentDslResult.sql.evalExpressions(changeLog)
         change.comment = commentDslResult.comment?.evalExpressions(changeLog)
+        changeSetSupport.addChange(change)
+    }
+
+    fun sql(
+        @Language("sql") sql: String,
+        comment: String? = null,
+        dbms: String? = null,
+        endDelimiter: String? = null,
+        splitStatements: Boolean? = null,
+        stripComments: Boolean? = true,
+    ) {
+        val change = changeSetSupport.createChange("sql") as RawSQLChange
+        change.dbms = dbms
+        change.endDelimiter = endDelimiter
+        change.isSplitStatements = splitStatements
+        change.isStripComments = stripComments
+        change.sql = sql.evalExpressions(changeLog)
+        change.comment = comment?.evalExpressions(changeLog)
         changeSetSupport.addChange(change)
     }
 
