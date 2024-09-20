@@ -2,17 +2,18 @@ package momosetkn
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import momosetkn.Constants.RESOURCE_DIR
-import momosetkn.ResourceUtils.getResourceAsString
 import momosetkn.liquibase.changelogs.CompiledDatabaseChangelogAll
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
+import momosetkn.utils.Constants
+import momosetkn.utils.Database
+import momosetkn.utils.ResourceUtils.getResourceAsString
 import java.nio.file.Paths
 
 class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
     beforeSpec {
         Database.start()
-        KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(RESOURCE_DIR)
+        KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.RESOURCE_DIR)
     }
     afterSpec {
         Database.stop()
@@ -51,7 +52,7 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
                 changelogFile = PARSER_INPUT_CHANGELOG,
             )
             val actualSerializedChangeLogFile =
-                Paths.get(RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
+                Paths.get(Constants.RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
             val f = actualSerializedChangeLogFile.toFile()
             if (f.exists()) f.delete()
             client.generateChangelog(
@@ -78,7 +79,7 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
 }) {
     companion object {
         private fun getFileAsString(path: String) =
-            Paths.get(RESOURCE_DIR, path).toFile().readText()
+            Paths.get(Constants.RESOURCE_DIR, path).toFile().readText()
 
         private val changeSetRegex = Regex("""changeSet\(author = "(.+)", id = "(\d+)-(\d)"\) \{""")
 

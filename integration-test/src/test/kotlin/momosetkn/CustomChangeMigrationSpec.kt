@@ -2,17 +2,18 @@ package momosetkn
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import momosetkn.Constants.RESOURCE_DIR
 import momosetkn.liquibase.changelogs.customechannge.ExecuteCountTaskCustomChange
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.kotlin.parser.KotlinCompiledDatabaseChangeLog
 import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
+import momosetkn.utils.Constants
+import momosetkn.utils.Database
 import java.nio.file.Paths
 
 class CustomChangeMigrationSpec : FunSpec({
     beforeSpec {
         Database.start()
-        KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(RESOURCE_DIR)
+        KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.RESOURCE_DIR)
     }
     afterSpec {
         Database.stop()
