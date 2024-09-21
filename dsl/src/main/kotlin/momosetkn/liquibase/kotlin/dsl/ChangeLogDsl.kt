@@ -1,3 +1,5 @@
+@file:Suppress("CyclomaticComplexMethod")
+
 package momosetkn.liquibase.kotlin.dsl
 
 import liquibase.ContextExpression
