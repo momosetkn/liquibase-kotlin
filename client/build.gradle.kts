@@ -1,5 +1,6 @@
 val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
+val slf4jVersion = rootProject.properties["slf4jVersion"] as String
 
 dependencies {
     // liquibase
@@ -7,7 +8,7 @@ dependencies {
     // for liquibase-cli
     api("info.picocli:picocli:4.7.6")
     // log
-    api("org.slf4j:slf4j-api:2.0.16")
+    api("org.slf4j:slf4j-api:$slf4jVersion")
 
     // test
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")

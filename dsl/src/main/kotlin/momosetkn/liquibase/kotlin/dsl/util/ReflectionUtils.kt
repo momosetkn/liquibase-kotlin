@@ -4,9 +4,10 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
 internal object ReflectionUtils {
-    inline fun <reified T : Any> KClass<T>.new(): T {
-        return requireNotNull(this.primaryConstructor) {
-            "primaryConstructor is null. class=$this"
+    fun <T : Any> KClass<T>.new(): T {
+        val constructor = this.primaryConstructor ?: this.constructors.find { it.parameters.isEmpty() }
+        return requireNotNull(constructor) {
+            "constructor is not found. class=$this"
         }.call()
     }
 

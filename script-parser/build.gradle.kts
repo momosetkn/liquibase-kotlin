@@ -2,6 +2,7 @@ val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
 val kotlinVersion = rootProject.properties["kotlinVersion"] as String
 val liquibaseKotlinVersion = rootProject.properties["liquibaseKotlinVersion"] as String
+val slf4jVersion = rootProject.properties["slf4jVersion"] as String
 
 dependencies {
     // liquibase-kotlin
@@ -15,6 +16,8 @@ dependencies {
     api("org.jetbrains.kotlin:kotlin-scripting-dependencies:$kotlinVersion")
     api("org.jetbrains.kotlin:kotlin-scripting-dependencies-maven:$kotlinVersion")
     api("org.jetbrains.kotlin:kotlin-script-util:1.8.22")
+    // log
+    api("org.slf4j:slf4j-api:$slf4jVersion")
 
     // test
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")

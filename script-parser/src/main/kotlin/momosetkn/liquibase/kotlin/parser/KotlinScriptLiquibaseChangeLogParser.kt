@@ -11,6 +11,8 @@ import java.io.InputStreamReader
 import java.util.ServiceLoader
 
 class KotlinScriptLiquibaseChangeLogParser : ChangeLogParser {
+    private val log = org.slf4j.LoggerFactory.getLogger(this::class.java)
+
     private val imports = ServiceLoader.load(KotlinScriptParserImports::class.java)
         .flatMap { it.imports() }
 
@@ -21,21 +23,27 @@ class KotlinScriptLiquibaseChangeLogParser : ChangeLogParser {
     ): DatabaseChangeLog {
         // windows path to a multi-platform path
         val fixedPhysicalChangeLogLocation = physicalChangeLogLocation.replace("\\\\", "/")
-        val changeLogScript =
-            getChangeLogKotlinScriptCode(
-                resourceAccessor = resourceAccessor,
-                physicalChangeLogLocation = fixedPhysicalChangeLogLocation,
-            )
-
         val databaseChangeLog = DatabaseChangeLog(fixedPhysicalChangeLogLocation)
-        updateChangeLog(
-            filePath = fixedPhysicalChangeLogLocation,
-            databaseChangeLog = databaseChangeLog,
-            changeLogParameters = changeLogParameters,
-            resourceAccessor = resourceAccessor,
-            changeLogScript = changeLogScript,
+        return runCatching {
+            val changeLogScript =
+                getChangeLogKotlinScriptCode(
+                    resourceAccessor = resourceAccessor,
+                    physicalChangeLogLocation = fixedPhysicalChangeLogLocation,
+                )
+            updateChangeLog(
+                filePath = fixedPhysicalChangeLogLocation,
+                databaseChangeLog = databaseChangeLog,
+                changeLogParameters = changeLogParameters,
+                resourceAccessor = resourceAccessor,
+                changeLogScript = changeLogScript,
+            )
+        }.fold(
+            onSuccess = { databaseChangeLog },
+            onFailure = {
+                log.error("error in KotlinScriptLiquibaseChangeLogParser", it)
+                throw it
+            }
         )
-        return databaseChangeLog
     }
 
     private fun updateChangeLog(

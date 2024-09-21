@@ -60,6 +60,15 @@ import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressions
 import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressionsOrNull
 import org.intellij.lang.annotations.Language
 
+/**
+ * The ChangeSetDsl class provides a domain-specific language (DSL) for constructing and managing database change sets.
+ * This class includes methods for defining changes to database structures such as tables, columns, indexes, views,
+ * procedures, sequences, and constraints.
+ *
+ * @property changeLog The change log associated with the change set.
+ * @property context The context in which the change set executes.
+ * @property changeSetSupport Support utilities for change set operations. It is made public for custom DSL.
+ */
 @Suppress("LargeClass", "TooManyFunctions")
 @ChangeLogDslMarker
 class ChangeSetDsl(
@@ -74,10 +83,28 @@ class ChangeSetDsl(
             inRollback = context.inRollback,
         )
 
+    /**
+     * Adds a comment to the current context's change set.
+     * Can set comment in [ChangeLogDsl.changeSet]
+     *
+     * @param text The comment text. If set, that value will take precedence.
+     */
     fun comment(text: String) {
-        context.changeSet.comments = text.evalExpressions(changeLog)
+        // NOTE: First to win in XML, last to win in groovy DSL
+        context.changeSet.comments = context.changeSet.comments ?: text.evalExpressions(changeLog)
     }
 
+    /**
+     * Precondition the control execute changeSet for the database state.
+     * [official-document](https://docs.liquibase.com/concepts/changelogs/preconditions.html)
+     *
+     * @param onError either of CONTINUE / HALT / MARK_RAN / WARN
+     * @param onErrorMessage provides a specific error message when an error occurs.
+     * @param onFail either of CONTINUE / HALT / MARK_RAN / WARN
+     * @param onFailMessage provides a specific failure message when a failure occurs.
+     * @param onSqlOutput FAIL / IGNORE / TEST. used in update-sql command.
+     * @param block Specify the condition of precondition
+     */
     fun preConditions(
         onError: String? = null,
         onErrorMessage: String? = null,
@@ -90,8 +117,8 @@ class ChangeSetDsl(
             PreconditionContainerContext(
                 onError = onError,
                 onFail = onFail,
-                onFailMessage = onFailMessage,
-                onErrorMessage = onErrorMessage,
+                onFailMessage = onFailMessage?.evalExpressions(changeLog),
+                onErrorMessage = onErrorMessage?.evalExpressions(changeLog),
                 onSqlOutput = onSqlOutput,
             )
         val dsl = PreConditionDsl.build(
@@ -1292,9 +1319,21 @@ class ChangeSetDsl(
     }
 
     // Miscellaneous
+
+    /**
+     * Applies a custom-change to the change set.
+     * This function requires at least one of the parameters `class`, `clazz`, or `className`.
+     * Class is requiring implements the [liquibase.change.custom.CustomChange]
+     * [official-document](https://docs.liquibase.com/change-types/custom-change.html)
+     *
+     * @param `class` specify KClass or Class<*> of CustomChange or className of CustomChange.
+     * @param clazz specify KClass or Class<*> of CustomChange or className of CustomChange.
+     * @param className className of CustomChange.
+     * @param block Key-value to be given to CustomChange.
+     */
     fun customChange(
         @Suppress("FunctionParameterNaming")
-        `class`: Any?,
+        `class`: Any? = null,
         clazz: Any? = null,
         className: String? = null,
         block: (KeyValueDsl.() -> Unit)? = null,
@@ -1315,20 +1354,31 @@ class ChangeSetDsl(
 
     fun empty() = Unit
 
+    /**
+     * Executes a shell command with the provided executable and optional parameters.
+     * [official-document](https://docs.liquibase.com/change-types/execute-command.html)
+     *
+     * @param executable The command or executable to run. Required.
+     * @param os execute codntion by os. get os by Java system property the "os.name".
+     * @param timeout The maximum amount of time the command is allowed to run.
+     * @param block arguments for executable.
+     */
     fun executeCommand(
         executable: String,
         os: String? = null,
         timeout: String? = null,
-        block: ArgumentDsl.() -> Unit,
+        block: (ArgumentDsl.() -> Unit)? = null,
     ) {
         val change = changeSetSupport.createChange("executeCommand") as ExecuteShellCommandChange
         change.executable = executable
         change.setOs(os)
         change.timeout = timeout
-        val dsl = ArgumentDsl(changeLog)
-        val args = wrapChangeLogParseException { dsl(block) }
-        args.forEach {
-            change.args.add(it.tryEvalExpressions(changeLog).toString())
+        block?.also {
+            val dsl = ArgumentDsl(changeLog)
+            val args = wrapChangeLogParseException { dsl(block) }
+            args.forEach {
+                change.addArg(it.tryEvalExpressions(changeLog).toString())
+            }
         }
         changeSetSupport.addChange(change)
     }
@@ -1348,6 +1398,13 @@ class ChangeSetDsl(
 //        changeSetSupport.addChange(change)
 //    }
 
+    /**
+     * Outputs a message to the specified target.
+     * [official-document](https://docs.liquibase.com/change-types/output.html)
+     *
+     * @param message message to be outputted.
+     * @param target output target. STDOUT, STDERR, FATAL, WARN, INFO, DEBUG. default target is "STDERR".
+     */
     fun output(
         message: String? = null,
         target: String? = null,
@@ -1362,7 +1419,7 @@ class ChangeSetDsl(
         dbms: String? = null,
         endDelimiter: String? = null,
         splitStatements: Boolean? = null,
-        stripComments: Boolean? = true,
+        stripComments: Boolean? = null,
         block: SqlBlockDsl.() -> String,
     ) {
         val change = changeSetSupport.createChange("sql") as RawSQLChange
@@ -1377,13 +1434,24 @@ class ChangeSetDsl(
         changeSetSupport.addChange(change)
     }
 
+    /**
+     * Executes a raw SQL change.
+     * [official-document](https://docs.liquibase.com/change-types/sql.html)
+     *
+     * @param sql The SQL.required.
+     * @param dbms The type of database. [database-type](https://docs.liquibase.com/start/tutorials/home.html)
+     * @param endDelimiter The delimiter for the end of the SQL statement. Default is ";".
+     * @param splitStatements Whether to split the SQL statements. Default is true.
+     * @param stripComments Whether to strip comments from the SQL. Default is true.
+     * @param comment An optional comment for the SQL change. Default is null.
+     */
     fun sql(
         @Language("sql") sql: String,
-        comment: String? = null,
         dbms: String? = null,
         endDelimiter: String? = null,
         splitStatements: Boolean? = null,
-        stripComments: Boolean? = true,
+        stripComments: Boolean? = null,
+        comment: String? = null,
     ) {
         val change = changeSetSupport.createChange("sql") as RawSQLChange
         change.dbms = dbms
@@ -1395,6 +1463,18 @@ class ChangeSetDsl(
         changeSetSupport.addChange(change)
     }
 
+    /**
+     * Executes an SQL file as part of a change set.
+     * [official-document](https://docs.liquibase.com/change-types/sql-file.html)
+     *
+     * @param dbms The type of database. [database-type](https://docs.liquibase.com/start/tutorials/home.html)
+     * @param encoding The encoding of the SQL file. If null, the default system encoding will be used.
+     * @param endDelimiter The delimiter for the end of the SQL statement. Default is ";".
+     * @param path The path to the SQL file.
+     * @param relativeToChangelogFile Specifies whether the path is relative to the changelog file. Defaults is false.
+     * @param splitStatements Whether to split the SQL statements. Default is true.
+     * @param stripComments Whether to strip comments from the SQL. Default is true.
+     */
     fun sqlFile(
         dbms: String? = null,
         encoding: String? = null,
@@ -1412,16 +1492,29 @@ class ChangeSetDsl(
         change.isRelativeToChangelogFile = relativeToChangelogFile
         change.isSplitStatements = splitStatements
         change.isStripComments = stripComments
-        change.finishInitialization() // check for path in liquibase.change.core.SQLFileChange
         changeSetSupport.addChange(change)
     }
 
+    /**
+     * Stops the current change process and logs an optional message.
+     * This change is useful for debug or step update.
+     * [official-document](https://docs.liquibase.com/change-types/stop.html)
+     *
+     * @param message output message when stop.
+     */
     fun stop(message: String? = null) {
         val change = changeSetSupport.createChange("stop") as StopChange
         change.message = message.evalExpressionsOrNull(changeLog)
         changeSetSupport.addChange(change)
     }
 
+    /**
+     * We will tag the current state.
+     * It will be used for rollback.
+     * [official-document](https://docs.liquibase.com/commands/utility/tag.html)
+     *
+     * @param tag name of tag
+     */
     fun tagDatabase(tag: String) {
         val change = changeSetSupport.createChange("tagDatabase") as TagDatabaseChange
         change.tag = tag.evalExpressions(changeLog)

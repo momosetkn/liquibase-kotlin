@@ -2,8 +2,11 @@ package momosetkn
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import momosetkn.ResourceUtils.getResourceAsString
 import momosetkn.liquibase.client.LiquibaseClient
+import momosetkn.utils.Constants
+import momosetkn.utils.Database
+import momosetkn.utils.ResourceUtils
+import momosetkn.utils.ResourceUtils.getResourceAsString
 import java.nio.file.Paths
 
 class KotlinScriptMigrateAndSerializeSpec : FunSpec({
@@ -47,7 +50,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
                 changelogFile = PARSER_INPUT_CHANGELOG,
             )
             val actualSerializedChangeLogFile =
-                Paths.get(RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
+                Paths.get(Constants.RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
             val f = actualSerializedChangeLogFile.toFile()
             if (f.exists()) f.delete()
             client.generateChangelog(
@@ -64,7 +67,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
             ddl shouldBe expectedDdl
 
             // check serializer
-            val actual = getFileAsString(SERIALIZER_ACTUAL_CHANGELOG)
+            val actual = ResourceUtils.getResourceFileAsString(SERIALIZER_ACTUAL_CHANGELOG)
                 .maskingChangeSet()
             val expect = getResourceAsString(SERIALIZER_EXPECT_CHANGELOG)
                 .maskingChangeSet()
@@ -73,9 +76,6 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
     }
 }) {
     companion object {
-        private fun getFileAsString(path: String) =
-            Paths.get(RESOURCE_DIR, path).toFile().readText()
-
         private val changeSetRegex = Regex("""changeSet\(author = "(.+)", id = "(\d+)-(\d)"\) \{""")
 
         private fun String.maskingChangeSet() =
@@ -93,6 +93,5 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
         private const val SERIALIZER_EXPECT_CHANGELOG =
             "KotlinScriptMigrateAndSerializeSpec/serializer_expect/db.changelog-0_kts"
         private const val PARSER_EXPECT_DDL = "KotlinScriptMigrateAndSerializeSpec/parser_expect/db.ddl-0.sql"
-        private const val RESOURCE_DIR = "src/main/resources"
     }
 }

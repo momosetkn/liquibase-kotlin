@@ -1,4 +1,4 @@
-package momosetkn
+package momosetkn.utils
 
 import org.slf4j.LoggerFactory
 import org.testcontainers.containers.Container

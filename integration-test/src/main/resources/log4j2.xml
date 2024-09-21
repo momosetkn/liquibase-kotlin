@@ -11,5 +11,7 @@
         <Root level="debug">
             <AppenderRef ref="Console"/>
         </Root>
+        <Logger name="org.testcontainers" level="info"/>
+        <Logger name="com.github.dockerjava" level="info"/>
     </Loggers>
 </Configuration>
