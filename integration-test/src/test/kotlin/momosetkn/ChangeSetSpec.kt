@@ -12,6 +12,7 @@ import momosetkn.utils.InterchangeableChangeLog
 import momosetkn.utils.set
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
+import org.komapper.core.dsl.query.single
 
 class ChangeSetSpec : FunSpec({
     beforeEach {
@@ -38,6 +39,24 @@ class ChangeSetSpec : FunSpec({
         )
     }
 
+    context("comment") {
+        InterchangeableChangeLog.set {
+            changeSet(author = "user", id = "100") {
+                comment("comment_123") // precedence this
+                comment("comment_456")
+            }
+        }
+        test("can migrate") {
+            subject()
+            val db = Database.komapperDb()
+            val d = Meta.databasechangelog
+            val result = db.runQuery {
+                QueryDsl.from(d).single()
+            }
+            result.comments shouldBe "comment_123"
+        }
+    }
+
     context("executeCommand") {
         InterchangeableChangeLog.set {
             changeSet(author = "user", id = "100") {
@@ -54,7 +73,6 @@ class ChangeSetSpec : FunSpec({
             // confirm output docker help
         }
     }
-
     context("output") {
         InterchangeableChangeLog.set {
             changeSet(author = "user", id = "100") {
@@ -199,11 +217,10 @@ class ChangeSetSpec : FunSpec({
             subject()
             val db = Database.komapperDb()
             val d = Meta.databasechangelog
-            val results = db.runQuery {
-                QueryDsl.from(d)
+            val result = db.runQuery {
+                QueryDsl.from(d).single()
             }
-            results.size shouldBe 1
-            results[0].tag shouldBe "example_tag1"
+            result.tag shouldBe "example_tag1"
         }
     }
 })

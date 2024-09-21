@@ -83,8 +83,14 @@ class ChangeSetDsl(
             inRollback = context.inRollback,
         )
 
+    /**
+     * Adds a comment to the current context's change set.
+     *
+     * @param text The comment text. If set, that value will take precedence.
+     */
     fun comment(text: String) {
-        context.changeSet.comments = text.evalExpressions(changeLog)
+        // NOTE: First to win in XML, last to win in groovy DSL
+        context.changeSet.comments = context.changeSet.comments ?: text.evalExpressions(changeLog)
     }
 
     fun preConditions(

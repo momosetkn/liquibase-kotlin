@@ -45,6 +45,7 @@ class ChangeLogDsl(
         runOrder: String? = null,
         runWith: String? = null,
         runWithSpoolFile: String? = null,
+        comment: String? = null, // not official args
         block: ChangeSetDsl.() -> Unit,
     ) {
         val enumObjectQuotingStrategy =
@@ -82,6 +83,7 @@ class ChangeLogDsl(
         created?.also { changeSet.created = it }
         runOrder?.also { changeSet.runOrder = it }
         ignore?.also { changeSet.isIgnore = it }
+        comment?.also { changeSet.comments = it }
         val changeSetcontext =
             ChangeSetContext(
                 changeSet = changeSet,
