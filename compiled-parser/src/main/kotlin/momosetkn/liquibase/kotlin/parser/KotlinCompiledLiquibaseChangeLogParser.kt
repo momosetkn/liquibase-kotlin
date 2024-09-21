@@ -18,17 +18,19 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
         resourceAccessor: ResourceAccessor,
     ): DatabaseChangeLog {
         val databaseChangeLog = DatabaseChangeLog(physicalChangeLogLocation)
-        runCatching {
+        return runCatching {
             updateChangeLog(
                 databaseChangeLog = databaseChangeLog,
                 changeLogParameters = changeLogParameters,
                 resourceAccessor = resourceAccessor,
             )
-        }.onFailure {
-            log.error("error in KotlinCompiledLiquibaseChangeLogParser", it)
-            throw it
-        }
-        return databaseChangeLog
+        }.fold(
+            onSuccess = { databaseChangeLog },
+            onFailure = {
+                log.error("error in KotlinCompiledLiquibaseChangeLogParser", it)
+                throw it
+            }
+        )
     }
 
     private fun updateChangeLog(
