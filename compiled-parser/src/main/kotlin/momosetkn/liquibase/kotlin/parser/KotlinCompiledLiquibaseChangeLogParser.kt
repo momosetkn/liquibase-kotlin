@@ -10,17 +10,24 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
 class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
+    private val log = org.slf4j.LoggerFactory.getLogger(this::class.java)
+
     override fun parse(
         physicalChangeLogLocation: String,
         changeLogParameters: ChangeLogParameters,
         resourceAccessor: ResourceAccessor,
     ): DatabaseChangeLog {
         val databaseChangeLog = DatabaseChangeLog(physicalChangeLogLocation)
-        updateChangeLog(
-            databaseChangeLog = databaseChangeLog,
-            changeLogParameters = changeLogParameters,
-            resourceAccessor = resourceAccessor,
-        )
+        runCatching {
+            updateChangeLog(
+                databaseChangeLog = databaseChangeLog,
+                changeLogParameters = changeLogParameters,
+                resourceAccessor = resourceAccessor,
+            )
+        }.onFailure {
+            log.error("error in KotlinCompiledLiquibaseChangeLogParser", it)
+            throw it
+        }
         return databaseChangeLog
     }
 
