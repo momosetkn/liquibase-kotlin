@@ -1301,9 +1301,20 @@ class ChangeSetDsl(
     }
 
     // Miscellaneous
+
+    /**
+     * Applies a custom-change to the change set.
+     * This function requires at least one of the parameters `class`, `clazz`, or `className`.
+     * Class is requiring implements the [liquibase.change.custom.CustomChange]
+     *
+     * @param `class` specify KClass or Class<*> of CustomChange or className of CustomChange.
+     * @param clazz specify KClass or Class<*> of CustomChange or className of CustomChange.
+     * @param className className of CustomChange.
+     * @param block Key-value to be given to CustomChange.
+     */
     fun customChange(
         @Suppress("FunctionParameterNaming")
-        `class`: Any?,
+        `class`: Any? = null,
         clazz: Any? = null,
         className: String? = null,
         block: (KeyValueDsl.() -> Unit)? = null,
