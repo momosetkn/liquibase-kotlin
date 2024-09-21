@@ -1474,10 +1474,16 @@ class ChangeSetDsl(
         change.isRelativeToChangelogFile = relativeToChangelogFile
         change.isSplitStatements = splitStatements
         change.isStripComments = stripComments
-        change.finishInitialization() // check for path in liquibase.change.core.SQLFileChange
         changeSetSupport.addChange(change)
     }
 
+    /**
+     * Stops the current change process and logs an optional message.
+     * This change is useful for debug or step update.
+     * [official-document](https://docs.liquibase.com/change-types/stop.html)
+     *
+     * @param message output message when stop.
+     */
     fun stop(message: String? = null) {
         val change = changeSetSupport.createChange("stop") as StopChange
         change.message = message.evalExpressionsOrNull(changeLog)

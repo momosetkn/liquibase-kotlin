@@ -1,5 +1,6 @@
 package momosetkn
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.utils.DDLUtils.shouldBeEqualDdl
@@ -140,6 +141,46 @@ class ChangeSetSpec : FunSpec({
                     ALTER TABLE public."寿司" OWNER TO test;
                     ALTER TABLE ONLY public."寿司"
                         ADD CONSTRAINT "寿司_pkey" PRIMARY KEY ("ｉｄ");
+                """.trimIndent()
+            )
+        }
+    }
+    context("stop") {
+        InterchangeableChangeLog.set {
+            changeSet(author = "user", id = "100") {
+                createTable(tableName = "company") {
+                    column(name = "id", type = "UUID") {
+                        constraints(nullable = false, primaryKey = true)
+                    }
+                    column(name = "name", type = "VARCHAR(256)")
+                }
+            }
+            changeSet(author = "user", id = "200") {
+                stop("stop")
+            }
+            changeSet(author = "user", id = "300") {
+                // not executed
+                createTable(tableName = "company") {
+                    column(name = "id", type = "UUID") {
+                        constraints(nullable = false, primaryKey = true)
+                    }
+                    column(name = "name", type = "VARCHAR(256)")
+                }
+            }
+        }
+        test("can migrate") {
+            shouldThrow<IllegalStateException> {
+                subject()
+            }
+            Database.shouldBeEqualDdl(
+                """
+                    CREATE TABLE public.company (
+                        id uuid NOT NULL,
+                        name character varying(256)
+                    );
+                    ALTER TABLE public.company OWNER TO test;
+                    ALTER TABLE ONLY public.company
+                        ADD CONSTRAINT company_pkey PRIMARY KEY (id);
                 """.trimIndent()
             )
         }
