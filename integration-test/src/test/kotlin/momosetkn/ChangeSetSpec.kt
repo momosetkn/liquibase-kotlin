@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import komapper.databasechangelog
 import momosetkn.liquibase.client.LiquibaseClient
+import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
 import momosetkn.utils.DDLUtils.shouldBeEqualDdl
 import momosetkn.utils.Database
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
@@ -54,6 +55,106 @@ class ChangeSetSpec : FunSpec({
                 QueryDsl.from(d).single()
             }
             result.comments shouldBe "comment_123"
+        }
+    }
+    context("preConditions") {
+        fun databaseUsername() = Database.startedContainer.username
+        context("postgresql and <currentUser>") {
+            InterchangeableChangeLog.set {
+                changeSet(author = "user", id = "100") {
+                    preConditions(
+                        onFail = "MARK_RAN",
+                    ) {
+                        dbms(type = "postgresql")
+                        runningAs(username = databaseUsername())
+                    }
+                    createCompanyTable()
+                }
+            }
+            test("can migrate") {
+                subject()
+                Database.shouldBeEqualDdl(
+                    """
+                    CREATE TABLE public.company (
+                        id uuid NOT NULL,
+                        name character varying(256)
+                    );
+                    ALTER TABLE public.company OWNER TO test;
+                    ALTER TABLE ONLY public.company
+                        ADD CONSTRAINT company_pkey PRIMARY KEY (id);
+                    """.trimIndent()
+                )
+                val db = Database.komapperDb()
+                val d = Meta.databasechangelog
+                val result = db.runQuery {
+                    QueryDsl.from(d).single()
+                }
+                result.id shouldBe "100"
+            }
+        }
+        context("mysql and root") {
+            InterchangeableChangeLog.set {
+                changeSet(author = "user", id = "100") {
+                    preConditions(
+                        onFail = "MARK_RAN",
+                    ) {
+                        dbms(type = "mysql")
+                        runningAs(username = "root")
+                    }
+                    createCompanyTable()
+                }
+            }
+            test("can migrate") {
+                subject()
+                Database.shouldBeEqualDdl("")
+                val db = Database.komapperDb()
+                val d = Meta.databasechangelog
+                val result = db.runQuery {
+                    QueryDsl.from(d).single()
+                }
+                result.exectype shouldBe "MARK_RAN"
+            }
+        }
+        context("(mysql and root) or (postgresql and currentUser)") {
+            InterchangeableChangeLog.set {
+                changeSet(author = "user", id = "100") {
+                    preConditions(
+                        onFail = "MARK_RAN",
+                    ) {
+                        or {
+                            and {
+                                dbms(type = "mysql")
+                                runningAs(username = "root")
+                            }
+                            and {
+                                dbms(type = "postgresql")
+                                runningAs(username = databaseUsername())
+                            }
+                        }
+                    }
+                    createCompanyTable()
+                }
+            }
+            test("can migrate") {
+                subject()
+                Database.shouldBeEqualDdl(
+                    """
+                    CREATE TABLE public.company (
+                        id uuid NOT NULL,
+                        name character varying(256)
+                    );
+                    ALTER TABLE public.company OWNER TO test;
+                    ALTER TABLE ONLY public.company
+                        ADD CONSTRAINT company_pkey PRIMARY KEY (id);
+                    """.trimIndent()
+                )
+                val db = Database.komapperDb()
+                val d = Meta.databasechangelog
+                val result = db.runQuery {
+                    QueryDsl.from(d).single()
+                }
+                result.id shouldBe "100"
+            }
         }
     }
 
@@ -224,3 +325,12 @@ class ChangeSetSpec : FunSpec({
         }
     }
 })
+
+private fun ChangeSetDsl.createCompanyTable() {
+    createTable(tableName = "company") {
+        column(name = "id", type = "UUID") {
+            constraints(nullable = false, primaryKey = true)
+        }
+        column(name = "name", type = "VARCHAR(256)")
+    }
+}

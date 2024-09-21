@@ -10,6 +10,7 @@ import liquibase.sql.visitor.ReplaceSqlVisitor
 import liquibase.sql.visitor.SqlVisitor
 import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
 import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
+import momosetkn.liquibase.kotlin.dsl.util.ReflectionUtils.new
 import momosetkn.liquibase.kotlin.dsl.util.StringsUtil.splitAndTrim
 
 @ChangeLogDslMarker
@@ -62,14 +63,7 @@ class ModifySqlDsl(
     private inline fun <reified E : SqlVisitor> createSqlVisitor(): E {
         // not use liquibase.sql.visitor.SqlVisitorFactory.
         // because, for typesafe.
-        val constructor =
-            E::class.constructors.find {
-                it.parameters.isEmpty()
-            }
-        checkNotNull(constructor) {
-            "not supported ${E::class.qualifiedName} SqlVisitor"
-        }
-        val sqlVisitor = constructor.call()
+        val sqlVisitor = E::class.new()
 
         context.dbms?.let { sqlVisitor.applicableDbms = it }
         context.contextFilter?.let { sqlVisitor.contextFilter = it }

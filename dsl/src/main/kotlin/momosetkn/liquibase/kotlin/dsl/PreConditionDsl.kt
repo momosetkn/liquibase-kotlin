@@ -31,8 +31,8 @@ import momosetkn.liquibase.kotlin.dsl.Expressions.evalClassNameExpressions
 import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
 import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressions
 import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressionsOrNull
+import momosetkn.liquibase.kotlin.dsl.util.ReflectionUtils.new
 import kotlin.reflect.KClass
-import kotlin.reflect.full.primaryConstructor
 
 @ChangeLogDslMarker
 @Suppress("TooManyFunctions")
@@ -40,15 +40,14 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
     private val changeLog: DatabaseChangeLog,
     private val buildPreconditionContainer: () -> PRECONDITION_LOGIC,
 ) {
-    @Suppress("ktlint:standard:backing-property-naming")
-    private val _preConditions: MutableList<Precondition> = mutableListOf()
+    private val preConditions: MutableList<Precondition> = mutableListOf()
 
     internal operator fun invoke(
         block: PreConditionDsl<PRECONDITION_LOGIC>.() -> Unit
     ): PRECONDITION_LOGIC {
         block(this)
         return buildPreconditionContainer().apply {
-            _preConditions.forEach {
+            preConditions.forEach {
                 addNestedPrecondition(it)
             }
         }
@@ -56,17 +55,17 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
 
     fun and(block: PreConditionDsl<PreconditionLogic>.() -> Unit) {
         val precondition = nestedPrecondition(AndPrecondition::class, block)
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun or(block: PreConditionDsl<PreconditionLogic>.() -> Unit) {
         val precondition = nestedPrecondition(OrPrecondition::class, block)
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun not(block: PreConditionDsl<PreconditionLogic>.() -> Unit) {
         val precondition = nestedPrecondition(NotPrecondition::class, block)
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun changeLogPropertyDefined(
@@ -76,7 +75,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         val precondition = ChangeLogPropertyDefinedPrecondition()
         precondition.property = property.evalExpressions(changeLog)
         value?.also { precondition.value = it.evalExpressions(changeLog) }
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun changeSetExecuted(
@@ -88,7 +87,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         precondition.id = id.evalExpressions(changeLog)
         precondition.author = author.evalExpressions(changeLog)
         precondition.changeLogFile = changeLogFile.evalExpressions(changeLog)
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun columnExists(
@@ -100,7 +99,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         precondition.columnName = columnName.evalExpressions(changeLog)
         precondition.tableName = tableName.evalExpressions(changeLog)
         schemaName?.also { precondition.schemaName = it.evalExpressions(changeLog) }
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun dbms(
@@ -108,7 +107,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
     ) {
         val precondition = DBMSPrecondition()
         precondition.type = type.evalExpressions(changeLog)
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun expectedQuotingStrategy(
@@ -116,7 +115,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
     ) {
         val precondition = ObjectQuotingStrategyPrecondition()
         precondition.setStrategy(strategy.evalExpressions(changeLog))
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun foreignKeyConstraintExists(
@@ -128,7 +127,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         precondition.foreignKeyName = foreignKeyName.evalExpressions(changeLog)
         precondition.foreignKeyTableName = foreignKeyTableName.evalExpressions(changeLog)
         schemaName?.also { precondition.schemaName = it.evalExpressions(changeLog) }
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun indexExists(
@@ -142,7 +141,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         columnNames?.also { precondition.columnNames = it.evalExpressions(changeLog) }
         tableName?.also { precondition.tableName = it.evalExpressions(changeLog) }
         schemaName?.also { precondition.schemaName = it.evalExpressions(changeLog) }
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun primaryKeyExists(
@@ -154,7 +153,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         primaryKeyName?.also { precondition.primaryKeyName = it.evalExpressions(changeLog) }
         tableName?.also { precondition.tableName = it.evalExpressions(changeLog) }
         schemaName?.also { precondition.schemaName = it.evalExpressions(changeLog) }
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun rowCount(
@@ -164,7 +163,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         val precondition = RowCountPrecondition()
         precondition.expectedRows = expectedRows
         precondition.tableName = tableName.evalExpressions(changeLog)
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun runningAs(
@@ -172,7 +171,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
     ) {
         val precondition = RunningAsPrecondition()
         precondition.username = username.evalExpressions(changeLog)
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun sequenceExists(
@@ -182,7 +181,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         val precondition = SequenceExistsPrecondition()
         precondition.sequenceName = sequenceName.evalExpressions(changeLog)
         schemaName?.also { precondition.schemaName = it.evalExpressions(changeLog) }
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun sqlCheck(
@@ -192,7 +191,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         val precondition = SqlPrecondition()
         precondition.expectedResult = expectedResult.tryEvalExpressions(changeLog).toString()
         precondition.sql = block().evalExpressions(changeLog)
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun tableExists(
@@ -202,7 +201,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         val precondition = TableExistsPrecondition()
         precondition.tableName = tableName.evalExpressions(changeLog)
         schemaName?.also { precondition.schemaName = it.evalExpressions(changeLog) }
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun tableIsEmpty(
@@ -214,7 +213,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         precondition.tableName = tableName.evalExpressions(changeLog)
         catalogName?.also { precondition.catalogName = it.evalExpressions(changeLog) }
         schemaName?.also { precondition.schemaName = it.evalExpressions(changeLog) }
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun uniqueConstraintExists(
@@ -226,7 +225,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         precondition.tableName = tableName.evalExpressions(changeLog)
         columnNames?.also { precondition.columnNames = it.evalExpressions(changeLog) }
         constraintName?.also { precondition.constraintName = it.evalExpressions(changeLog) }
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun viewExists(
@@ -236,7 +235,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         val precondition = ViewExistsPrecondition()
         precondition.viewName = viewName.evalExpressions(changeLog)
         schemaName?.also { precondition.schemaName = it.evalExpressions(changeLog) }
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     fun customPrecondition(
@@ -259,7 +258,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
             precondition.setParam(key, expandedValue)
         }
 
-        _preConditions.add(precondition)
+        preConditions.add(precondition)
     }
 
     private fun nestedPrecondition(
@@ -270,7 +269,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
             PreConditionDsl(
                 changeLog = changeLog,
                 buildPreconditionContainer = {
-                    preconditionClass.primaryConstructor!!.call()
+                    preconditionClass.new()
                 },
             )
         return dsl(block)

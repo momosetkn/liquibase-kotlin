@@ -85,6 +85,7 @@ class ChangeSetDsl(
 
     /**
      * Adds a comment to the current context's change set.
+     * Can set comment in [ChangeLogDsl.changeSet]
      *
      * @param text The comment text. If set, that value will take precedence.
      */
@@ -93,6 +94,17 @@ class ChangeSetDsl(
         context.changeSet.comments = context.changeSet.comments ?: text.evalExpressions(changeLog)
     }
 
+    /**
+     * Precondition the control execute changeSet for the database state.
+     * [official-document](https://docs.liquibase.com/concepts/changelogs/preconditions.html)
+     *
+     * @param onError either of CONTINUE / HALT / MARK_RAN / WARN
+     * @param onErrorMessage provides a specific error message when an error occurs.
+     * @param onFail either of CONTINUE / HALT / MARK_RAN / WARN
+     * @param onFailMessage provides a specific failure message when a failure occurs.
+     * @param onSqlOutput FAIL / IGNORE / TEST. used in update-sql command.
+     * @param block Specify the condition of precondition
+     */
     fun preConditions(
         onError: String? = null,
         onErrorMessage: String? = null,
@@ -105,8 +117,8 @@ class ChangeSetDsl(
             PreconditionContainerContext(
                 onError = onError,
                 onFail = onFail,
-                onFailMessage = onFailMessage,
-                onErrorMessage = onErrorMessage,
+                onFailMessage = onFailMessage?.evalExpressions(changeLog),
+                onErrorMessage = onErrorMessage?.evalExpressions(changeLog),
                 onSqlOutput = onSqlOutput,
             )
         val dsl = PreConditionDsl.build(
