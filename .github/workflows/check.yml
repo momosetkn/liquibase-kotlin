@@ -35,7 +35,7 @@ jobs:
 
       - name: Run Test with specific Liquibase Version
         if: ${{ matrix.liquibaseVersion != 'latest' }}
-        run: ./gradlew test -PliquibaseVersion=${{ matrix.liquibaseVersion }}
+        run: ./gradlew test -PliquibaseVersion="${{ matrix.liquibaseVersion }}"
       - name: Run Test with latest Liquibase Version
         if: ${{ matrix.liquibaseVersion == 'latest' }}
         run: ./gradlew test
