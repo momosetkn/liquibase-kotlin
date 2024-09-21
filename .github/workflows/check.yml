@@ -12,9 +12,14 @@ permissions:
   checks: write
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+        # '' is expression the latest version specified in `gradle.properties`.
+        liquibaseVersion: [ 4.26.0, 4.27.0, 4.28.0, 4.29.0, 4.29.1, 'latest' ]
 
     steps:
       - uses: actions/checkout@v4
@@ -28,8 +33,12 @@ jobs:
       - name: setup gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Run test
-        run: ./gradlew check
+      - name: Run Test with specific Liquibase Version
+        if: ${{ matrix.liquibaseVersion != 'latest' }}
+        run: ./gradlew test -PliquibaseVersion=${{ matrix.liquibaseVersion }}
+      - name: Run Test with latest Liquibase Version
+        if: ${{ matrix.liquibaseVersion == 'latest' }}
+        run: ./gradlew test
 
       - if: cancelled() != true
         uses: dorny/test-reporter@v1
@@ -38,6 +47,58 @@ jobs:
           path: '**/build/test-results/*/TEST-*.xml'
           reporter: 'java-junit'
           fail-on-error: false
+
+      - name: Upload reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test
+          path: ./**/build/reports
+
+  detekt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: setup gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run detekt
+        run: ./gradlew detekt
+
+      - name: Upload reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test
+          path: ./**/build/reports
+
+  ktlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: setup gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run ktlintCheck
+        run: ./gradlew ktlintCheck
 
       - name: Upload reports
         if: failure()
