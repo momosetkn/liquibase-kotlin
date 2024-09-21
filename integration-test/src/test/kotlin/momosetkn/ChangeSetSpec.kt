@@ -172,7 +172,7 @@ class ChangeSetSpec : FunSpec({
                 }
             }
         }
-        test("can migrate") {
+        test("throw error") {
             shouldThrow<IllegalStateException> {
                 subject()
             }
