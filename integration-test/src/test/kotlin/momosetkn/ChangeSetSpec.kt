@@ -32,6 +32,38 @@ class ChangeSetSpec : FunSpec({
         )
     }
 
+    context("executeCommand") {
+        InterchangeableChangeLog.set {
+            changeSet(author = "user", id = "100") {
+                executeCommand(
+                    executable = "docker",
+                    timeout = "10s"
+                ) {
+                    arg("ps")
+//                    arg("-h")
+                }
+            }
+        }
+        test("can migrate") {
+            subject()
+            // confirm output docker help
+        }
+    }
+
+    context("output") {
+        InterchangeableChangeLog.set {
+            changeSet(author = "user", id = "100") {
+                output(
+                    message = "output_message",
+                )
+            }
+        }
+        test("can migrate") {
+            subject()
+            // confirm output "output_message"
+        }
+    }
+
     context("sql") {
         InterchangeableChangeLog.set {
             changeSet(author = "user", id = "100") {
@@ -43,6 +75,34 @@ class ChangeSetSpec : FunSpec({
                     )
                     """.trimIndent()
                 )
+            }
+        }
+        test("can migrate") {
+            subject()
+            Database.shouldBeEqualDdl(
+                """
+                    CREATE TABLE public.table_a (
+                        id integer NOT NULL,
+                        name character varying(255)
+                    );
+                    ALTER TABLE public.table_a OWNER TO test;
+                    ALTER TABLE ONLY public.table_a
+                        ADD CONSTRAINT table_a_pkey PRIMARY KEY (id);
+                """.trimIndent()
+            )
+        }
+    }
+    context("sql(original)") {
+        InterchangeableChangeLog.set {
+            changeSet(author = "user", id = "100") {
+                sql {
+                    """
+                    create table table_a (
+                        id int primary key,
+                        name varchar(255)
+                    )
+                    """.trimIndent()
+                }
             }
         }
         test("can migrate") {

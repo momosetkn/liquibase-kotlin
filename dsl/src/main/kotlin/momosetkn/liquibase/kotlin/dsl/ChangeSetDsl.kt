@@ -60,6 +60,15 @@ import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressions
 import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressionsOrNull
 import org.intellij.lang.annotations.Language
 
+/**
+ * The ChangeSetDsl class provides a domain-specific language (DSL) for constructing and managing database change sets.
+ * This class includes methods for defining changes to database structures such as tables, columns, indexes, views,
+ * procedures, sequences, and constraints.
+ *
+ * @property changeLog The change log associated with the change set.
+ * @property context The context in which the change set executes.
+ * @property changeSetSupport Support utilities for change set operations. It is made public for custom DSL.
+ */
 @Suppress("LargeClass", "TooManyFunctions")
 @ChangeLogDslMarker
 class ChangeSetDsl(
@@ -1315,20 +1324,31 @@ class ChangeSetDsl(
 
     fun empty() = Unit
 
+    /**
+     * Executes a shell command with the provided executable and optional parameters.
+     * [official-document](https://docs.liquibase.com/change-types/execute-command.html)
+     *
+     * @param executable The command or executable to run. Required.
+     * @param os execute codntion by os. get os by Java system property the "os.name".
+     * @param timeout The maximum amount of time the command is allowed to run.
+     * @param block arguments for executable.
+     */
     fun executeCommand(
         executable: String,
         os: String? = null,
         timeout: String? = null,
-        block: ArgumentDsl.() -> Unit,
+        block: (ArgumentDsl.() -> Unit)? = null,
     ) {
         val change = changeSetSupport.createChange("executeCommand") as ExecuteShellCommandChange
         change.executable = executable
         change.setOs(os)
         change.timeout = timeout
-        val dsl = ArgumentDsl(changeLog)
-        val args = wrapChangeLogParseException { dsl(block) }
-        args.forEach {
-            change.args.add(it.tryEvalExpressions(changeLog).toString())
+        block?.also {
+            val dsl = ArgumentDsl(changeLog)
+            val args = wrapChangeLogParseException { dsl(block) }
+            args.forEach {
+                change.addArg(it.tryEvalExpressions(changeLog).toString())
+            }
         }
         changeSetSupport.addChange(change)
     }
@@ -1348,6 +1368,13 @@ class ChangeSetDsl(
 //        changeSetSupport.addChange(change)
 //    }
 
+    /**
+     * Outputs a message to the specified target.
+     * [official-document](https://docs.liquibase.com/change-types/output.html)
+     *
+     * @param message message to be outputted.
+     * @param target output target. STDOUT, STDERR, FATAL, WARN, INFO, DEBUG. default target is "STDERR".
+     */
     fun output(
         message: String? = null,
         target: String? = null,
@@ -1362,7 +1389,7 @@ class ChangeSetDsl(
         dbms: String? = null,
         endDelimiter: String? = null,
         splitStatements: Boolean? = null,
-        stripComments: Boolean? = true,
+        stripComments: Boolean? = null,
         block: SqlBlockDsl.() -> String,
     ) {
         val change = changeSetSupport.createChange("sql") as RawSQLChange
@@ -1377,13 +1404,24 @@ class ChangeSetDsl(
         changeSetSupport.addChange(change)
     }
 
+    /**
+     * Executes a raw SQL change.
+     * [official-document](https://docs.liquibase.com/change-types/sql.html)
+     *
+     * @param sql The SQL.required.
+     * @param dbms The type of database. [database-type](https://docs.liquibase.com/start/tutorials/home.html)
+     * @param endDelimiter The delimiter for the end of the SQL statement. Default is ";".
+     * @param splitStatements Whether to split the SQL statements. Default is true.
+     * @param stripComments Whether to strip comments from the SQL. Default is true.
+     * @param comment An optional comment for the SQL change. Default is null.
+     */
     fun sql(
         @Language("sql") sql: String,
-        comment: String? = null,
         dbms: String? = null,
         endDelimiter: String? = null,
         splitStatements: Boolean? = null,
-        stripComments: Boolean? = true,
+        stripComments: Boolean? = null,
+        comment: String? = null,
     ) {
         val change = changeSetSupport.createChange("sql") as RawSQLChange
         change.dbms = dbms
