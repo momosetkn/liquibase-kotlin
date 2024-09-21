@@ -258,12 +258,12 @@ class ChangeSetSpec : FunSpec({
             Database.shouldBeEqualDdl(
                 """
                    CREATE TABLE public."寿司" (
-                        "ｉｄ" integer NOT NULL,
-                        "寿司ネタの名前" character varying(255)
-                    );
-                    ALTER TABLE public."寿司" OWNER TO test;
-                    ALTER TABLE ONLY public."寿司"
-                        ADD CONSTRAINT "寿司_pkey" PRIMARY KEY ("ｉｄ");
+                       "ｉｄ" integer NOT NULL,
+                       "寿司ネタの名前" character varying(255)
+                   );
+                   ALTER TABLE public."寿司" OWNER TO test;
+                   ALTER TABLE ONLY public."寿司"
+                       ADD CONSTRAINT "寿司_pkey" PRIMARY KEY ("ｉｄ");
                 """.trimIndent()
             )
         }
