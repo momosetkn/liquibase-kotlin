@@ -1490,6 +1490,13 @@ class ChangeSetDsl(
         changeSetSupport.addChange(change)
     }
 
+    /**
+     * We will tag the current state.
+     * It will be used for rollback.
+     * [official-document](https://docs.liquibase.com/commands/utility/tag.html)
+     *
+     * @param tag name of tag
+     */
     fun tagDatabase(tag: String) {
         val change = changeSetSupport.createChange("tagDatabase") as TagDatabaseChange
         change.tag = tag.evalExpressions(changeLog)

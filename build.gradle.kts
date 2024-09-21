@@ -40,6 +40,11 @@ allprojects {
 
     ktlint {
         version.set("1.3.1")
+        filter {
+            exclude { entry ->
+                entry.file.toString().contains("/generated/")
+            }
+        }
     }
 }
 

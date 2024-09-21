@@ -2,11 +2,16 @@ package momosetkn
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+import komapper.databasechangelog
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.utils.DDLUtils.shouldBeEqualDdl
 import momosetkn.utils.Database
+import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
 import momosetkn.utils.InterchangeableChangeLog
 import momosetkn.utils.set
+import org.komapper.core.dsl.Meta
+import org.komapper.core.dsl.QueryDsl
 
 class ChangeSetSpec : FunSpec({
     beforeEach {
@@ -41,7 +46,6 @@ class ChangeSetSpec : FunSpec({
                     timeout = "10s"
                 ) {
                     arg("ps")
-//                    arg("-h")
                 }
             }
         }
@@ -183,6 +187,23 @@ class ChangeSetSpec : FunSpec({
                         ADD CONSTRAINT company_pkey PRIMARY KEY (id);
                 """.trimIndent()
             )
+        }
+    }
+    context("tagDatabase") {
+        InterchangeableChangeLog.set {
+            changeSet(author = "user", id = "100") {
+                tagDatabase("example_tag1")
+            }
+        }
+        test("can migrate") {
+            subject()
+            val db = Database.komapperDb()
+            val d = Meta.databasechangelog
+            val results = db.runQuery {
+                QueryDsl.from(d)
+            }
+            results.size shouldBe 1
+            results[0].tag shouldBe "example_tag1"
         }
     }
 })

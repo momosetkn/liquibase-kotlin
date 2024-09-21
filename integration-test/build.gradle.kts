@@ -3,6 +3,11 @@ val kotestVersion = rootProject.properties["kotestVersion"] as String
 val testcontainersVersion = rootProject.properties["testcontainersVersion"] as String
 val komapperVersion = "3.0.0"
 
+plugins {
+    id("com.google.devtools.ksp") version "2.0.20-1.0.25"
+    id("org.komapper.gradle") version "3.0.0"
+}
+
 dependencies {
     implementation(project(":dsl"))
     implementation(project(":script-serializer"))
@@ -20,6 +25,12 @@ dependencies {
     // komapper
     implementation("org.komapper:komapper-core:$komapperVersion")
     implementation("org.komapper:komapper-jdbc:$komapperVersion")
+    implementation("org.komapper:komapper-annotation:$komapperVersion")
+    platform("org.komapper:komapper-platform:$komapperVersion").let {
+        implementation(it)
+        ksp(it)
+    }
+    ksp("org.komapper:komapper-processor")
     implementation("org.komapper:komapper-dialect-postgresql-jdbc:$komapperVersion")
 
     // test
@@ -40,4 +51,12 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
     systemProperty("kotest.framework.classpath.scanning.config.disable", "true")
+}
+
+tasks {
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        compilerOptions {
+            freeCompilerArgs.add("-opt-in=org.komapper.annotation.KomapperExperimentalAssociation")
+        }
+    }
 }
