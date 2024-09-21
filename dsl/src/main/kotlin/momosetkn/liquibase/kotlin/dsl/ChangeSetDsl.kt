@@ -1306,6 +1306,7 @@ class ChangeSetDsl(
      * Applies a custom-change to the change set.
      * This function requires at least one of the parameters `class`, `clazz`, or `className`.
      * Class is requiring implements the [liquibase.change.custom.CustomChange]
+     * [official-document](https://docs.liquibase.com/change-types/custom-change.html)
      *
      * @param `class` specify KClass or Class<*> of CustomChange or className of CustomChange.
      * @param clazz specify KClass or Class<*> of CustomChange or className of CustomChange.
