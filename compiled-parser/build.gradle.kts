@@ -15,7 +15,7 @@ dependencies {
     // Scan classes
     api("io.github.classgraph:classgraph:$classgraphVersion")
     // log
-    implementation("org.slf4j:slf4j-api:$slf4jVersion")
+    api("org.slf4j:slf4j-api:$slf4jVersion")
 
     // test
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
