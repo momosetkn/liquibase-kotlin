@@ -1,0 +1,6 @@
+-- this file is encoded "Shift_JIS"
+create table "ŽõŽi"
+(
+    "‚‰‚„"  int primary key,
+    "ŽõŽiƒlƒ^‚Ì–¼‘O" varchar(255)
+)

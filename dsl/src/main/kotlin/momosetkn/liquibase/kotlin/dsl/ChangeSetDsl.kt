@@ -1445,6 +1445,18 @@ class ChangeSetDsl(
         changeSetSupport.addChange(change)
     }
 
+    /**
+     * Executes an SQL file as part of a change set.
+     * [official-document](https://docs.liquibase.com/change-types/sql-file.html)
+     *
+     * @param dbms The type of database. [database-type](https://docs.liquibase.com/start/tutorials/home.html)
+     * @param encoding The encoding of the SQL file. If null, the default system encoding will be used.
+     * @param endDelimiter The delimiter for the end of the SQL statement. Default is ";".
+     * @param path The path to the SQL file.
+     * @param relativeToChangelogFile Specifies whether the path is relative to the changelog file. Defaults is false.
+     * @param splitStatements Whether to split the SQL statements. Default is true.
+     * @param stripComments Whether to strip comments from the SQL. Default is true.
+     */
     fun sqlFile(
         dbms: String? = null,
         encoding: String? = null,
