@@ -58,7 +58,8 @@ object Database {
                 schema.append(rs.getString(1)).append("\n")
             }
 
-            schema.toString()
+            // Integration into LF
+            schema.toString().lines().joinToString("\n")
         }
     }
 }
