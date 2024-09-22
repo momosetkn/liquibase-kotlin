@@ -19,7 +19,7 @@ object Database {
     suspend fun start() {
         this.container = DatabaseConfig(
             driver = "org.h2.Driver",
-            jdbcUrl = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
+            jdbcUrl = "jdbc:h2:~/testdb;AUTO_SERVER=TRUE",
             username = "sa",
             password = "",
         )
