@@ -59,7 +59,7 @@ object Database {
             }
 
             // Integration into LF
-            schema.toString().lines().joinToString("\n")
+            schema.toString()
         }
     }
 }

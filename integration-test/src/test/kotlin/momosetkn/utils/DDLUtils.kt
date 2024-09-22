@@ -1,8 +1,6 @@
 package momosetkn.utils
 
-import io.kotest.matchers.shouldBe
 import org.intellij.lang.annotations.Language
-import java.io.File
 
 object DDLUtils {
     fun String.omitComment(): String {
@@ -53,7 +51,6 @@ object DDLUtils {
             );
             ALTER TABLE "PUBLIC"."DATABASECHANGELOGLOCK" ADD CONSTRAINT "PUBLIC"."PK_DATABASECHANGELOGLOCK" PRIMARY KEY("ID");
         """.trimIndent()
-        File("aaaaa.txt").writeText(this)
         return this.bulkExclude(
             "SET DB_CLOSE_DELAY -1;",
             Regex("^CREATE USER IF NOT EXISTS.*$", RegexOption.MULTILINE),
@@ -63,9 +60,9 @@ object DDLUtils {
     }
 
     infix fun Database.shouldBeEqualDdl(
-        @Language("sql") s: String
+        @Language("sql") actual: String
     ) {
-        val ddl = this.generateDdl()!!.toMainDdl()
-        ddl shouldBe s
+        val ddl = this.generateDdl().toMainDdl()
+        ddl shouldMatchWithoutLineBreaks actual
     }
 }
