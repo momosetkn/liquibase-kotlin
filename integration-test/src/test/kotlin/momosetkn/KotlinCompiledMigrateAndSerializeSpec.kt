@@ -6,6 +6,7 @@ import momosetkn.liquibase.changelogs.CompiledDatabaseChangelogAll
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
+import momosetkn.utils.DDLUtils.shouldBeEqualDdl
 import momosetkn.utils.Database
 import momosetkn.utils.ResourceUtils.getResourceAsString
 import java.nio.file.Paths
@@ -30,14 +31,14 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
             }
             val container = Database.startedContainer
             client.update(
-                driver = "org.postgresql.Driver",
+                driver = container.driver,
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,
                 changelogFile = PARSER_INPUT_CHANGELOG,
             )
             client.rollback(
-                driver = "org.postgresql.Driver",
+                driver = container.driver,
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,
@@ -45,7 +46,7 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
                 tag = "started",
             )
             client.update(
-                driver = "org.postgresql.Driver",
+                driver = container.driver,
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,
@@ -56,17 +57,16 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
             val f = actualSerializedChangeLogFile.toFile()
             if (f.exists()) f.delete()
             client.generateChangelog(
-                driver = "org.postgresql.Driver",
+                driver = container.driver,
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,
                 changelogFile = actualSerializedChangeLogFile.toString(),
             )
-            val ddl = Database.generateDdl()
 
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
-            ddl shouldBe expectedDdl
+            Database.shouldBeEqualDdl(expectedDdl)
 
             // check serializer
             val actual = getFileAsString(SERIALIZER_ACTUAL_CHANGELOG)

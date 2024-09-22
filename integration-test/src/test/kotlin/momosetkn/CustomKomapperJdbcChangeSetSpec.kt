@@ -3,8 +3,8 @@ package momosetkn
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import komapper.CreatedByKomapper
-import komapper.createdByKomapper
+import komapper.Company2
+import komapper.company2
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.kotlin.change.customKomapperJdbcChange
 import momosetkn.utils.DDLUtils.shouldBeEqualDdl
@@ -36,21 +36,21 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
         fun subject() {
             val container = Database.startedContainer
             client.update(
-                driver = "org.postgresql.Driver",
+                driver = container.driver,
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,
                 changelogFile = InterchangeableChangeLog::class.qualifiedName!!,
             )
         }
-        val c = Meta.createdByKomapper
+        val c = Meta.company2
         InterchangeableChangeLog.set {
             changeSet(author = "momose", id = "100-10") {
                 customKomapperJdbcChange(
                     execute = { db ->
                         val query = QueryDsl.executeScript(
                             """
-                                CREATE TABLE created_by_komapper (
+                                CREATE TABLE company2 (
                                     id uuid primary key,
                                     name character varying(255)
                                 );
@@ -59,7 +59,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
                         db.runQuery(query)
                     },
                     rollback = { db ->
-                        val query = QueryDsl.executeScript("DROP TABLE created_by_komapper")
+                        val query = QueryDsl.executeScript("DROP TABLE company2")
                         db.runQuery(query)
                     },
                 )
@@ -68,7 +68,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
                 customKomapperJdbcChange(
                     execute = { db ->
                         val query = QueryDsl.insert(c).single(
-                            CreatedByKomapper(
+                            Company2(
                                 id = UUID.randomUUID(),
                                 name = "CreatedByKomapper_name",
                             )
@@ -82,13 +82,11 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
             subject()
             Database.shouldBeEqualDdl(
                 """
-                    CREATE TABLE public.created_by_komapper (
-                        id uuid NOT NULL,
-                        name character varying(255)
+                    CREATE MEMORY TABLE "PUBLIC"."COMPANY2"(
+                        "ID" UUID NOT NULL,
+                        "NAME" CHARACTER VARYING(255)
                     );
-                    ALTER TABLE public.created_by_komapper OWNER TO test;
-                    ALTER TABLE ONLY public.created_by_komapper
-                        ADD CONSTRAINT created_by_komapper_pkey PRIMARY KEY (id);
+                    ALTER TABLE "PUBLIC"."COMPANY2" ADD CONSTRAINT "PUBLIC"."CONSTRAINT_A" PRIMARY KEY("ID");
                 """.trimIndent()
             )
             val db = Database.komapperDb()
@@ -103,14 +101,14 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
         fun subject() {
             val container = Database.startedContainer
             client.update(
-                driver = "org.postgresql.Driver",
+                driver = container.driver,
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,
                 changelogFile = InterchangeableChangeLog::class.qualifiedName!!,
             )
             client.rollback(
-                driver = "org.postgresql.Driver",
+                driver = container.driver,
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,
@@ -118,7 +116,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
                 tag = startedTag,
             )
         }
-        val c = Meta.createdByKomapper
+        val c = Meta.company2
         context("rollback arg is given") {
             InterchangeableChangeLog.set {
                 changeSet(author = "momose", id = "0-10") {
@@ -129,7 +127,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
                         execute = { db ->
                             val query = QueryDsl.executeScript(
                                 """
-                                    CREATE TABLE created_by_komapper (
+                                    CREATE TABLE company2 (
                                         id uuid primary key,
                                         name character varying(255)
                                     );
@@ -138,7 +136,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
                             db.runQuery(query)
                         },
                         rollback = { db ->
-                            val query = QueryDsl.executeScript("DROP TABLE created_by_komapper")
+                            val query = QueryDsl.executeScript("DROP TABLE company2")
                             db.runQuery(query)
                         },
                     )
@@ -147,7 +145,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
                     customKomapperJdbcChange(
                         execute = { db ->
                             val query = QueryDsl.insert(c).single(
-                                CreatedByKomapper(
+                                Company2(
                                     id = UUID.randomUUID(),
                                     name = "CreatedByKomapper_name",
                                 )
@@ -176,7 +174,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
                         execute = { db ->
                             val query = QueryDsl.executeScript(
                                 """
-                                    CREATE TABLE created_by_komapper (
+                                    CREATE TABLE company2 (
                                         id uuid primary key,
                                         name character varying(255)
                                     );
@@ -185,7 +183,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
                             db.runQuery(query)
                         },
                         rollback = { db ->
-                            val query = QueryDsl.executeScript("DROP TABLE created_by_komapper")
+                            val query = QueryDsl.executeScript("DROP TABLE company2")
                             db.runQuery(query)
                         },
                     )
@@ -194,7 +192,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
                     customKomapperJdbcChange(
                         execute = { db ->
                             val query = QueryDsl.insert(c).single(
-                                CreatedByKomapper(
+                                Company2(
                                     id = UUID.randomUUID(),
                                     name = "CreatedByKomapper_name",
                                 )

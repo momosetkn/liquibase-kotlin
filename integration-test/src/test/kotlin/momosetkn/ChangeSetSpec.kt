@@ -32,7 +32,7 @@ class ChangeSetSpec : FunSpec({
     fun subject() {
         val container = Database.startedContainer
         client.update(
-            driver = "org.postgresql.Driver",
+            driver = container.driver,
             url = container.jdbcUrl,
             username = container.username,
             password = container.password,
@@ -65,7 +65,7 @@ class ChangeSetSpec : FunSpec({
                     preConditions(
                         onFail = "MARK_RAN",
                     ) {
-                        dbms(type = "postgresql")
+                        dbms(type = "h2")
                         runningAs(username = databaseUsername())
                     }
                     createCompanyTable()
@@ -75,13 +75,11 @@ class ChangeSetSpec : FunSpec({
                 subject()
                 Database.shouldBeEqualDdl(
                     """
-                    CREATE TABLE public.company (
-                        id uuid NOT NULL,
-                        name character varying(256)
+                    CREATE MEMORY TABLE "PUBLIC"."COMPANY"(
+                        "ID" UUID NOT NULL,
+                        "NAME" CHARACTER VARYING(256)
                     );
-                    ALTER TABLE public.company OWNER TO test;
-                    ALTER TABLE ONLY public.company
-                        ADD CONSTRAINT company_pkey PRIMARY KEY (id);
+                    ALTER TABLE "PUBLIC"."COMPANY" ADD CONSTRAINT "PUBLIC"."PK_COMPANY" PRIMARY KEY("ID");
                     """.trimIndent()
                 )
                 val db = Database.komapperDb()
@@ -127,7 +125,7 @@ class ChangeSetSpec : FunSpec({
                                 runningAs(username = "root")
                             }
                             and {
-                                dbms(type = "postgresql")
+                                dbms(type = "h2")
                                 runningAs(username = databaseUsername())
                             }
                         }
@@ -139,13 +137,11 @@ class ChangeSetSpec : FunSpec({
                 subject()
                 Database.shouldBeEqualDdl(
                     """
-                    CREATE TABLE public.company (
-                        id uuid NOT NULL,
-                        name character varying(256)
+                    CREATE MEMORY TABLE "PUBLIC"."COMPANY"(
+                        "ID" UUID NOT NULL,
+                        "NAME" CHARACTER VARYING(256)
                     );
-                    ALTER TABLE public.company OWNER TO test;
-                    ALTER TABLE ONLY public.company
-                        ADD CONSTRAINT company_pkey PRIMARY KEY (id);
+                    ALTER TABLE "PUBLIC"."COMPANY" ADD CONSTRAINT "PUBLIC"."PK_COMPANY" PRIMARY KEY("ID");
                     """.trimIndent()
                 )
                 val db = Database.komapperDb()
@@ -205,13 +201,11 @@ class ChangeSetSpec : FunSpec({
             subject()
             Database.shouldBeEqualDdl(
                 """
-                    CREATE TABLE public.table_a (
-                        id integer NOT NULL,
-                        name character varying(255)
+                    CREATE MEMORY TABLE "PUBLIC"."TABLE_A"(
+                        "ID" INTEGER NOT NULL,
+                        "NAME" CHARACTER VARYING(255)
                     );
-                    ALTER TABLE public.table_a OWNER TO test;
-                    ALTER TABLE ONLY public.table_a
-                        ADD CONSTRAINT table_a_pkey PRIMARY KEY (id);
+                    ALTER TABLE "PUBLIC"."TABLE_A" ADD CONSTRAINT "PUBLIC"."CONSTRAINT_C" PRIMARY KEY("ID");
                 """.trimIndent()
             )
         }
@@ -233,13 +227,11 @@ class ChangeSetSpec : FunSpec({
             subject()
             Database.shouldBeEqualDdl(
                 """
-                    CREATE TABLE public.table_a (
-                        id integer NOT NULL,
-                        name character varying(255)
+                    CREATE MEMORY TABLE "PUBLIC"."TABLE_A"(
+                        "ID" INTEGER NOT NULL,
+                        "NAME" CHARACTER VARYING(255)
                     );
-                    ALTER TABLE public.table_a OWNER TO test;
-                    ALTER TABLE ONLY public.table_a
-                        ADD CONSTRAINT table_a_pkey PRIMARY KEY (id);
+                    ALTER TABLE "PUBLIC"."TABLE_A" ADD CONSTRAINT "PUBLIC"."CONSTRAINT_C" PRIMARY KEY("ID");
                 """.trimIndent()
             )
         }
@@ -257,13 +249,11 @@ class ChangeSetSpec : FunSpec({
             subject()
             Database.shouldBeEqualDdl(
                 """
-                   CREATE TABLE public."寿司" (
-                       "ｉｄ" integer NOT NULL,
-                       "寿司ネタの名前" character varying(255)
+                   CREATE MEMORY TABLE "PUBLIC".U&"\5bff\53f8"(
+                       U&"\ff49\ff44" INTEGER NOT NULL,
+                       U&"\5bff\53f8\30cd\30bf\306e\540d\524d" CHARACTER VARYING(255)
                    );
-                   ALTER TABLE public."寿司" OWNER TO test;
-                   ALTER TABLE ONLY public."寿司"
-                       ADD CONSTRAINT "寿司_pkey" PRIMARY KEY ("ｉｄ");
+                   ALTER TABLE "PUBLIC".U&"\5bff\53f8" ADD CONSTRAINT "PUBLIC"."CONSTRAINT_B" PRIMARY KEY(U&"\ff49\ff44");
                 """.trimIndent()
             )
         }
@@ -297,13 +287,11 @@ class ChangeSetSpec : FunSpec({
             }
             Database.shouldBeEqualDdl(
                 """
-                    CREATE TABLE public.company (
-                        id uuid NOT NULL,
-                        name character varying(256)
+                    CREATE MEMORY TABLE "PUBLIC"."COMPANY"(
+                        "ID" UUID NOT NULL,
+                        "NAME" CHARACTER VARYING(256)
                     );
-                    ALTER TABLE public.company OWNER TO test;
-                    ALTER TABLE ONLY public.company
-                        ADD CONSTRAINT company_pkey PRIMARY KEY (id);
+                    ALTER TABLE "PUBLIC"."COMPANY" ADD CONSTRAINT "PUBLIC"."PK_COMPANY" PRIMARY KEY("ID");
                 """.trimIndent()
             )
         }

@@ -1,6 +1,5 @@
 val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
-val testcontainersVersion = rootProject.properties["testcontainersVersion"] as String
 val slf4jVersion = rootProject.properties["slf4jVersion"] as String
 val komapperVersion = "3.0.0"
 
@@ -32,7 +31,7 @@ dependencies {
         ksp(it)
     }
     ksp("org.komapper:komapper-processor")
-    implementation("org.komapper:komapper-dialect-postgresql-jdbc:$komapperVersion")
+    implementation("org.komapper:komapper-dialect-h2-jdbc:$komapperVersion")
 
     // test
     testImplementation(kotlin("test"))
@@ -41,13 +40,9 @@ dependencies {
 
     // db-migration
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
-    implementation("info.picocli:picocli:4.7.6")
 
-    // testcontainers
-    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
-    // postgresql
-    testImplementation("org.postgresql:postgresql:42.7.4")
-    testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
+    // h2database
+    testImplementation("com.h2database:h2:2.3.232")
 }
 tasks.test {
     useJUnitPlatform()

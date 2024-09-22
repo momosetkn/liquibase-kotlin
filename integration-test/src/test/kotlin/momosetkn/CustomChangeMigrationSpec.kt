@@ -30,7 +30,7 @@ class CustomChangeMigrationSpec : FunSpec({
             }
             val container = Database.startedContainer
             client.update(
-                driver = "org.postgresql.Driver",
+                driver = container.driver,
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,

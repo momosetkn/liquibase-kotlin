@@ -2,90 +2,64 @@ package momosetkn.utils
 
 import io.kotest.matchers.shouldBe
 import org.intellij.lang.annotations.Language
+import java.io.File
 
 object DDLUtils {
     fun String.omitComment(): String {
         val commentRegex = Regex("""^--.*$""", RegexOption.MULTILINE)
         return this.replace(commentRegex, "")
     }
-    fun String.omitLiquibaseTable(): String {
-        return this.replace(
-            """
-            --
-            -- Name: databasechangelog; Type: TABLE; Schema: public; Owner: test
-            --
-
-            CREATE TABLE public.databasechangelog (
-                id character varying(255) NOT NULL,
-                author character varying(255) NOT NULL,
-                filename character varying(255) NOT NULL,
-                dateexecuted timestamp without time zone NOT NULL,
-                orderexecuted integer NOT NULL,
-                exectype character varying(10) NOT NULL,
-                md5sum character varying(35),
-                description character varying(255),
-                comments character varying(255),
-                tag character varying(255),
-                liquibase character varying(20),
-                contexts character varying(255),
-                labels character varying(255),
-                deployment_id character varying(10)
-            );
-
-
-            ALTER TABLE public.databasechangelog OWNER TO test;
-
-            --
-            -- Name: databasechangeloglock; Type: TABLE; Schema: public; Owner: test
-            --
-
-            CREATE TABLE public.databasechangeloglock (
-                id integer NOT NULL,
-                locked boolean NOT NULL,
-                lockgranted timestamp without time zone,
-                lockedby character varying(255)
-            );
-
-
-            ALTER TABLE public.databasechangeloglock OWNER TO test;
-            """.trimIndent(),
-            "",
-        ).replace(
-            """
-            ALTER TABLE ONLY public.databasechangeloglock
-                ADD CONSTRAINT databasechangeloglock_pkey PRIMARY KEY (id);
-            """.trimIndent(),
-            ""
-        )
-    }
-    fun String.omitVariable(): String {
-        return this.replace(
-            """
-                SET statement_timeout = 0;
-                SET lock_timeout = 0;
-                SET idle_in_transaction_session_timeout = 0;
-                SET client_encoding = 'UTF8';
-                SET standard_conforming_strings = on;
-                SELECT pg_catalog.set_config('search_path', '', false);
-                SET check_function_bodies = false;
-                SET xmloption = content;
-                SET client_min_messages = warning;
-                SET row_security = off;
-
-                SET default_tablespace = '';
-
-                SET default_table_access_method = heap;
-            """.trimIndent(),
-            "",
-        )
-    }
     fun String.normalize(): String {
         val newlineRegex = Regex("""\n+""")
         return this.replace(newlineRegex, "\n").trim()
     }
+    fun String.bulkExclude(
+        vararg list: Any,
+    ): String {
+        return list.fold(this) { acc, cur ->
+            when (cur) {
+                is String -> acc.replace(cur, "")
+                is Regex -> acc.replace(cur, "")
+                else -> acc
+            }
+        }
+    }
 
     fun String.toMainDdl(): String {
-        return this.omitLiquibaseTable().omitVariable().omitComment().normalize()
+        val databaseChangeLogTableDdl = """
+            CREATE MEMORY TABLE "PUBLIC"."DATABASECHANGELOG"(
+                "ID" CHARACTER VARYING(255) NOT NULL,
+                "AUTHOR" CHARACTER VARYING(255) NOT NULL,
+                "FILENAME" CHARACTER VARYING(255) NOT NULL,
+                "DATEEXECUTED" TIMESTAMP NOT NULL,
+                "ORDEREXECUTED" INTEGER NOT NULL,
+                "EXECTYPE" CHARACTER VARYING(10) NOT NULL,
+                "MD5SUM" CHARACTER VARYING(35),
+                "DESCRIPTION" CHARACTER VARYING(255),
+                "COMMENTS" CHARACTER VARYING(255),
+                "TAG" CHARACTER VARYING(255),
+                "LIQUIBASE" CHARACTER VARYING(20),
+                "CONTEXTS" CHARACTER VARYING(255),
+                "LABELS" CHARACTER VARYING(255),
+                "DEPLOYMENT_ID" CHARACTER VARYING(10)
+            );
+        """.trimIndent()
+        val databaseChangeLogLockTableDdl = """
+            CREATE MEMORY TABLE "PUBLIC"."DATABASECHANGELOGLOCK"(
+                "ID" INTEGER NOT NULL,
+                "LOCKED" BOOLEAN NOT NULL,
+                "LOCKGRANTED" TIMESTAMP,
+                "LOCKEDBY" CHARACTER VARYING(255)
+            );
+            ALTER TABLE "PUBLIC"."DATABASECHANGELOGLOCK" ADD CONSTRAINT "PUBLIC"."PK_DATABASECHANGELOGLOCK" PRIMARY KEY("ID");
+        """.trimIndent()
+        File("aaaaa.txt").writeText(this)
+        return this.bulkExclude(
+            "SET DB_CLOSE_DELAY -1;",
+            Regex("^CREATE USER IF NOT EXISTS.*$", RegexOption.MULTILINE),
+            databaseChangeLogTableDdl,
+            databaseChangeLogLockTableDdl
+        ).omitComment().normalize()
     }
 
     infix fun Database.shouldBeEqualDdl(

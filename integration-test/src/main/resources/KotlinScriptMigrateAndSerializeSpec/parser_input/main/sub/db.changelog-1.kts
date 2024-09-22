@@ -18,6 +18,9 @@ databaseChangeLog {
         }
     }
     changeSet(author = "momose (generated)", id = "1715520327312-21") {
+        createIndex(associatedWith = "", indexName = "EMPLOYEE_COMPANY_ID_FKEY_INDEX_21", tableName = "EMPLOYEE") {
+            column(name = "company_id")
+        }
         addForeignKeyConstraint(
             baseColumnNames = "company_id",
             baseTableName = "employee",
