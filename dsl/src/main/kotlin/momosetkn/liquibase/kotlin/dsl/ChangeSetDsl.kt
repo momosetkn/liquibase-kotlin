@@ -1327,8 +1327,8 @@ class ChangeSetDsl(
      * [official-document](https://docs.liquibase.com/change-types/custom-change.html)
      *
      * @param `class` specify KClass or Class<*> of CustomChange or className of CustomChange.
-     * @param clazz specify KClass or Class<*> of CustomChange or className of CustomChange.
-     * @param className className of CustomChange.
+     * @param clazz specify KClass or Class<*> of CustomChange or className of CustomChange. not official param.
+     * @param className className of CustomChange. not official param.
      * @param block Key-value to be given to CustomChange.
      */
     fun customChange(
