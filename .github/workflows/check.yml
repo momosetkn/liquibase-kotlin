@@ -24,13 +24,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Start Docker(Windows only)
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: |
-          Start-Service docker
-          docker version
-          docker info
-
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
