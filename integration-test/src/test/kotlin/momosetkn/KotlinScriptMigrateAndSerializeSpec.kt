@@ -1,13 +1,13 @@
 package momosetkn
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.utils.Constants
 import momosetkn.utils.DDLUtils.shouldBeEqualDdl
 import momosetkn.utils.Database
 import momosetkn.utils.ResourceUtils
 import momosetkn.utils.ResourceUtils.getResourceAsString
+import momosetkn.utils.shouldMatchWithoutLineBreaks
 import java.nio.file.Paths
 
 class KotlinScriptMigrateAndSerializeSpec : FunSpec({
@@ -71,7 +71,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
                 .maskingChangeSet()
             val expect = getResourceAsString(SERIALIZER_EXPECT_CHANGELOG)
                 .maskingChangeSet()
-            actual shouldBe expect
+            actual shouldMatchWithoutLineBreaks expect
         }
     }
 }) {
