@@ -160,10 +160,10 @@ class ChangeSetSpec : FunSpec({
         InterchangeableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 executeCommand(
-                    executable = "docker",
+                    executable = "java",
                     timeout = "10s"
                 ) {
-                    arg("ps")
+                    arg("--version")
                 }
             }
         }
