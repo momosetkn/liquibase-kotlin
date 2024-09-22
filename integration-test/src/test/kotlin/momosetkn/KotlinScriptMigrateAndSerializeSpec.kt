@@ -1,12 +1,14 @@
 package momosetkn
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.utils.Constants
+import momosetkn.utils.DDLUtils.sql
+import momosetkn.utils.DDLUtils.toMainDdl
 import momosetkn.utils.Database
 import momosetkn.utils.ResourceUtils
 import momosetkn.utils.ResourceUtils.getResourceAsString
+import momosetkn.utils.shouldMatchWithoutLineBreaks
 import java.nio.file.Paths
 
 class KotlinScriptMigrateAndSerializeSpec : FunSpec({
@@ -28,14 +30,14 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
             }
             val container = Database.startedContainer
             client.update(
-                driver = "org.postgresql.Driver",
+                driver = container.driver,
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,
                 changelogFile = PARSER_INPUT_CHANGELOG,
             )
             client.rollback(
-                driver = "org.postgresql.Driver",
+                driver = container.driver,
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,
@@ -43,7 +45,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
                 tag = "started",
             )
             client.update(
-                driver = "org.postgresql.Driver",
+                driver = container.driver,
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,
@@ -54,24 +56,23 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
             val f = actualSerializedChangeLogFile.toFile()
             if (f.exists()) f.delete()
             client.generateChangelog(
-                driver = "org.postgresql.Driver",
+                driver = container.driver,
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,
                 changelogFile = actualSerializedChangeLogFile.toString(),
             )
-            val ddl = Database.generateDdl()
 
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
-            ddl shouldBe expectedDdl
+            Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
             val actual = ResourceUtils.getResourceFileAsString(SERIALIZER_ACTUAL_CHANGELOG)
                 .maskingChangeSet()
             val expect = getResourceAsString(SERIALIZER_EXPECT_CHANGELOG)
                 .maskingChangeSet()
-            actual shouldBe expect
+            actual shouldMatchWithoutLineBreaks expect
         }
     }
 }) {

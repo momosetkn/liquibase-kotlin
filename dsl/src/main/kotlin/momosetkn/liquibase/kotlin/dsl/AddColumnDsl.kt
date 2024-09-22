@@ -9,6 +9,9 @@ import momosetkn.liquibase.kotlin.dsl.util.DateUtils.toDate
 import java.math.BigInteger
 import java.time.temporal.TemporalAccessor
 
+/**
+ * Using for AddColumn and CreateIndex DSL.
+ */
 @ChangeLogDslMarker
 class AddColumnDsl(
     private val changeLog: DatabaseChangeLog,
@@ -24,7 +27,7 @@ class AddColumnDsl(
 
     fun column(
         name: String,
-        type: String,
+        type: String? = null,
         value: String? = null,
         afterColumn: String? = null,
         autoIncrement: Boolean? = null,
@@ -48,7 +51,7 @@ class AddColumnDsl(
         val column = AddColumnConfig()
 
         column.name = name.evalExpressions(changeLog)
-        column.type = type.evalExpressions(changeLog)
+        column.type = type?.evalExpressions(changeLog)
         column.value = value.evalExpressionsOrNull(changeLog)
         afterColumn?.also {
             column.afterColumn = afterColumn.evalExpressions(changeLog)
