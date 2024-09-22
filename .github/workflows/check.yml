@@ -19,7 +19,7 @@ jobs:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
         # The latest patch version of each minor version
-        liquibaseVersion: [ 4.26.0, 4.27.0, 4.28.0, 4.29.0, 'latest' ]
+        liquibaseVersion: [ 4.26.0, 4.27.0, 4.28.0, 'latest' ]
 
     steps:
       - uses: actions/checkout@v4
