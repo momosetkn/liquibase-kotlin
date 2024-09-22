@@ -6,11 +6,13 @@ import io.kotest.matchers.shouldBe
 import komapper.databasechangelog
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
-import momosetkn.utils.DDLUtils.shouldBeEqualDdl
+import momosetkn.utils.DDLUtils.sql
+import momosetkn.utils.DDLUtils.toMainDdl
 import momosetkn.utils.Database
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
 import momosetkn.utils.InterchangeableChangeLog
 import momosetkn.utils.set
+import momosetkn.utils.shouldMatchWithoutLineBreaks
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.query.single
@@ -73,7 +75,7 @@ class ChangeSetSpec : FunSpec({
             }
             test("can migrate") {
                 subject()
-                Database.shouldBeEqualDdl(
+                Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                     """
                     CREATE MEMORY TABLE "PUBLIC"."COMPANY"(
                         "ID" UUID NOT NULL,
@@ -104,7 +106,7 @@ class ChangeSetSpec : FunSpec({
             }
             test("can migrate") {
                 subject()
-                Database.shouldBeEqualDdl("")
+                Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql("")
                 val db = Database.komapperDb()
                 val d = Meta.databasechangelog
                 val result = db.runQuery {
@@ -135,7 +137,7 @@ class ChangeSetSpec : FunSpec({
             }
             test("can migrate") {
                 subject()
-                Database.shouldBeEqualDdl(
+                Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                     """
                     CREATE MEMORY TABLE "PUBLIC"."COMPANY"(
                         "ID" UUID NOT NULL,
@@ -199,7 +201,7 @@ class ChangeSetSpec : FunSpec({
         }
         test("can migrate") {
             subject()
-            Database.shouldBeEqualDdl(
+            Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
                     CREATE MEMORY TABLE "PUBLIC"."TABLE_A"(
                         "ID" INTEGER NOT NULL,
@@ -225,7 +227,7 @@ class ChangeSetSpec : FunSpec({
         }
         test("can migrate") {
             subject()
-            Database.shouldBeEqualDdl(
+            Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
                     CREATE MEMORY TABLE "PUBLIC"."TABLE_A"(
                         "ID" INTEGER NOT NULL,
@@ -247,7 +249,7 @@ class ChangeSetSpec : FunSpec({
         }
         test("can migrate") {
             subject()
-            Database.shouldBeEqualDdl(
+            Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
                    CREATE MEMORY TABLE "PUBLIC".U&"\5bff\53f8"(
                        U&"\ff49\ff44" INTEGER NOT NULL,
@@ -285,7 +287,7 @@ class ChangeSetSpec : FunSpec({
             shouldThrow<IllegalStateException> {
                 subject()
             }
-            Database.shouldBeEqualDdl(
+            Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
                     CREATE MEMORY TABLE "PUBLIC"."COMPANY"(
                         "ID" UUID NOT NULL,

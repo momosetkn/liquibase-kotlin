@@ -7,11 +7,13 @@ import komapper.Company2
 import komapper.company2
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.kotlin.change.customKomapperJdbcChange
-import momosetkn.utils.DDLUtils.shouldBeEqualDdl
+import momosetkn.utils.DDLUtils.sql
+import momosetkn.utils.DDLUtils.toMainDdl
 import momosetkn.utils.Database
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
 import momosetkn.utils.InterchangeableChangeLog
 import momosetkn.utils.set
+import momosetkn.utils.shouldMatchWithoutLineBreaks
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.query.single
@@ -80,7 +82,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
         }
         test("can migrate") {
             subject()
-            Database.shouldBeEqualDdl(
+            Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
                     CREATE MEMORY TABLE "PUBLIC"."COMPANY2"(
                         "ID" UUID NOT NULL,
@@ -161,7 +163,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
             }
             test("can rollback") {
                 subject()
-                Database.shouldBeEqualDdl("")
+                Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql("")
             }
         }
         context("rollback arg is none") {

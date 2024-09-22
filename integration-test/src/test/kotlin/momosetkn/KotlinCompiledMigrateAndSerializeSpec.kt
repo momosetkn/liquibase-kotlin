@@ -5,7 +5,8 @@ import momosetkn.liquibase.changelogs.CompiledDatabaseChangelogAll
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
-import momosetkn.utils.DDLUtils.shouldBeEqualDdl
+import momosetkn.utils.DDLUtils.sql
+import momosetkn.utils.DDLUtils.toMainDdl
 import momosetkn.utils.Database
 import momosetkn.utils.ResourceUtils.getResourceAsString
 import momosetkn.utils.shouldMatchWithoutLineBreaks
@@ -66,7 +67,7 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
 
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
-            Database.shouldBeEqualDdl(expectedDdl)
+            Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
             val actual = getFileAsString(SERIALIZER_ACTUAL_CHANGELOG)

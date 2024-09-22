@@ -59,10 +59,7 @@ object DDLUtils {
         ).omitComment().normalize()
     }
 
-    infix fun Database.shouldBeEqualDdl(
-        @Language("sql") actual: String
-    ) {
-        val ddl = this.generateDdl().toMainDdl()
-        ddl shouldMatchWithoutLineBreaks actual
-    }
+    fun sql(
+        @Language("sql") sql: String
+    ) = sql
 }

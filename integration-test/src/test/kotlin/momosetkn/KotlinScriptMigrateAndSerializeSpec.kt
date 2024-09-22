@@ -3,7 +3,8 @@ package momosetkn
 import io.kotest.core.spec.style.FunSpec
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.utils.Constants
-import momosetkn.utils.DDLUtils.shouldBeEqualDdl
+import momosetkn.utils.DDLUtils.sql
+import momosetkn.utils.DDLUtils.toMainDdl
 import momosetkn.utils.Database
 import momosetkn.utils.ResourceUtils
 import momosetkn.utils.ResourceUtils.getResourceAsString
@@ -64,7 +65,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
 
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
-            Database.shouldBeEqualDdl(expectedDdl)
+            Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
             val actual = ResourceUtils.getResourceFileAsString(SERIALIZER_ACTUAL_CHANGELOG)
