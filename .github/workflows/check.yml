@@ -18,8 +18,8 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
-        # '' is expression the latest version specified in `gradle.properties`.
-        liquibaseVersion: [ 4.26.0, 4.27.0, 4.28.0, 4.29.0, 4.29.1, 'latest' ]
+        # The latest patch version of each minor version
+        liquibaseVersion: [ 4.26.0, 4.27.0, 4.28.0, 4.29.0, 'latest' ]
 
     steps:
       - uses: actions/checkout@v4
