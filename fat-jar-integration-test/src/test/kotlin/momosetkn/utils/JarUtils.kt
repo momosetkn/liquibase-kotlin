@@ -20,10 +20,11 @@ object JarUtils {
 
         val os = System.getProperty("os.name").lowercase()
         val gradleCommand = if (os.contains("win")) "gradlew.bat" else "./gradlew"
+        val dire = if (os.contains("win")) File("D:\\a\\liquibase-kotlin\\liquibase-kotlin\\") else rootDir
         val command = arrayOf(gradleCommand, "shadowjar")
         log.info("execute command: `{}`. in directory : `{}`", command.joinToString(" "), rootDir.absolutePath)
         val process = ProcessBuilder(*command)
-            .directory(File("D:\\a\\liquibase-kotlin\\liquibase-kotlin\\"))
+            .directory(dire)
             .redirectErrorStream(true)
             .let {
                 it.environment()["JAVA_HOME"] = System.getProperty("java.home")
