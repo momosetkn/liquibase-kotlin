@@ -6,6 +6,7 @@ import liquibase.changelog.DatabaseChangeLog
 import liquibase.parser.ChangeLogParser
 import liquibase.resource.ResourceAccessor
 import momosetkn.liquibase.kotlin.dsl.ChangeLogDsl
+import java.io.File
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
@@ -82,7 +83,7 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
     private fun String.toClassName(): String {
         return this.removeSuffix(".kt")
             .removeSuffix(".class")
-            .replace("/", ".")
+            .replace(File.separator, ".")
     }
 
     override fun getPriority() = PRIORITY_DEFAULT
