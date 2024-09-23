@@ -12,7 +12,7 @@ import momosetkn.utils.ResourceUtils.getResourceAsString
 import momosetkn.utils.shouldMatchWithoutLineBreaks
 import java.nio.file.Paths
 
-class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
+class KotlinCompiledMigrateAndSerializeOnFatJarSpec : FunSpec({
     beforeSpec {
         JarUtils.build()
         Database.start()
@@ -86,11 +86,11 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
 
         private val PARSER_INPUT_CHANGELOG = CompiledDatabaseChangelogAll::class.qualifiedName!!
         private const val SERIALIZER_ACTUAL_CHANGELOG =
-            "KotlinCompiledMigrateAndSerializeSpec/serializer_actual/ChangeLog0.kt"
+            "KotlinCompiledMigrateAndSerializeOnFatJarSpec/serializer_actual/ChangeLog0.kt"
 
         // To avoid auto-formatting, do not add a file extension.
         private const val SERIALIZER_EXPECT_CHANGELOG =
-            "KotlinCompiledMigrateAndSerializeSpec/serializer_expect/ChangeLog0_kt"
-        private const val PARSER_EXPECT_DDL = "KotlinCompiledMigrateAndSerializeSpec/parser_expect/db.ddl-0.sql"
+            "KotlinCompiledMigrateAndSerializeOnFatJarSpec/serializer_expect/ChangeLog0_kt"
+        private const val PARSER_EXPECT_DDL = "KotlinCompiledMigrateAndSerializeOnFatJarSpec/parser_expect/db.ddl-0.sql"
     }
 }

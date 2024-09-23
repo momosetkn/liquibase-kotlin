@@ -11,7 +11,7 @@ import momosetkn.utils.ResourceUtils.getResourceAsString
 import momosetkn.utils.shouldMatchWithoutLineBreaks
 import java.nio.file.Paths
 
-class KotlinScriptMigrateAndSerializeSpec : FunSpec({
+class KotlinScriptMigrateAndSerializeOnFatJarSpec : FunSpec({
     beforeSpec {
         JarUtils.build()
         Database.start()
@@ -81,16 +81,16 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
             this.replace(changeSetRegex, "changeSet(author = \"**********\", id = \"*************-\$3\") {")
 
         private const val PARSER_INPUT_CHANGELOG =
-            "KotlinScriptMigrateAndSerializeSpec/parser_input/db.changelog-all.kts"
+            "KotlinScriptMigrateAndSerializeOnFatJarSpec/parser_input/db.changelog-all.kts"
 
         @Suppress("MaxLineLength")
         private const val SERIALIZER_ACTUAL_CHANGELOG =
-            "KotlinScriptMigrateAndSerializeSpec/serializer_actual/db.changelog-0.kts"
+            "KotlinScriptMigrateAndSerializeOnFatJarSpec/serializer_actual/db.changelog-0.kts"
 
         // To avoid auto-formatting, do not add a file extension.
         @Suppress("MaxLineLength")
         private const val SERIALIZER_EXPECT_CHANGELOG =
-            "KotlinScriptMigrateAndSerializeSpec/serializer_expect/db.changelog-0_kts"
-        private const val PARSER_EXPECT_DDL = "KotlinScriptMigrateAndSerializeSpec/parser_expect/db.ddl-0.sql"
+            "KotlinScriptMigrateAndSerializeOnFatJarSpec/serializer_expect/db.changelog-0_kts"
+        private const val PARSER_EXPECT_DDL = "KotlinScriptMigrateAndSerializeOnFatJarSpec/parser_expect/db.ddl-0.sql"
     }
 }
