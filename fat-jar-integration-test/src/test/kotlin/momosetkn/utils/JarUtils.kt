@@ -41,7 +41,9 @@ object JarUtils {
                 it.start()
             }
 
-        val notTimeout = logRealtimeProcessOutput(process, 90, TimeUnit.SECONDS)
+        val logThreads = logRealtimeProcessOutput(process)
+        val notTimeout = process.waitFor(90, TimeUnit.SECONDS)
+        logThreads.forEach { it.join() }
         require(notTimeout) {
             "timeout. command: `${command.joinToString(" ")}`"
         }
@@ -69,7 +71,9 @@ object JarUtils {
                 it.start()
             }
 
-        val notTimeout = logRealtimeProcessOutput(process, 20, TimeUnit.SECONDS)
+        val logThreads = logRealtimeProcessOutput(process)
+        val notTimeout = process.waitFor(20, TimeUnit.SECONDS)
+        logThreads.forEach { it.join() }
         require(notTimeout) {
             "timeout. command: `${command.joinToString(" ")}`"
         }
@@ -80,9 +84,7 @@ object JarUtils {
 
     private fun logRealtimeProcessOutput(
         process: Process,
-        timeout: Long = 15L,
-        unit: TimeUnit = TimeUnit.SECONDS,
-    ): Boolean {
+    ): List<Thread> {
         val inputStreamThread = Thread {
             process.inputStream.bufferedReader().use {
                 while (it.ready()) {
@@ -99,9 +101,9 @@ object JarUtils {
         }
         inputStreamThread.start()
         errorStreamThread.start()
-        val waitForResult = process.waitFor(timeout, unit)
-        inputStreamThread.join()
-        errorStreamThread.join()
-        return waitForResult
+        return listOf(
+            inputStreamThread,
+            errorStreamThread
+        )
     }
 }
