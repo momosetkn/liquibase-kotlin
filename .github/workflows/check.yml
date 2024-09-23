@@ -39,6 +39,9 @@ jobs:
           build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
           build-scan-terms-of-use-agree: "yes"
 
+      - name: confirm shell
+        run: echo $SHELL
+
       - name: Run Test with specific Liquibase Version
         if: ${{ matrix.liquibaseVersion != 'latest' }}
         run: ./gradlew test -PliquibaseVersion="${{ matrix.liquibaseVersion }}"
