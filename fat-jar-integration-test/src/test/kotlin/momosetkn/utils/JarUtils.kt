@@ -21,7 +21,15 @@ object JarUtils {
 //        val os = System.getProperty("os.name").lowercase()
 //        val gradleCommand = if (os.contains("win")) arrayOf(System.getenv("SHELL"), "./gradlew") else arrayOf("./gradlew")
 //        val dire = if (os.contains("win")) File("D:\\a\\liquibase-kotlin\\liquibase-kotlin\\") else rootDir
-        val command = listOfNotNull(System.getenv("SHELL"), "./gradlew", "shadowjar")
+        fun getDefaultShell(): String {
+            val os = System.getProperty("os.name").lowercase()
+            return if (os.contains("win")) {
+                System.getenv("ComSpec") ?: "powershell"
+            } else {
+                System.getenv("SHELL") ?: "/bin/bashsh"
+            }
+        }
+        val command = listOfNotNull(getDefaultShell(), "./gradlew", "shadowjar")
         log.info("execute command: `{}`. in directory : `{}`", command.joinToString(" "), rootDir.absolutePath)
         val process = ProcessBuilder(*command.toTypedArray())
             .directory(rootDir)
