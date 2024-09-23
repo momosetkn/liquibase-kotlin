@@ -15,7 +15,7 @@ object JarUtils {
         val os = System.getProperty("os.name").lowercase()
         val gradleCommand = if (os.contains("win")) "gradlew.bat" else "./gradlew"
         val command = arrayOf(gradleCommand, "shadowjar")
-        log.info("execute command: {}", command.joinToString(" "))
+        log.info("execute command: `{}`. in directory : `{}`", command.joinToString(" "), rootDir.absolutePath)
         val process = ProcessBuilder(*command)
             .directory(rootDir)
             .redirectErrorStream(true)
@@ -38,7 +38,7 @@ object JarUtils {
             "build/libs/fat-jar-integration-test-all.jar",
             "\"${args.joinToString(",")}\""
         )
-        log.info("execute command: {}", command.joinToString(" "))
+        log.info("execute command: `{}`. in directory : `{}`", command.joinToString(" "), rootDir.absolutePath)
         val process = ProcessBuilder(*command)
             .directory(projectDir)
             .redirectErrorStream(false)
@@ -47,7 +47,6 @@ object JarUtils {
                 it.start()
             }
 
-//        val result = result_.readText()
         val inputStreamThread = Thread {
             process.inputStream.bufferedReader().use {
                 while (it.ready()) {
