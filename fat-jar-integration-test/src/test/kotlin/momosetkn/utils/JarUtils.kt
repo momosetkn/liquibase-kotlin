@@ -9,8 +9,14 @@ object JarUtils {
     private val projectDir = File(".")
     private var buildComplete = false
 
-    @Synchronized fun build() {
+    @Synchronized
+    fun build() {
         if (this.buildComplete) return
+
+        // FIXME: remove
+        log.info("file exists1: " + File("D:\\a\\liquibase-kotlin\\liquibase-kotlin\\gradlew.bat").exists())
+        log.info("file exists2: " + File("D:\\a\\liquibase-kotlin\\liquibase-kotlin\\fat-jar-integration-test\\..\\gradlew.bat").exists())
+        log.info("file exists3: " + File("D:\\a\\liquibase-kotlin\\gradlew.bat").exists())
 
         val os = System.getProperty("os.name").lowercase()
         val gradleCommand = if (os.contains("win")) "gradlew.bat" else "./gradlew"
@@ -31,7 +37,8 @@ object JarUtils {
         buildComplete = true
     }
 
-    @Synchronized fun run(vararg args: String) {
+    @Synchronized
+    fun run(vararg args: String) {
         val command = arrayOf(
             "java",
             "-jar",
