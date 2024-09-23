@@ -21,9 +21,9 @@ object JarUtils {
 //        val os = System.getProperty("os.name").lowercase()
 //        val gradleCommand = if (os.contains("win")) arrayOf(System.getenv("SHELL"), "./gradlew") else arrayOf("./gradlew")
 //        val dire = if (os.contains("win")) File("D:\\a\\liquibase-kotlin\\liquibase-kotlin\\") else rootDir
-        val command = arrayOf(System.getenv("SHELL"), "./gradlew", "shadowjar")
+        val command = listOfNotNull(System.getenv("SHELL"), "./gradlew", "shadowjar")
         log.info("execute command: `{}`. in directory : `{}`", command.joinToString(" "), rootDir.absolutePath)
-        val process = ProcessBuilder(*command)
+        val process = ProcessBuilder(*command.toTypedArray())
             .directory(rootDir)
             .redirectErrorStream(true)
             .let {
