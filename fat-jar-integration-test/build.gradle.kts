@@ -34,6 +34,19 @@ dependencies {
 }
 tasks.test {
     useJUnitPlatform()
+    // https://kotest.io/docs/framework/tags.html#gradle
+    systemProperties = System.getProperties().asIterable().associate { it.key.toString() to it.value }
+    // https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.logging.TestLogging.html
+    testLogging {
+        // トラブルシューティング時に標準出力に出力したいときは、trueにする
+        showStandardStreams = true
+        showCauses = true
+        showStackTraces = true
+        showExceptions = true
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        events("failed")
+    }
+    maxHeapSize = "2G"
 }
 
 tasks {
