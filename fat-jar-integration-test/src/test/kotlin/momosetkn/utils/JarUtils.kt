@@ -19,7 +19,7 @@ object JarUtils {
         log.info("file exists2: " + File("D:\\a\\liquibase-kotlin\\liquibase-kotlin\\fat-jar-integration-test\\..\\gradlew.bat").exists())
         log.info("file exists3: " + File("D:\\a\\liquibase-kotlin\\gradlew.bat").exists())
 
-//        val os = System.getProperty("os.name").lowercase()
+        //        val os = System.getProperty("os.name").lowercase()
 //        val gradleCommand = if (os.contains("win")) arrayOf(System.getenv("SHELL"), "./gradlew") else arrayOf("./gradlew")
 //        val dire = if (os.contains("win")) File("D:\\a\\liquibase-kotlin\\liquibase-kotlin\\") else rootDir
         fun getDefaultShell(): String {
@@ -30,6 +30,7 @@ object JarUtils {
                 System.getenv("SHELL") ?: "/bin/sh"
             }
         }
+
         val command = listOfNotNull(getDefaultShell(), "./gradlew", "shadowjar")
         log.info("execute command: `{}`. in directory : `{}`", command.joinToString(" "), rootDir.absolutePath)
         val process = ProcessBuilder(*command.toTypedArray())
@@ -40,7 +41,13 @@ object JarUtils {
                 it.start()
             }
 
-        logRealtimeProcessOutput(process, 30, TimeUnit.SECONDS)
+        val notTimeout = logRealtimeProcessOutput(process, 30, TimeUnit.SECONDS)
+        require(notTimeout) {
+            "timeout. command: `${command.joinToString(" ")}`"
+        }
+        require(process.exitValue() == 0) {
+            "process exited with non-zero value: `${process.exitValue()}`, command: `${command.joinToString(" ")}`"
+        }
 
         buildComplete = true
     }
@@ -62,14 +69,20 @@ object JarUtils {
                 it.start()
             }
 
-        logRealtimeProcessOutput(process, 10, TimeUnit.SECONDS)
+        val notTimeout = logRealtimeProcessOutput(process, 20, TimeUnit.SECONDS)
+        require(notTimeout) {
+            "timeout. command: `${command.joinToString(" ")}`"
+        }
+        require(process.exitValue() == 0) {
+            "process exited with non-zero value: `${process.exitValue()}`, command: `${command.joinToString(" ")}`"
+        }
     }
 
     private fun logRealtimeProcessOutput(
         process: Process,
-        timeout: Long = 10L,
-        unit: TimeUnit = TimeUnit.SECONDS
-    ) {
+        timeout: Long = 15L,
+        unit: TimeUnit = TimeUnit.SECONDS,
+    ): Boolean {
         val inputStreamThread = Thread {
             process.inputStream.bufferedReader().use {
                 while (it.ready()) {
@@ -86,8 +99,9 @@ object JarUtils {
         }
         inputStreamThread.start()
         errorStreamThread.start()
-        process.waitFor(timeout, unit)
+        val waitForResult = process.waitFor(timeout, unit)
         inputStreamThread.join()
         errorStreamThread.join()
+        return waitForResult
     }
 }
