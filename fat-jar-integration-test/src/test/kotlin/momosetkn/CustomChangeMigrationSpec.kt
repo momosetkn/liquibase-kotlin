@@ -8,10 +8,12 @@ import momosetkn.liquibase.kotlin.parser.KotlinCompiledDatabaseChangeLog
 import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
 import momosetkn.utils.Database
+import momosetkn.utils.JarUtils
 import java.nio.file.Paths
 
 class CustomChangeMigrationSpec : FunSpec({
     beforeSpec {
+        JarUtils.build()
         Database.start()
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.RESOURCE_DIR)
     }

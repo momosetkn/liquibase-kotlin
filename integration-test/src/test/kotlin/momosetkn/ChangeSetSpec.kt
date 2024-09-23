@@ -28,6 +28,7 @@ class ChangeSetSpec : FunSpec({
         globalArgs {
             general {
                 showBanner = false
+                logLevel = "debug"
             }
         }
     }

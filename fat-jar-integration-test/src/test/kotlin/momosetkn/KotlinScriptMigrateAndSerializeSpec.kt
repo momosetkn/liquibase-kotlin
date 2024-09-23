@@ -1,11 +1,11 @@
 package momosetkn
 
 import io.kotest.core.spec.style.FunSpec
-import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.utils.Constants
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
 import momosetkn.utils.Database
+import momosetkn.utils.JarUtils
 import momosetkn.utils.ResourceUtils
 import momosetkn.utils.ResourceUtils.getResourceAsString
 import momosetkn.utils.shouldMatchWithoutLineBreaks
@@ -13,6 +13,7 @@ import java.nio.file.Paths
 
 class KotlinScriptMigrateAndSerializeSpec : FunSpec({
     beforeSpec {
+        JarUtils.build()
         Database.start()
     }
     afterSpec {
@@ -21,47 +22,43 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
 
     context("Migrate and serialize") {
         test("can migrate") {
-            val client = LiquibaseClient {
-                globalArgs {
-                    general {
-                        showBanner = false
-                        logLevel = "debug"
-                    }
-                }
-            }
             val container = Database.startedContainer
-            client.update(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
-                changelogFile = PARSER_INPUT_CHANGELOG,
+            JarUtils.run(
+                "update",
+                container.driver,
+                container.jdbcUrl,
+                container.username,
+                container.password,
+                PARSER_INPUT_CHANGELOG
             )
-            client.rollback(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
-                changelogFile = PARSER_INPUT_CHANGELOG,
-                tag = "started",
+            JarUtils.run(
+                "rollback",
+                container.driver,
+                container.jdbcUrl,
+                container.username,
+                container.password,
+                PARSER_INPUT_CHANGELOG,
+                "started",
             )
-            client.update(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
-                changelogFile = PARSER_INPUT_CHANGELOG,
+            JarUtils.run(
+                "update",
+                container.driver,
+                container.jdbcUrl,
+                container.username,
+                container.password,
+                PARSER_INPUT_CHANGELOG
             )
             val actualSerializedChangeLogFile =
                 Paths.get(Constants.RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
             val f = actualSerializedChangeLogFile.toFile()
             if (f.exists()) f.delete()
-            client.generateChangelog(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
-                changelogFile = actualSerializedChangeLogFile.toString(),
+            JarUtils.run(
+                "generateChangelog",
+                container.driver,
+                container.jdbcUrl,
+                container.username,
+                container.password,
+                actualSerializedChangeLogFile.toString()
             )
 
             // check database

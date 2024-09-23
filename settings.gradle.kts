@@ -12,6 +12,7 @@ rootProject.name = "liquibase-kotlin"
 
 // test
 include("integration-test")
+include("fat-jar-integration-test")
 include("test-utils")
 
 // production code
