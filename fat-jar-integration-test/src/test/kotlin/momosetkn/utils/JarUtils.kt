@@ -19,12 +19,12 @@ object JarUtils {
         log.info("file exists3: " + File("D:\\a\\liquibase-kotlin\\gradlew.bat").exists())
 
         val os = System.getProperty("os.name").lowercase()
-        val gradleCommand = if (os.contains("win")) "gradlew.bat" else "./gradlew"
-        val dire = if (os.contains("win")) File("D:\\a\\liquibase-kotlin\\liquibase-kotlin\\") else rootDir
-        val command = arrayOf(gradleCommand, "shadowjar")
+        val gradleCommand = if (os.contains("win")) arrayOf("powershell", "./gradlew") else arrayOf("./gradlew")
+//        val dire = if (os.contains("win")) File("D:\\a\\liquibase-kotlin\\liquibase-kotlin\\") else rootDir
+        val command = arrayOf(*gradleCommand, "shadowjar")
         log.info("execute command: `{}`. in directory : `{}`", command.joinToString(" "), rootDir.absolutePath)
         val process = ProcessBuilder(*command)
-            .directory(dire)
+            .directory(rootDir)
             .redirectErrorStream(true)
             .let {
                 it.environment()["JAVA_HOME"] = System.getProperty("java.home")
