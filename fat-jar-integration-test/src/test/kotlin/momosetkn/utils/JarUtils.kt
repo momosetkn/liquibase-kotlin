@@ -69,7 +69,7 @@ object JarUtils {
         process: Process,
         timeout: Long = 10L,
         unit: TimeUnit = TimeUnit.SECONDS
-    ) = Thread {
+    ) {
         val inputStreamThread = Thread {
             process.inputStream.bufferedReader().use {
                 while (it.ready()) {
