@@ -44,7 +44,7 @@ object DatabaseServer {
     private fun createServer(): DatabaseConfig {
         val databaseConfig = DatabaseConfig(
             driver = "org.h2.Driver",
-            jdbcUrl = "jdbc:h2:://127.0.0.1:$PORT/$DATABASE_DIRECTORY/$DATABASE_NAME",
+            jdbcUrl = "jdbc:h2:tcp://127.0.0.1:$PORT/$DATABASE_DIRECTORY/$DATABASE_NAME",
             username = "sa",
             password = "",
         )
