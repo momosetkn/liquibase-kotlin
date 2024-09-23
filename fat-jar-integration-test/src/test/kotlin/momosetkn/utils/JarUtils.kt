@@ -26,7 +26,7 @@ object JarUtils {
             return if (os.contains("win")) {
                 System.getenv("ComSpec") ?: "powershell"
             } else {
-                System.getenv("SHELL") ?: "/bin/bashsh"
+                System.getenv("SHELL") ?: "/bin/bash"
             }
         }
         val command = listOfNotNull(getDefaultShell(), "./gradlew", "shadowjar")
