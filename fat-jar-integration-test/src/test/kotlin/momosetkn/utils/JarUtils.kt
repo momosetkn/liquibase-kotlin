@@ -24,12 +24,10 @@ object JarUtils {
 //        val dire = if (os.contains("win")) File("D:\\a\\liquibase-kotlin\\liquibase-kotlin\\") else rootDir
         fun getDefaultShell(): String {
             val os = System.getProperty("os.name").lowercase()
-            log.info("SHELL: " + System.getenv("SHELL"))
             return if (os.contains("win")) {
                 "powershell"
-//                System.getenv("ComSpec") ?: "powershell"
             } else {
-                System.getenv("SHELL") ?: "/bin/sh"
+                "/bin/sh"
             }
         }
 
