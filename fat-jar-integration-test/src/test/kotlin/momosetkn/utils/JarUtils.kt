@@ -1,6 +1,7 @@
 package momosetkn.utils
 
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 object JarUtils {
     private val log = org.slf4j.LoggerFactory.getLogger(this::class.java)
@@ -33,16 +34,14 @@ object JarUtils {
         log.info("execute command: `{}`. in directory : `{}`", command.joinToString(" "), rootDir.absolutePath)
         val process = ProcessBuilder(*command.toTypedArray())
             .directory(rootDir)
-            .redirectErrorStream(true)
+            .redirectErrorStream(false)
             .let {
                 it.environment()["JAVA_HOME"] = System.getProperty("java.home")
                 it.start()
             }
 
-        val result = process.inputStream.bufferedReader().readText()
-        process.waitFor(20, java.util.concurrent.TimeUnit.SECONDS)
+        logRealtimeProcessOutput(process)
 
-        log.info(result)
         buildComplete = true
     }
 
@@ -63,6 +62,14 @@ object JarUtils {
                 it.start()
             }
 
+        logRealtimeProcessOutput(process, 10, TimeUnit.SECONDS)
+    }
+
+    private fun logRealtimeProcessOutput(
+        process: Process,
+        timeout: Long = 10L,
+        unit: TimeUnit = TimeUnit.SECONDS
+    ) = Thread {
         val inputStreamThread = Thread {
             process.inputStream.bufferedReader().use {
                 while (it.ready()) {
@@ -79,7 +86,7 @@ object JarUtils {
         }
         inputStreamThread.start()
         errorStreamThread.start()
-        process.waitFor(10, java.util.concurrent.TimeUnit.SECONDS)
+        process.waitFor(timeout, unit)
         inputStreamThread.join()
         errorStreamThread.join()
     }
