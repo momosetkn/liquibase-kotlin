@@ -72,8 +72,10 @@ object DatabaseServer {
 
     @Synchronized
     fun stop() {
-        getConnection(startedContainer).use {
-            dropDb(it)
+        this.container?.also { container ->
+            getConnection(container).use {
+                dropDb(it)
+            }
         }
     }
 
