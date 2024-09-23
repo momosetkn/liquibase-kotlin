@@ -40,7 +40,7 @@ object JarUtils {
                 it.start()
             }
 
-        logRealtimeProcessOutput(process)
+        logRealtimeProcessOutput(process, 30, TimeUnit.SECONDS)
 
         buildComplete = true
     }
