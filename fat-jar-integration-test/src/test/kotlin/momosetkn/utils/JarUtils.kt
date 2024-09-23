@@ -31,7 +31,7 @@ object JarUtils {
             }
         }
 
-        val command = listOfNotNull(getDefaultShell(), "./gradlew", "shadowjar")
+        val command = listOfNotNull(getDefaultShell(), ".${File.separatorChar}gradlew", "shadowjar")
         log.info("execute command: `{}`. in directory : `{}`", command.joinToString(" "), rootDir.absolutePath)
         val process = ProcessBuilder(*command.toTypedArray())
             .directory(rootDir)
