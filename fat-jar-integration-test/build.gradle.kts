@@ -34,8 +34,6 @@ dependencies {
 }
 tasks.test {
     useJUnitPlatform()
-    systemProperty("kotest.framework.classpath.scanning.config.disable", "true")
-    systemProperty("kotest.framework.timeout", 30_000)
 }
 
 tasks {
