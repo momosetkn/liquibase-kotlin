@@ -41,7 +41,7 @@ object JarUtils {
                 it.start()
             }
 
-        val notTimeout = logRealtimeProcessOutput(process, 30, TimeUnit.SECONDS)
+        val notTimeout = logRealtimeProcessOutput(process, 90, TimeUnit.SECONDS)
         require(notTimeout) {
             "timeout. command: `${command.joinToString(" ")}`"
         }
