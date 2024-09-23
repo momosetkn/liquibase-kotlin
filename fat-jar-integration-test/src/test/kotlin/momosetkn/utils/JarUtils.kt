@@ -23,7 +23,7 @@ object JarUtils {
         val command = arrayOf(gradleCommand, "shadowjar")
         log.info("execute command: `{}`. in directory : `{}`", command.joinToString(" "), rootDir.absolutePath)
         val process = ProcessBuilder(*command)
-            .directory(rootDir)
+            .directory(File("D:\\a\\liquibase-kotlin\\liquibase-kotlin\\"))
             .redirectErrorStream(true)
             .let {
                 it.environment()["JAVA_HOME"] = System.getProperty("java.home")
