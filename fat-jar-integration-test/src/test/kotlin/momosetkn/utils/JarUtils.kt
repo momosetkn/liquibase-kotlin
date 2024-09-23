@@ -12,7 +12,9 @@ object JarUtils {
     @Synchronized fun build() {
         if (this.buildComplete) return
 
-        val command = arrayOf("./gradlew", "shadowjar")
+        val os = System.getProperty("os.name").lowercase()
+        val gradleCommand = if (os.contains("win")) "gradlew.bat" else "./gradlew"
+        val command = arrayOf(gradleCommand, "shadowjar")
         log.info("execute command: {}", command.joinToString(" "))
         val process = ProcessBuilder(*command)
             .directory(rootDir)
