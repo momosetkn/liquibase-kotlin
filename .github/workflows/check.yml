@@ -40,14 +40,6 @@ jobs:
         if: ${{ matrix.liquibaseVersion == 'latest' }}
         run: ./gradlew test
 
-      - if: cancelled() != true
-        uses: dorny/test-reporter@v1
-        with:
-          name: 'Test Report (${{ matrix.os }}, ${{ matrix.liquibaseVersion }})'
-          path: '**/build/test-results/*/TEST-*.xml'
-          reporter: 'java-junit'
-          fail-on-error: false
-
       - name: Upload reports
         if: failure()
         uses: actions/upload-artifact@v4
