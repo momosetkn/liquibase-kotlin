@@ -25,6 +25,7 @@ class CustomChangeMigrationSpec : FunSpec({
                 globalArgs {
                     general {
                         showBanner = false
+                        logLevel = "debug"
                     }
                 }
             }

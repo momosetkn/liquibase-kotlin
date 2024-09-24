@@ -74,6 +74,7 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
         changeLogFile: String,
         resourceAccessor: ResourceAccessor,
     ): Boolean {
+        log.error("changeLogFileaaaaaaaaaaaaaaaaaaaaaaaaaa: {}", changeLogFile)
         return runCatching {
             Class.forName(changeLogFile.toClassName())
         }.fold(

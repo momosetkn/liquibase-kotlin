@@ -31,6 +31,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
         globalArgs {
             general {
                 showBanner = false
+                logLevel = "debug"
             }
         }
     }

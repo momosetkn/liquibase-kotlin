@@ -2,18 +2,19 @@ package momosetkn
 
 import io.kotest.core.spec.style.FunSpec
 import momosetkn.liquibase.changelogs.CompiledDatabaseChangelogAll
-import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
 import momosetkn.utils.Database
+import momosetkn.utils.JarUtils
 import momosetkn.utils.ResourceUtils.getResourceAsString
 import momosetkn.utils.shouldMatchWithoutLineBreaks
 import java.nio.file.Paths
 
-class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
+class KotlinCompiledMigrateAndSerializeOnFatJarSpec : FunSpec({
     beforeSpec {
+        JarUtils.build()
         Database.start()
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.RESOURCE_DIR)
     }
@@ -23,7 +24,8 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
 
     context("Migrate and serialize") {
         test("can migrate") {
-            val client = LiquibaseClient {
+            val container = Database.startedContainer
+            val client = JarUtils.run {
                 globalArgs {
                     general {
                         showBanner = false
@@ -31,7 +33,6 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
                     }
                 }
             }
-            val container = Database.startedContainer
             client.update(
                 driver = container.driver,
                 url = container.jdbcUrl,
@@ -63,9 +64,8 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,
-                changelogFile = actualSerializedChangeLogFile.toString(),
+                changelogFile = Paths.get(moduleName).resolve(actualSerializedChangeLogFile).toString(),
             )
-
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
             Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
@@ -80,6 +80,7 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
     }
 }) {
     companion object {
+        val moduleName = "fat-jar-integration-test"
         private fun getFileAsString(path: String) =
             Paths.get(Constants.RESOURCE_DIR, path).toFile().readText()
 
@@ -90,11 +91,11 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
 
         private val PARSER_INPUT_CHANGELOG = CompiledDatabaseChangelogAll::class.qualifiedName!!
         private const val SERIALIZER_ACTUAL_CHANGELOG =
-            "KotlinCompiledMigrateAndSerializeSpec/serializer_actual/ChangeLog0.kt"
+            "KotlinCompiledMigrateAndSerializeOnFatJarSpec/serializer_actual/ChangeLog0.kt"
 
         // To avoid auto-formatting, do not add a file extension.
         private const val SERIALIZER_EXPECT_CHANGELOG =
-            "KotlinCompiledMigrateAndSerializeSpec/serializer_expect/ChangeLog0_kt"
-        private const val PARSER_EXPECT_DDL = "KotlinCompiledMigrateAndSerializeSpec/parser_expect/db.ddl-0.sql"
+            "KotlinCompiledMigrateAndSerializeOnFatJarSpec/serializer_expect/ChangeLog0_kt"
+        private const val PARSER_EXPECT_DDL = "KotlinCompiledMigrateAndSerializeOnFatJarSpec/parser_expect/db.ddl-0.sql"
     }
 }

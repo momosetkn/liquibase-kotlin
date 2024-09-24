@@ -10,8 +10,10 @@ pluginManagement {
 
 rootProject.name = "liquibase-kotlin"
 
-// integration-test
+// test
 include("integration-test")
+include("fat-jar-integration-test")
+include("test-utils")
 
 // production code
 // dsl

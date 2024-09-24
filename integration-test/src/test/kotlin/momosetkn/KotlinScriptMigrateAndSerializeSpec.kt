@@ -1,6 +1,9 @@
 package momosetkn
 
 import io.kotest.core.spec.style.FunSpec
+import liquibase.Liquibase
+import liquibase.Scope
+import liquibase.database.DatabaseFactory
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.utils.Constants
 import momosetkn.utils.DDLUtils.sql
@@ -25,17 +28,43 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
                 globalArgs {
                     general {
                         showBanner = false
+                        logLevel = "debug"
                     }
                 }
             }
             val container = Database.startedContainer
-            client.update(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
-                changelogFile = PARSER_INPUT_CHANGELOG,
+
+//            Scope.getCurrentScope().getSingleton(
+//                LiquibaseConfiguration.class)
+//                .setShouldShowBanner(false)
+            val resourceAccessor = Scope.getCurrentScope().resourceAccessor
+//            val liquibase =
+//                Scope.getCurrentScope().resourceAccessor
+            val database = DatabaseFactory.getInstance().openDatabase(
+                container.jdbcUrl,
+                container.username,
+                container.password,
+                container.driver,
+                null,
+                null,
+                null,
+                resourceAccessor,
             )
+            val liquibase = Liquibase(PARSER_INPUT_CHANGELOG, resourceAccessor, database)
+            liquibase.update()
+
+//            try {
+//            } catch (e: LiquibaseException) {
+//                e.printStackTrace()
+//            }
+
+//            client.update(
+//                driver = container.driver,
+//                url = container.jdbcUrl,
+//                username = container.username,
+//                password = container.password,
+//                changelogFile = PARSER_INPUT_CHANGELOG,
+//            )
             client.rollback(
                 driver = container.driver,
                 url = container.jdbcUrl,
@@ -44,13 +73,15 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
                 changelogFile = PARSER_INPUT_CHANGELOG,
                 tag = "started",
             )
-            client.update(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
-                changelogFile = PARSER_INPUT_CHANGELOG,
-            )
+//            client.update(
+//                driver = container.driver,
+//                url = container.jdbcUrl,
+//                username = container.username,
+//                password = container.password,
+//                changelogFile = PARSER_INPUT_CHANGELOG,
+//            )
+            liquibase.update()
+
             val actualSerializedChangeLogFile =
                 Paths.get(Constants.RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
             val f = actualSerializedChangeLogFile.toFile()

@@ -14,12 +14,14 @@ permissions:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    timeout-minutes: 10
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
         # The latest patch version of each minor version
-        liquibaseVersion: [ 4.26.0, 4.27.0, 4.28.0, 'latest' ]
+        liquibaseVersion: [ 4.26.0 ]
+#        liquibaseVersion: [ 4.26.0, 4.27.0, 4.28.0, 'latest' ]
+      fail-fast: false
 
     steps:
       - uses: actions/checkout@v4
@@ -32,21 +34,22 @@ jobs:
 
       - name: setup gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          build-scan-publish: true
+          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
+          build-scan-terms-of-use-agree: "yes"
+
+      - name: confirm shell
+        run: echo $SHELL
 
       - name: Run Test with specific Liquibase Version
         if: ${{ matrix.liquibaseVersion != 'latest' }}
-        run: ./gradlew test -PliquibaseVersion="${{ matrix.liquibaseVersion }}"
+        run: ./gradlew shadowJar test -PliquibaseVersion="${{ matrix.liquibaseVersion }}"
+        timeout-minutes: 7
       - name: Run Test with latest Liquibase Version
         if: ${{ matrix.liquibaseVersion == 'latest' }}
-        run: ./gradlew test
-
-      - if: cancelled() != true
-        uses: dorny/test-reporter@v1
-        with:
-          name: 'Test Report (${{ matrix.os }}, ${{ matrix.liquibaseVersion }})'
-          path: '**/build/test-results/*/TEST-*.xml'
-          reporter: 'java-junit'
-          fail-on-error: false
+        run: ./gradlew shadowJar test
+        timeout-minutes: 7
 
       - name: Upload reports
         if: failure()

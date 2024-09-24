@@ -1,7 +1,7 @@
 val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
 val slf4jVersion = rootProject.properties["slf4jVersion"] as String
-val komapperVersion = "3.0.0"
+val komapperVersion = rootProject.properties["komapperVersion"] as String
 
 plugins {
     id("com.google.devtools.ksp") version "2.0.20-1.0.25"
@@ -16,6 +16,7 @@ dependencies {
     implementation(project(":compiled-parser"))
     implementation(project(":client"))
     implementation(project(":custom-komapper-jdbc-change"))
+    testImplementation(project(":test-utils"))
 
     // log
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
