@@ -148,7 +148,7 @@ class KotlinChangeLogSerializerCore {
 
     private fun serializeString(s: String): String {
         val replaced = s
-            .replace("'", "\\")
+            .replace("\"", "\\\"")
             .replace("\n", "\\n")
         return "\"${replaced}\""
     }
