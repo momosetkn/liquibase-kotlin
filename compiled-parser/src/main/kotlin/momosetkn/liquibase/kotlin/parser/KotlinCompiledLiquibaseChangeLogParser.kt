@@ -23,7 +23,7 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
             updateChangeLog(
                 databaseChangeLog = databaseChangeLog,
                 changeLogParameters = changeLogParameters,
-                resourceAccessor = compositeResourceAccessor(resourceAccessor),
+                resourceAccessor = appendKotlinCompiledResourceAccessor(resourceAccessor),
             )
         }.fold(
             onSuccess = { databaseChangeLog },
@@ -34,7 +34,9 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
         )
     }
 
-    private fun compositeResourceAccessor(originalResourceAccessor: ResourceAccessor): CompositeResourceAccessor {
+    private fun appendKotlinCompiledResourceAccessor(
+        originalResourceAccessor: ResourceAccessor
+    ): CompositeResourceAccessor {
         val compositeResourceAccessor = CompositeResourceAccessor()
         compositeResourceAccessor.addResourceAccessor(originalResourceAccessor)
         compositeResourceAccessor.addResourceAccessor(KotlinCompiledResourceAccessor())
