@@ -90,7 +90,7 @@ data class LiquibaseGeneralGlobalArgs(
     var trimLoadDataFileHeader: Boolean? = null,
     var uiService: String? = null,
     var useProcedureSchema: Boolean? = null,
-    var varidateXmlChangelogFiles: Boolean? = null,
+    var validateXmlChangelogFiles: Boolean? = null,
 ) : LiquibaseGlobalArgs {
     override fun serialize(): List<String> {
         return listOfNotNull(
@@ -157,7 +157,7 @@ data class LiquibaseGeneralGlobalArgs(
             trimLoadDataFileHeader?.let { "--trim-load-data-file-header=$it" },
             uiService?.let { "--ui-service=$it" },
             useProcedureSchema?.let { "--use-procedure-schema=$it" },
-            varidateXmlChangelogFiles?.let { "--varidate-xml-changelog-files=$it" },
+            validateXmlChangelogFiles?.let { "--validate-xml-changelog-files=$it" },
         )
     }
 }
