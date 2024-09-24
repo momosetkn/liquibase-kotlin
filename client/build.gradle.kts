@@ -5,8 +5,6 @@ val slf4jVersion = rootProject.properties["slf4jVersion"] as String
 dependencies {
     // liquibase
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
-    // for liquibase-cli
-    api("info.picocli:picocli:4.7.6")
     // log
     api("org.slf4j:slf4j-api:$slf4jVersion")
 
