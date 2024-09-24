@@ -114,6 +114,12 @@ changeSet(author = "momose (generated)", id = "1715520327312-40") {
 
 - JDK 17 or later
 
+### Test passed liquibase version
+- 4.26.0
+- 4.27.0
+- 4.28.0
+- 4.29.2
+
 ## How to install
 
 ```kotlin
