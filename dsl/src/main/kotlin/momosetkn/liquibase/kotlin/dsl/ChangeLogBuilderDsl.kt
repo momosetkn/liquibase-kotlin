@@ -2,13 +2,11 @@ package momosetkn.liquibase.kotlin.dsl
 
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.resource.ResourceAccessor
-import momosetkn.liquibase.kotlin.dsl.overridable.ChangeLogDslOverride
 
 @ChangeLogDslMarker
 class ChangeLogBuilderDsl(
     private val changeLog: DatabaseChangeLog,
     private val resourceAccessor: ResourceAccessor,
-    private val changeLogDslOverride: ChangeLogDslOverride? = null,
 ) {
     fun databaseChangeLog(
 //        // assigned by momosetkn.liquibase.kotlin.parser.KotlinLiquibaseChangeLogParser.updateChangeLog
@@ -50,7 +48,6 @@ class ChangeLogBuilderDsl(
             ChangeLogDsl(
                 changeLog = changeLog,
                 resourceAccessor = resourceAccessor,
-                changeLogDslOverride = changeLogDslOverride,
             )
         block(dsl)
     }

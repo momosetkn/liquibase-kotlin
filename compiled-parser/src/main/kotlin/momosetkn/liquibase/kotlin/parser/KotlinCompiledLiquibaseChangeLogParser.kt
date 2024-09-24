@@ -40,15 +40,10 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
     ) {
         databaseChangeLog.changeLogParameters = changeLogParameters
         val compiledDatabaseChangeLog = getCompiledDatabaseChangeLog(databaseChangeLog)
-        val changeLogOverride = KotlinCompiledChangeLogDslOverride(
-            sourceChangeLog = databaseChangeLog,
-            resourceAccessor = resourceAccessor,
-        )
         val dsl =
             ChangeLogDsl(
                 changeLog = databaseChangeLog,
                 resourceAccessor = resourceAccessor,
-                changeLogDslOverride = changeLogOverride,
             )
         compiledDatabaseChangeLog.body(dsl)
     }
