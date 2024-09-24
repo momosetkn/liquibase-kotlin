@@ -1,5 +1,6 @@
 package momosetkn.liquibase.client
 
+import liquibase.command.CommandScope
 import liquibase.integration.commandline.LiquibaseCommandLine
 import java.util.concurrent.Executors
 
@@ -12,9 +13,9 @@ object LiquibaseCommandExecutor {
      * Error below when executing Liquibase in parallel (executing in a different thread from the first execution).
      *
      * Unexpected argument(s):
-     * --changelog-file=db/..., --url=jdbc:..., --driver=com..., --username=root, --password=test
+     * changelog-file=db/..., url=jdbc:..., driver=com..., username=root, password=test
      *
-     * For detailed help, try 'liquibase --help' or 'liquibase <command-name> --help'
+     * For detailed help, try 'liquibase help' or 'liquibase <command-name> help'
      */
     private val executor = Executors.newSingleThreadExecutor()
     private val cli = LiquibaseCommandLine()
@@ -30,6 +31,19 @@ object LiquibaseCommandExecutor {
 
     fun shutdown() {
         executor.shutdown()
+    }
+
+    fun executeCommand(
+        command: List<String>,
+        args: List<Pair<String, String>>,
+    ) {
+        @Suppress("SpreadOperator")
+        val commandScope = CommandScope(*command.toTypedArray())
+        args.forEach { arg ->
+            val (key, value) = arg
+            commandScope.addArgumentValue(key, value)
+        }
+        commandScope.execute()
     }
 
     fun executeLiquibaseCommandLine(args: List<String>) {
