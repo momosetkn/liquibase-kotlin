@@ -4,6 +4,7 @@ import liquibase.change.ChangeMetaData.PRIORITY_DEFAULT
 import liquibase.changelog.ChangeLogParameters
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.parser.ChangeLogParser
+import liquibase.resource.CompositeResourceAccessor
 import liquibase.resource.ResourceAccessor
 import momosetkn.liquibase.kotlin.dsl.ChangeLogDsl
 import kotlin.reflect.KClass
@@ -22,7 +23,7 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
             updateChangeLog(
                 databaseChangeLog = databaseChangeLog,
                 changeLogParameters = changeLogParameters,
-                resourceAccessor = resourceAccessor,
+                resourceAccessor = compositeResourceAccessor(resourceAccessor),
             )
         }.fold(
             onSuccess = { databaseChangeLog },
@@ -31,6 +32,13 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
                 throw it
             }
         )
+    }
+
+    private fun compositeResourceAccessor(originalResourceAccessor: ResourceAccessor): CompositeResourceAccessor {
+        val compositeResourceAccessor = CompositeResourceAccessor()
+        compositeResourceAccessor.addResourceAccessor(originalResourceAccessor)
+        compositeResourceAccessor.addResourceAccessor(KotlinCompiledResourceAccessor())
+        return compositeResourceAccessor
     }
 
     private fun updateChangeLog(
