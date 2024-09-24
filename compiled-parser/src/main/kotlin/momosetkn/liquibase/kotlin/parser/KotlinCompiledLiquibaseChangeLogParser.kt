@@ -83,8 +83,7 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
     }
 
     private fun String.toClassName(): String {
-        return this.removeSuffix(".kt")
-            .removeSuffix(".class")
+        return this.removeSuffix(".class")
             .replace("/", ".")
     }
 
