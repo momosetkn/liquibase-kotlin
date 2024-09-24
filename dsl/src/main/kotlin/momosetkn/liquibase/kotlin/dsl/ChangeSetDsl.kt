@@ -1408,6 +1408,16 @@ class ChangeSetDsl(
         changeSetSupport.addChange(change)
     }
 
+    /**
+     * Executes a raw SQL change.
+     * [official-document](https://docs.liquibase.com/change-types/sql.html)
+     *
+     * @param dbms The type of database. [database-type](https://docs.liquibase.com/start/tutorials/home.html)
+     * @param endDelimiter The delimiter for the end of the SQL statement. Default is ";".
+     * @param splitStatements Whether to split the SQL statements. Default is true.
+     * @param stripComments Whether to strip comments from the SQL. Default is true.
+     * @param block The DSL-block that returns SQL strings
+     */
     fun sql(
         dbms: String? = null,
         endDelimiter: String? = null,
@@ -1446,14 +1456,17 @@ class ChangeSetDsl(
         stripComments: Boolean? = null,
         comment: String? = null,
     ) {
-        val change = changeSetSupport.createChange("sql") as RawSQLChange
-        change.dbms = dbms
-        change.endDelimiter = endDelimiter
-        change.isSplitStatements = splitStatements
-        change.isStripComments = stripComments
-        change.sql = sql.evalExpressions(changeLog)
-        change.comment = comment?.evalExpressions(changeLog)
-        changeSetSupport.addChange(change)
+        sql(
+            dbms = dbms,
+            endDelimiter = endDelimiter,
+            splitStatements = splitStatements,
+            stripComments = stripComments,
+        ) {
+            if (comment != null) {
+                comment(comment)
+            }
+            sql
+        }
     }
 
     /**
