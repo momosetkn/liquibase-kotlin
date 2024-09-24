@@ -15,7 +15,6 @@ import liquibase.exception.ChangeLogParseException
 import liquibase.resource.ResourceAccessor
 import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
 import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
-import momosetkn.liquibase.kotlin.dsl.overridable.ChangeLogDslOverride
 import momosetkn.liquibase.kotlin.dsl.util.ReflectionUtils.loadKClass
 import momosetkn.liquibase.kotlin.dsl.util.ReflectionUtils.new
 import momosetkn.liquibase.kotlin.dsl.util.StringsUtil.splitAndTrim
@@ -26,7 +25,6 @@ import kotlin.reflect.KClass
 class ChangeLogDsl(
     private val changeLog: DatabaseChangeLog,
     private val resourceAccessor: ResourceAccessor,
-    private val changeLogDslOverride: ChangeLogDslOverride? = null,
 ) {
     fun changeSet(
         author: String,
@@ -108,18 +106,6 @@ class ChangeLogDsl(
         labels: String? = null,
         relativeToChangelogFile: Boolean = false,
     ) {
-        changeLogDslOverride?.also {
-            changeLogDslOverride.include(
-                file = file,
-                contextFilter = contextFilter,
-                context = context,
-                errorIfMissing = errorIfMissing,
-                ignore = ignore,
-                labels = labels,
-                relativeToChangelogFile = relativeToChangelogFile,
-            )
-            return
-        }
         val fileName =
             changeLog
                 .changeLogParameters
@@ -156,22 +142,6 @@ class ChangeLogDsl(
     ) {
         @Suppress("UNCHECKED_CAST")
         val typedResourceComparator: Comparator<String> = getComparatorByAny(resourceComparator)
-        changeLogDslOverride?.also {
-            return changeLogDslOverride.includeAll(
-                path = path.evalExpressions(changeLog),
-                contextFilter = contextFilter,
-                context = context,
-                endsWithFilter = endsWithFilter,
-                errorIfMissingOrEmpty = errorIfMissingOrEmpty,
-                filter = filter,
-                ignore = ignore,
-                labels = labels,
-                maxDepth = maxDepth,
-                minDepth = minDepth,
-                relativeToChangelogFile = relativeToChangelogFile,
-                resourceComparator = typedResourceComparator
-            )
-        }
         val contextFilterOrContext = contextFilter ?: context
         val includeContexts = ContextExpression(contextFilterOrContext)
         val typedLabels = labels?.let { Labels(it) }

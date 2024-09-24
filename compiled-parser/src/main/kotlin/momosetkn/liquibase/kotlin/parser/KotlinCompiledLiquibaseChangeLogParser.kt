@@ -4,6 +4,7 @@ import liquibase.change.ChangeMetaData.PRIORITY_DEFAULT
 import liquibase.changelog.ChangeLogParameters
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.parser.ChangeLogParser
+import liquibase.resource.CompositeResourceAccessor
 import liquibase.resource.ResourceAccessor
 import momosetkn.liquibase.kotlin.dsl.ChangeLogDsl
 import kotlin.reflect.KClass
@@ -22,7 +23,7 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
             updateChangeLog(
                 databaseChangeLog = databaseChangeLog,
                 changeLogParameters = changeLogParameters,
-                resourceAccessor = resourceAccessor,
+                resourceAccessor = appendKotlinCompiledResourceAccessor(resourceAccessor),
             )
         }.fold(
             onSuccess = { databaseChangeLog },
@@ -33,6 +34,15 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
         )
     }
 
+    private fun appendKotlinCompiledResourceAccessor(
+        originalResourceAccessor: ResourceAccessor
+    ): CompositeResourceAccessor {
+        val compositeResourceAccessor = CompositeResourceAccessor()
+        compositeResourceAccessor.addResourceAccessor(originalResourceAccessor)
+        compositeResourceAccessor.addResourceAccessor(KotlinCompiledResourceAccessor())
+        return compositeResourceAccessor
+    }
+
     private fun updateChangeLog(
         databaseChangeLog: DatabaseChangeLog,
         changeLogParameters: ChangeLogParameters,
@@ -40,15 +50,10 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
     ) {
         databaseChangeLog.changeLogParameters = changeLogParameters
         val compiledDatabaseChangeLog = getCompiledDatabaseChangeLog(databaseChangeLog)
-        val changeLogOverride = KotlinCompiledChangeLogDslOverride(
-            sourceChangeLog = databaseChangeLog,
-            resourceAccessor = resourceAccessor,
-        )
         val dsl =
             ChangeLogDsl(
                 changeLog = databaseChangeLog,
                 resourceAccessor = resourceAccessor,
-                changeLogDslOverride = changeLogOverride,
             )
         compiledDatabaseChangeLog.body(dsl)
     }
@@ -80,8 +85,7 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
     }
 
     private fun String.toClassName(): String {
-        return this.removeSuffix(".kt")
-            .removeSuffix(".class")
+        return this.removeSuffix(".class")
             .replace("/", ".")
     }
 
