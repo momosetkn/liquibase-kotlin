@@ -1,5 +1,4 @@
 import momosetkn.liquibase.client.LiquibaseClient
-import kotlin.system.exitProcess
 
 @Suppress("DestructuringDeclarationWithTooManyEntries")
 fun main(args: Array<String>) {
@@ -16,7 +15,7 @@ fun main(args: Array<String>) {
             1
         },
     )
-    exitProcess(exitCode)
+//    exitProcess(exitCode)
 }
 
 private fun executeCommand(args: Array<String>) {

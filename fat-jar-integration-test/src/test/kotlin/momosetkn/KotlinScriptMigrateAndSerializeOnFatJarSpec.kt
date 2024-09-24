@@ -23,42 +23,46 @@ class KotlinScriptMigrateAndSerializeOnFatJarSpec : FunSpec({
     context("Migrate and serialize") {
         test("can migrate") {
             val container = Database.startedContainer
-            JarUtils.run(
-                "update",
-                container.driver,
-                container.jdbcUrl,
-                container.username,
-                container.password,
-                PARSER_INPUT_CHANGELOG
+            val client = JarUtils.run {
+                globalArgs {
+                    general {
+                        showBanner = false
+                        logLevel = "debug"
+                    }
+                }
+            }
+            client.update(
+                driver = container.driver,
+                url = container.jdbcUrl,
+                username = container.username,
+                password = container.password,
+                changelogFile = PARSER_INPUT_CHANGELOG,
             )
-            JarUtils.run(
-                "rollback",
-                container.driver,
-                container.jdbcUrl,
-                container.username,
-                container.password,
-                PARSER_INPUT_CHANGELOG,
-                "started",
+            client.rollback(
+                driver = container.driver,
+                url = container.jdbcUrl,
+                username = container.username,
+                password = container.password,
+                changelogFile = PARSER_INPUT_CHANGELOG,
+                tag = "started",
             )
-            JarUtils.run(
-                "update",
-                container.driver,
-                container.jdbcUrl,
-                container.username,
-                container.password,
-                PARSER_INPUT_CHANGELOG
+            client.update(
+                driver = container.driver,
+                url = container.jdbcUrl,
+                username = container.username,
+                password = container.password,
+                changelogFile = PARSER_INPUT_CHANGELOG,
             )
             val actualSerializedChangeLogFile =
                 Paths.get(Constants.RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
             val f = actualSerializedChangeLogFile.toFile()
             if (f.exists()) f.delete()
-            JarUtils.run(
-                "generateChangelog",
-                container.driver,
-                container.jdbcUrl,
-                container.username,
-                container.password,
-                actualSerializedChangeLogFile.toString()
+            client.generateChangelog(
+                driver = container.driver,
+                url = container.jdbcUrl,
+                username = container.username,
+                password = container.password,
+                changelogFile = Paths.get(moduleName).resolve(actualSerializedChangeLogFile).toString(),
             )
 
             // check database
@@ -75,13 +79,16 @@ class KotlinScriptMigrateAndSerializeOnFatJarSpec : FunSpec({
     }
 }) {
     companion object {
+        const val moduleName = "fat-jar-integration-test"
         private val changeSetRegex = Regex("""changeSet\(author = "(.+)", id = "(\d+)-(\d)"\) \{""")
 
         private fun String.maskingChangeSet() =
             this.replace(changeSetRegex, "changeSet(author = \"**********\", id = \"*************-\$3\") {")
 
         private const val PARSER_INPUT_CHANGELOG =
-            "KotlinScriptMigrateAndSerializeOnFatJarSpec/parser_input/db.changelog-all.kts"
+            "$moduleName/${Constants.RESOURCE_DIR}/KotlinScriptMigrateAndSerializeOnFatJarSpec/parser_input/db.changelog-all.kts"
+        // work both
+//            "KotlinScriptMigrateAndSerializeOnFatJarSpec/parser_input/db.changelog-all.kts"
 
         @Suppress("MaxLineLength")
         private const val SERIALIZER_ACTUAL_CHANGELOG =

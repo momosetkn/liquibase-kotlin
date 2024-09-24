@@ -44,11 +44,11 @@ jobs:
 
       - name: Run Test with specific Liquibase Version
         if: ${{ matrix.liquibaseVersion != 'latest' }}
-        run: ./gradlew test -PliquibaseVersion="${{ matrix.liquibaseVersion }}"
+        run: ./gradlew shadowJar test -PliquibaseVersion="${{ matrix.liquibaseVersion }}"
         timeout-minutes: 7
       - name: Run Test with latest Liquibase Version
         if: ${{ matrix.liquibaseVersion == 'latest' }}
-        run: ./gradlew test
+        run: ./gradlew shadowJar test
         timeout-minutes: 7
 
       - name: Upload reports
