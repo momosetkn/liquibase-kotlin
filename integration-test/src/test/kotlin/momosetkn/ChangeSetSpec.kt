@@ -4,6 +4,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import komapper.databasechangelog
+import liquibase.exception.CommandExecutionException
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
 import momosetkn.utils.DDLUtils.sql
@@ -284,7 +285,7 @@ class ChangeSetSpec : FunSpec({
             }
         }
         test("throw error") {
-            shouldThrow<IllegalStateException> {
+            shouldThrow<CommandExecutionException> {
                 subject()
             }
             Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(

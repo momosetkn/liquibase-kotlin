@@ -15,13 +15,13 @@ interface ConfigureLiquibase {
             return dsl(configureBlock)
         }
 
-    fun getGlobalArgs(): List<String> {
+    fun getGlobalArgs(): List<Pair<String, String>> {
         val dsl = LiquibaseGlobalArgsDsl()
         val args = configuredArgs.globalArgsDslBlock?.let { dsl(it) } ?: emptyList()
         return args.flatMap { it.serialize() }
     }
 
-    fun getCommandArgs(): List<String> {
+    fun getCommandArgs(): List<Pair<String, String>> {
         val dsl = LiquibaseCommandArgsDsl()
         val args = configuredArgs.commandArgsDslBlock?.let { dsl(it) } ?: emptyList()
         return args.flatMap { it.serialize() }

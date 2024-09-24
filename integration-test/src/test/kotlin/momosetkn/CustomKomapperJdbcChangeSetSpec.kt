@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import komapper.Company2
 import komapper.company2
+import liquibase.exception.CommandExecutionException
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.kotlin.change.customKomapperJdbcChange
 import momosetkn.utils.DDLUtils.sql
@@ -205,7 +206,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
                 }
             }
             test("throw error") {
-                shouldThrow<IllegalStateException> {
+                shouldThrow<CommandExecutionException> {
                     subject()
                 }
             }
