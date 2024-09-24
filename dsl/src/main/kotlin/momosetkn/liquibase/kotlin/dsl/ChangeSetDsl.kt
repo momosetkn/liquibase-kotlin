@@ -1322,26 +1322,19 @@ class ChangeSetDsl(
 
     /**
      * Applies a custom-change to the change set.
-     * This function requires at least one of the parameters `class`, `clazz`, or `className`.
      * Class is requiring implements the [liquibase.change.custom.CustomChange]
      * [official-document](https://docs.liquibase.com/change-types/custom-change.html)
      *
      * @param `class` specify KClass or Class<*> of CustomChange or className of CustomChange.
-     * @param clazz specify KClass or Class<*> of CustomChange or className of CustomChange. not official param.
-     * @param className className of CustomChange. not official param.
      * @param block Key-value to be given to CustomChange.
      */
     fun customChange(
         @Suppress("FunctionParameterNaming")
-        `class`: Any? = null,
-        clazz: Any? = null,
-        className: String? = null,
+        `class`: Any,
         block: (KeyValueDsl.() -> Unit)? = null,
     ) {
-        val overrideClassName = (`class` ?: clazz ?: className)
-            ?: error("Should specify either 'class' or 'clazz' or 'className' property for 'customChange'")
         val change = changeSetSupport.createChange("customChange") as CustomChangeWrapper
-        change.setClass(overrideClassName.evalClassNameExpressions(changeLog))
+        change.setClass(`class`.evalClassNameExpressions(changeLog))
         block?.let {
             val dsl = KeyValueDsl(changeLog)
             val map = wrapChangeLogParseException { dsl(block) }
