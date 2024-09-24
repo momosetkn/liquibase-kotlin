@@ -1322,26 +1322,19 @@ class ChangeSetDsl(
 
     /**
      * Applies a custom-change to the change set.
-     * This function requires at least one of the parameters `class`, `clazz`, or `className`.
      * Class is requiring implements the [liquibase.change.custom.CustomChange]
      * [official-document](https://docs.liquibase.com/change-types/custom-change.html)
      *
      * @param `class` specify KClass or Class<*> of CustomChange or className of CustomChange.
-     * @param clazz specify KClass or Class<*> of CustomChange or className of CustomChange. not official param.
-     * @param className className of CustomChange. not official param.
      * @param block Key-value to be given to CustomChange.
      */
     fun customChange(
         @Suppress("FunctionParameterNaming")
-        `class`: Any? = null,
-        clazz: Any? = null,
-        className: String? = null,
+        `class`: Any,
         block: (KeyValueDsl.() -> Unit)? = null,
     ) {
-        val overrideClassName = (`class` ?: clazz ?: className)
-            ?: error("Should specify either 'class' or 'clazz' or 'className' property for 'customChange'")
         val change = changeSetSupport.createChange("customChange") as CustomChangeWrapper
-        change.setClass(overrideClassName.evalClassNameExpressions(changeLog))
+        change.setClass(`class`.evalClassNameExpressions(changeLog))
         block?.let {
             val dsl = KeyValueDsl(changeLog)
             val map = wrapChangeLogParseException { dsl(block) }
@@ -1415,6 +1408,16 @@ class ChangeSetDsl(
         changeSetSupport.addChange(change)
     }
 
+    /**
+     * Executes a raw SQL change.
+     * [official-document](https://docs.liquibase.com/change-types/sql.html)
+     *
+     * @param dbms The type of database. [database-type](https://docs.liquibase.com/start/tutorials/home.html)
+     * @param endDelimiter The delimiter for the end of the SQL statement. Default is ";".
+     * @param splitStatements Whether to split the SQL statements. Default is true.
+     * @param stripComments Whether to strip comments from the SQL. Default is true.
+     * @param block The DSL-block that returns SQL strings
+     */
     fun sql(
         dbms: String? = null,
         endDelimiter: String? = null,
@@ -1453,14 +1456,17 @@ class ChangeSetDsl(
         stripComments: Boolean? = null,
         comment: String? = null,
     ) {
-        val change = changeSetSupport.createChange("sql") as RawSQLChange
-        change.dbms = dbms
-        change.endDelimiter = endDelimiter
-        change.isSplitStatements = splitStatements
-        change.isStripComments = stripComments
-        change.sql = sql.evalExpressions(changeLog)
-        change.comment = comment?.evalExpressions(changeLog)
-        changeSetSupport.addChange(change)
+        sql(
+            dbms = dbms,
+            endDelimiter = endDelimiter,
+            splitStatements = splitStatements,
+            stripComments = stripComments,
+        ) {
+            if (comment != null) {
+                comment(comment)
+            }
+            sql
+        }
     }
 
     /**
