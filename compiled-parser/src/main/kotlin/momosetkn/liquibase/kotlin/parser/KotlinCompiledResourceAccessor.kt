@@ -12,23 +12,15 @@ import java.nio.charset.StandardCharsets
  * This class implements the `ResourceAccessor` interface to provide access to compiled Kotlin classes.
  * This class is find the class or package with delegate to `ClassLoaderResourceAccessor`.
  */
-class KotlinCompiledResourceAccessor : ResourceAccessor {
-    private val classLoaderResourceAccessor = ClassLoaderResourceAccessor()
-
-    override fun close() {
-        classLoaderResourceAccessor.close()
-    }
-
+class KotlinCompiledResourceAccessor(
+    private val classLoaderResourceAccessor: ClassLoaderResourceAccessor = ClassLoaderResourceAccessor(),
+) : ResourceAccessor by classLoaderResourceAccessor {
     override fun search(path: String, recursive: Boolean): MutableList<Resource> {
         return classLoaderResourceAccessor.search(toJavaIdentifierName(path), recursive)
     }
 
     override fun getAll(path: String): MutableList<Resource> {
         return classLoaderResourceAccessor.getAll(toJavaIdentifierName(path))
-    }
-
-    override fun describeLocations(): MutableList<String> {
-        return classLoaderResourceAccessor.describeLocations()
     }
 
     /**
