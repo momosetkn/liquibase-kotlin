@@ -62,6 +62,7 @@ val libraryProjects =
             "compiled-serializer",
             // client
             "client",
+            "wrapper",
             // custom-change
             "custom-komapper-jdbc-change",
         )
