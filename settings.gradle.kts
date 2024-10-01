@@ -24,6 +24,6 @@ include("serializer-core")
 include("script-serializer")
 include("compiled-serializer")
 // client
+include("command-client")
 include("client")
-include("wrapper")
 include("custom-komapper-jdbc-change")

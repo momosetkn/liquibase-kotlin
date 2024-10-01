@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":compiled-serializer"))
     implementation(project(":script-parser"))
     implementation(project(":compiled-parser"))
+    implementation(project(":command-client"))
     implementation(project(":client"))
     implementation(project(":custom-komapper-jdbc-change"))
 

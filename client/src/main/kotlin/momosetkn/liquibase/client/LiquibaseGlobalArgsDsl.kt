@@ -1,7 +1,6 @@
 package momosetkn.liquibase.client
 
 class LiquibaseGlobalArgsDsl {
-    private var info: LiquibaseInfoArgs? = null
     private var general: LiquibaseGeneralGlobalArgs? = null
     private var dbclhistory: LiquibaseDbclhistoryArgs? = null
     private var executors: LiquibaseExecutorsArgs? = null
@@ -13,19 +12,12 @@ class LiquibaseGlobalArgsDsl {
     ): List<LiquibaseGlobalArgs> {
         block(this)
         return listOfNotNull(
-            info,
             general,
             dbclhistory,
             executors,
             extensions,
             mongoDB,
         )
-    }
-
-    fun info(
-        block: LiquibaseInfoArgs.() -> Unit,
-    ) {
-        info = LiquibaseInfoArgs().apply(block)
     }
 
     fun general(
