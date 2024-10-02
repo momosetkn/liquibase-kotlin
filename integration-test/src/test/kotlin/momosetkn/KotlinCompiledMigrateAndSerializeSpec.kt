@@ -79,9 +79,6 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
     }
 }) {
     companion object {
-        private fun getFileAsString(path: String) =
-            Paths.get(Constants.RESOURCE_DIR, path).toFile().readText()
-
         private val changeSetRegex = Regex("""changeSet\(author = "(.+)", id = "(\d+)-(\d)"\) \{""")
 
         private fun String.maskingChangeSet() =

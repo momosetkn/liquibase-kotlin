@@ -82,6 +82,7 @@ class LiquibaseClient(
 
     @Throws(LiquibaseException::class)
     fun update() {
+        @Suppress("ForbiddenComment")
         this.liquibase.update(
             // FIXME: For some reason it doesn't work
 //            Contexts(),
