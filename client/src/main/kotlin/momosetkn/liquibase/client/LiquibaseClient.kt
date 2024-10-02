@@ -37,14 +37,13 @@ class LiquibaseClient(
     val changeLogFile: String,
     val database: Database,
     val resourceAccessor: ResourceAccessor = Scope.getCurrentScope().resourceAccessor,
+    private val defaultOutputWriter: Writer = LiquibaseMultilineLogWriter(),
 ) : AutoCloseable {
-    private val liquibase = ExtendedLiquibase(
+    private val liquibase: ExtendedLiquibase = ExtendedLiquibase(
         changeLogFile = changeLogFile,
-        resourceAccessor = resourceAccessor,
         database = database,
+        resourceAccessor = resourceAccessor,
     )
-
-    private val logWriter = LiquibaseMultilineLogWriter()
 
     var showSummaryOutput: UpdateSummaryOutputEnum? = null
         set(value) {
@@ -84,21 +83,35 @@ class LiquibaseClient(
     fun update() {
         @Suppress("ForbiddenComment")
         this.liquibase.update(
-            // FIXME: For some reason it doesn't work
-//            Contexts(),
-//            LabelExpression(),
-//            logWriter,
+            Contexts(),
+            LabelExpression(),
         )
     }
 
     @Throws(LiquibaseException::class)
     fun update(
         tag: String? = null,
+        output: Writer? = null,
+    ) {
+        return if (output == null) {
+            this.liquibase.update(tag, Contexts(), LabelExpression())
+        } else {
+            this.liquibase.update(tag, Contexts(), LabelExpression(), output)
+        }
+    }
+
+    @Throws(LiquibaseException::class)
+    fun update(
+        tag: String? = null,
         contexts: Contexts? = null,
         labelExpression: LabelExpression? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase.update(tag, contexts, labelExpression, output)
+        return if (output == null) {
+            this.liquibase.update(tag, contexts, labelExpression)
+        } else {
+            this.liquibase.update(tag, contexts, labelExpression, output)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -106,9 +119,25 @@ class LiquibaseClient(
         tag: String? = null,
         contexts: String? = null,
         labelExpression: String? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase.update(tag, Contexts(contexts), LabelExpression(labelExpression), output)
+        return if (output == null) {
+            this.liquibase.update(tag, Contexts(contexts), LabelExpression(labelExpression))
+        } else {
+            this.liquibase.update(tag, Contexts(contexts), LabelExpression(labelExpression), output)
+        }
+    }
+
+    @Throws(LiquibaseException::class)
+    fun update(
+        changesToApply: Int,
+        output: Writer? = null,
+    ) {
+        return if (output == null) {
+            this.liquibase.update(changesToApply, Contexts(), LabelExpression())
+        } else {
+            this.liquibase.update(changesToApply, Contexts(), LabelExpression(), output)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -116,9 +145,13 @@ class LiquibaseClient(
         changesToApply: Int,
         contexts: Contexts? = null,
         labelExpression: LabelExpression? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase.update(changesToApply, contexts, labelExpression, output)
+        return if (output == null) {
+            this.liquibase.update(changesToApply, contexts, labelExpression)
+        } else {
+            this.liquibase.update(changesToApply, contexts, labelExpression, output)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -126,9 +159,13 @@ class LiquibaseClient(
         changesToApply: Int,
         contexts: String? = null,
         labelExpression: String? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase.update(changesToApply, Contexts(contexts), LabelExpression(labelExpression), output)
+        return if (output == null) {
+            this.liquibase.update(changesToApply, Contexts(contexts), LabelExpression(labelExpression))
+        } else {
+            this.liquibase.update(changesToApply, Contexts(contexts), LabelExpression(labelExpression), output)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -136,7 +173,7 @@ class LiquibaseClient(
         count: Int,
         contexts: Contexts? = null,
         labelExpression: LabelExpression? = null,
-        output: Writer = logWriter,
+        output: Writer = defaultOutputWriter,
     ) {
         return this.liquibase.updateCountSql(count, contexts, labelExpression, output)
     }
@@ -146,9 +183,9 @@ class LiquibaseClient(
         tag: String,
         contexts: Contexts? = null,
         labelExpression: LabelExpression? = null,
-        writer: Writer = logWriter,
+        output: Writer = defaultOutputWriter,
     ) {
-        return this.liquibase.updateToTagSql(tag, contexts, labelExpression, writer)
+        return this.liquibase.updateToTagSql(tag, contexts, labelExpression, output)
     }
 
     @Throws(LiquibaseException::class)
@@ -157,10 +194,15 @@ class LiquibaseClient(
         rollbackScript: String? = null,
         contexts: Contexts? = null,
         labelExpression: LabelExpression? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase
-            .rollback(changesToRollback, rollbackScript, contexts, labelExpression, output)
+        return if (output == null) {
+            this.liquibase
+                .rollback(changesToRollback, rollbackScript, contexts, labelExpression)
+        } else {
+            this.liquibase
+                .rollback(changesToRollback, rollbackScript, contexts, labelExpression, output)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -169,20 +211,36 @@ class LiquibaseClient(
         rollbackScript: String? = null,
         contexts: String? = null,
         labelExpression: String? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase
-            .rollback(changesToRollback, rollbackScript, Contexts(contexts), LabelExpression(labelExpression), output)
+        return if (output == null) {
+            this.liquibase
+                .rollback(changesToRollback, rollbackScript, Contexts(contexts), LabelExpression(labelExpression))
+        } else {
+            this.liquibase
+                .rollback(
+                    changesToRollback,
+                    rollbackScript,
+                    Contexts(contexts),
+                    LabelExpression(labelExpression),
+                    output
+                )
+        }
     }
 
     @Throws(LiquibaseException::class)
     fun rollback(
         tagToRollBackTo: String,
         rollbackScript: String? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase
-            .rollback(tagToRollBackTo, rollbackScript, Contexts(), LabelExpression(), output)
+        return if (output == null) {
+            this.liquibase
+                .rollback(tagToRollBackTo, rollbackScript, Contexts(), LabelExpression())
+        } else {
+            this.liquibase
+                .rollback(tagToRollBackTo, rollbackScript, Contexts(), LabelExpression(), output)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -191,10 +249,15 @@ class LiquibaseClient(
         rollbackScript: String? = null,
         contexts: Contexts? = null,
         labelExpression: LabelExpression? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase
-            .rollback(tagToRollBackTo, rollbackScript, contexts, labelExpression, output)
+        return if (output == null) {
+            this.liquibase
+                .rollback(tagToRollBackTo, rollbackScript, contexts, labelExpression)
+        } else {
+            this.liquibase
+                .rollback(tagToRollBackTo, rollbackScript, contexts, labelExpression, output)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -203,20 +266,30 @@ class LiquibaseClient(
         rollbackScript: String? = null,
         contexts: String? = null,
         labelExpression: String? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase
-            .rollback(tagToRollBackTo, rollbackScript, Contexts(contexts), LabelExpression(labelExpression), output)
+        return if (output == null) {
+            this.liquibase
+                .rollback(tagToRollBackTo, rollbackScript, Contexts(contexts), LabelExpression(labelExpression))
+        } else {
+            this.liquibase
+                .rollback(tagToRollBackTo, rollbackScript, Contexts(contexts), LabelExpression(labelExpression), output)
+        }
     }
 
     @Throws(LiquibaseException::class)
     fun rollback(
         dateToRollBackTo: LocalDateTime,
         rollbackScript: String? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase
-            .rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, Contexts(), LabelExpression(), output)
+        return if (output == null) {
+            this.liquibase
+                .rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, Contexts(), LabelExpression())
+        } else {
+            this.liquibase
+                .rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, Contexts(), LabelExpression(), output)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -225,10 +298,15 @@ class LiquibaseClient(
         rollbackScript: String? = null,
         contexts: Contexts? = null,
         labelExpression: LabelExpression? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase
-            .rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, contexts, labelExpression, output)
+        return if (output == null) {
+            this.liquibase
+                .rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, contexts, labelExpression)
+        } else {
+            this.liquibase
+                .rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, contexts, labelExpression, output)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -237,16 +315,26 @@ class LiquibaseClient(
         rollbackScript: String? = null,
         contexts: String? = null,
         labelExpression: String? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase
-            .rollback(
-                dateToRollBackTo.toJavaUtilDate(),
-                rollbackScript,
-                Contexts(contexts),
-                LabelExpression(labelExpression),
-                output
-            )
+        return if (output == null) {
+            this.liquibase
+                .rollback(
+                    dateToRollBackTo.toJavaUtilDate(),
+                    rollbackScript,
+                    Contexts(contexts),
+                    LabelExpression(labelExpression),
+                )
+        } else {
+            this.liquibase
+                .rollback(
+                    dateToRollBackTo.toJavaUtilDate(),
+                    rollbackScript,
+                    Contexts(contexts),
+                    LabelExpression(labelExpression),
+                    output
+                )
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -254,9 +342,13 @@ class LiquibaseClient(
         tag: String,
         contexts: Contexts? = null,
         labelExpression: LabelExpression? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase.changeLogSync(tag, contexts, labelExpression, output)
+        return if (output == null) {
+            this.liquibase.changeLogSync(tag, contexts, labelExpression)
+        } else {
+            this.liquibase.changeLogSync(tag, contexts, labelExpression, output)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -264,27 +356,39 @@ class LiquibaseClient(
         tag: String,
         contexts: String? = null,
         labelExpression: String? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase.changeLogSync(tag, Contexts(contexts), LabelExpression(labelExpression), output)
+        return if (output == null) {
+            this.liquibase.changeLogSync(tag, Contexts(contexts), LabelExpression(labelExpression))
+        } else {
+            this.liquibase.changeLogSync(tag, Contexts(contexts), LabelExpression(labelExpression), output)
+        }
     }
 
     @Throws(LiquibaseException::class)
     fun markNextChangeSetRan(
         contexts: Contexts? = null,
         labelExpression: LabelExpression? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase.markNextChangeSetRan(contexts, labelExpression, output)
+        return if (output == null) {
+            this.liquibase.markNextChangeSetRan(contexts, labelExpression)
+        } else {
+            this.liquibase.markNextChangeSetRan(contexts, labelExpression, output)
+        }
     }
 
     @Throws(LiquibaseException::class)
     fun markNextChangeSetRan(
         contexts: String? = null,
         labelExpression: String? = null,
-        output: Writer = logWriter,
+        output: Writer? = null,
     ) {
-        return this.liquibase.markNextChangeSetRan(Contexts(contexts), LabelExpression(labelExpression), output)
+        return if (output == null) {
+            this.liquibase.markNextChangeSetRan(Contexts(contexts), LabelExpression(labelExpression))
+        } else {
+            this.liquibase.markNextChangeSetRan(Contexts(contexts), LabelExpression(labelExpression), output)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -293,11 +397,11 @@ class LiquibaseClient(
         tag: String? = null,
         contexts: Contexts? = null,
         labelExpression: LabelExpression?,
-        output: Writer = logWriter,
+        output: Writer,
         checkLiquibaseTables: Boolean
     ) {
         return this.liquibase
-            .overrideFutureRollbackSQL(count, tag, contexts, labelExpression, output, checkLiquibaseTables)
+            .extendedFutureRollbackSQL(count, tag, contexts, labelExpression, output, checkLiquibaseTables)
     }
 
     @Throws(DatabaseException::class)
@@ -406,7 +510,7 @@ class LiquibaseClient(
         verbose: Boolean,
         contexts: Contexts? = null,
         labels: LabelExpression? = null,
-        out: Writer = logWriter,
+        out: Writer = defaultOutputWriter,
     ) {
         return this.liquibase.reportStatus(verbose, contexts, labels, out)
     }
@@ -416,7 +520,7 @@ class LiquibaseClient(
         verbose: Boolean,
         contexts: String? = null,
         labels: String? = null,
-        out: Writer = logWriter,
+        out: Writer = defaultOutputWriter,
     ) {
         return this.liquibase.reportStatus(verbose, Contexts(contexts), LabelExpression(labels), out)
     }
@@ -438,7 +542,7 @@ class LiquibaseClient(
     fun reportUnexpectedChangeSets(
         verbose: Boolean,
         contexts: String? = null,
-        out: Writer = logWriter,
+        out: Writer = defaultOutputWriter,
     ) {
         return this.liquibase.reportUnexpectedChangeSets(verbose, contexts, out)
     }
@@ -448,7 +552,7 @@ class LiquibaseClient(
         verbose: Boolean,
         contexts: Contexts? = null,
         labelExpression: LabelExpression? = null,
-        out: Writer = logWriter,
+        out: Writer = defaultOutputWriter,
     ) {
         return this.liquibase.reportUnexpectedChangeSets(verbose, contexts, labelExpression, out)
     }

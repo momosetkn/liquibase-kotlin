@@ -65,13 +65,14 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
                 outputStream = PrintStream(baos),
             )
             val generateResult = baos.toString()
+            println(generateResult) // empty
 
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
             Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
-            val actual = generateResult.maskingChangeSet()
+            val actual = f.readText().maskingChangeSet()
             val expect = getResourceAsString(SERIALIZER_EXPECT_CHANGELOG)
                 .maskingChangeSet()
             actual shouldMatchWithoutLineBreaks expect

@@ -1,11 +1,12 @@
-val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
+// liquibase-kotlin-client is tested only this version
+val latestLiquibaseVersion = "4.29.2"
 val kotestVersion = rootProject.properties["kotestVersion"] as String
 val slf4jVersion = rootProject.properties["slf4jVersion"] as String
 val kotlinVersion = rootProject.properties["kotlinVersion"] as String
 
 dependencies {
     // liquibase
-    implementation("org.liquibase:liquibase-core:$liquibaseVersion")
+    implementation("org.liquibase:liquibase-core:$latestLiquibaseVersion")
     // log
     api("org.slf4j:slf4j-api:$slf4jVersion")
 

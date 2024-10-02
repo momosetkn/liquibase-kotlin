@@ -13,14 +13,10 @@ internal class ExtendedLiquibase(
     changeLogFile: String,
     database: Database,
     resourceAccessor: ResourceAccessor = Scope.getCurrentScope().resourceAccessor,
-) : Liquibase(
-        changeLogFile,
-        resourceAccessor,
-        database,
-    ) {
+) : Liquibase(changeLogFile, resourceAccessor, database,) {
     // to public futureRollbackSQL method, because the original futureRollbackSQL method is protected.
     @Throws(LiquibaseException::class)
-    fun overrideFutureRollbackSQL(
+    fun extendedFutureRollbackSQL(
         count: Int? = null,
         tag: String? = null,
         contexts: Contexts? = null,
