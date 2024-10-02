@@ -51,15 +51,21 @@ object DDLUtils {
             );
             ALTER TABLE "PUBLIC"."DATABASECHANGELOGLOCK" ADD CONSTRAINT "PUBLIC"."PK_DATABASECHANGELOGLOCK" PRIMARY KEY("ID");
         """.trimIndent()
-        return this.bulkExclude(
-            "SET DB_CLOSE_DELAY -1;",
-            Regex("^CREATE USER IF NOT EXISTS.*$", RegexOption.MULTILINE),
-            databaseChangeLogTableDdl,
-            databaseChangeLogLockTableDdl
-        ).omitComment().normalize()
+        return this
+            .toLf()
+            .bulkExclude(
+                "SET DB_CLOSE_DELAY -1;",
+                Regex("^CREATE USER IF NOT EXISTS.*$", RegexOption.MULTILINE),
+                databaseChangeLogTableDdl,
+                databaseChangeLogLockTableDdl
+            ).omitComment().normalize()
     }
 
     fun sql(
         @Language("sql") sql: String
     ) = sql
+}
+
+private fun String.toLf(): String {
+    return this.replace(System.lineSeparator(), "\n")
 }
