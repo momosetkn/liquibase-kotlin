@@ -1,4 +1,4 @@
-package momosetkn.liquibase.client
+package momosetkn.liquibase.command.client
 
 typealias ConfigureLiquibaseDslBlock = ConfigureLiquibaseDsl.() -> Unit
 typealias LiquibaseGlobalArgsDslBlock = LiquibaseGlobalArgsDsl.() -> Unit

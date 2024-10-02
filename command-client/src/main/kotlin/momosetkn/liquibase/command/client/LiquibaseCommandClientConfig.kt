@@ -1,7 +1,7 @@
-package momosetkn.liquibase.client
+package momosetkn.liquibase.command.client
 
 import java.time.format.DateTimeFormatter
 
-object LiquibaseClientConfig {
+object LiquibaseCommandClientConfig {
     var dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME
 }

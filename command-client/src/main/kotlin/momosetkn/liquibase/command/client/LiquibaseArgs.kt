@@ -1,6 +1,6 @@
 @file:Suppress("CyclomaticComplexMethod", "LongMethod")
 
-package momosetkn.liquibase.client
+package momosetkn.liquibase.command.client
 
 import java.time.temporal.TemporalAccessor
 
@@ -562,7 +562,7 @@ data class LiquibaseGeneralCommandArgs(
             contextFilter?.let { "context-filter" to it },
             count?.let { "count" to it },
             dataOutputDirectory?.let { "data-output-directory" to it },
-            date?.let { "date" to LiquibaseClientConfig.dateTimeFormatter.format(it) },
+            date?.let { "date" to LiquibaseCommandClientConfig.dateTimeFormatter.format(it) },
             dropDbclhistory?.let { "drop-dbclhistory" to it },
             dbms?.let { "dbms" to it },
             defaultCatalogName?.let { "default-catalog-name" to it },

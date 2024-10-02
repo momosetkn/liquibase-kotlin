@@ -1,4 +1,4 @@
-package momosetkn.liquibase.client
+package momosetkn.liquibase.command.client
 
 class LiquibaseGlobalArgsDsl {
     private var info: LiquibaseInfoArgs? = null

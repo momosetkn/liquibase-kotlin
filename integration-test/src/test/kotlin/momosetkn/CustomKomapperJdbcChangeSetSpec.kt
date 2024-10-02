@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 import komapper.Company2
 import komapper.company2
 import liquibase.exception.CommandExecutionException
-import momosetkn.liquibase.client.LiquibaseClient
+import momosetkn.liquibase.command.client.LiquibaseCommandClient
 import momosetkn.liquibase.kotlin.change.customKomapperJdbcChange
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
@@ -27,7 +27,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
     afterEach {
         Database.stop()
     }
-    val client = LiquibaseClient {
+    val client = LiquibaseCommandClient {
         globalArgs {
             general {
                 showBanner = false

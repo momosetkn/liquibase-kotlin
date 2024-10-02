@@ -5,7 +5,6 @@ package momosetkn.liquibase.client
 import liquibase.CatalogAndSchema
 import liquibase.Contexts
 import liquibase.LabelExpression
-import liquibase.Liquibase
 import liquibase.Scope
 import liquibase.UpdateSummaryEnum
 import liquibase.UpdateSummaryOutputEnum
@@ -26,11 +25,12 @@ import liquibase.exception.DatabaseException
 import liquibase.exception.LiquibaseException
 import liquibase.lockservice.DatabaseChangeLogLock
 import liquibase.resource.ResourceAccessor
-import liquibase.serializer.ChangeLogSerializer
 import liquibase.structure.DatabaseObject
+import momosetkn.liquibase.client.DateUtils.toJavaUtilDate
 import java.io.PrintStream
 import java.io.Writer
-import java.util.Date
+import java.time.LocalDateTime
+import kotlin.reflect.KClass
 
 @Suppress("TooManyFunctions", "LargeClass")
 class LiquibaseClient(
@@ -38,7 +38,13 @@ class LiquibaseClient(
     val database: Database,
     val resourceAccessor: ResourceAccessor = Scope.getCurrentScope().resourceAccessor,
 ) : AutoCloseable {
-    private val liquibase = Liquibase(changeLogFile, resourceAccessor, database)
+    private val liquibase = ExtendedLiquibase(
+        changeLogFile = changeLogFile,
+        resourceAccessor = resourceAccessor,
+        database = database,
+    )
+
+    private val logWriter = LiquibaseMultilineLogWriter()
 
     var showSummaryOutput: UpdateSummaryOutputEnum? = null
         set(value) {
@@ -76,486 +82,230 @@ class LiquibaseClient(
 
     @Throws(LiquibaseException::class)
     fun update() {
-        this.liquibase.update()
-    }
-
-    @Throws(LiquibaseException::class)
-    fun update(contexts: String?) {
-        this.liquibase.update(contexts)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun update(
-        contexts: Contexts,
-    ) {
-        return this.liquibase.update(contexts)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun update(
-        contexts: Contexts,
-        labelExpression: LabelExpression,
-    ) {
-        return this.liquibase.update(contexts, labelExpression)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun update(
-        contexts: Contexts,
-        labelExpression: LabelExpression,
-        checkLiquibaseTables: Boolean = true
-    ) {
-        return this.liquibase.update(contexts, labelExpression, checkLiquibaseTables)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun update(contexts: String?, output: Writer?) {
-        return this.liquibase.update(contexts, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun update(contexts: Contexts?, output: Writer?) {
-        return this.liquibase.update(contexts, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun update(
-        contexts: Contexts?,
-        labelExpression: LabelExpression?,
-        output: Writer?,
-    ) {
         this.liquibase.update(
-            contexts,
-            labelExpression,
-            output,
+            // FIXME: For some reason it doesn't work
+//            Contexts(),
+//            LabelExpression(),
+//            logWriter,
         )
     }
 
     @Throws(LiquibaseException::class)
     fun update(
-        contexts: Contexts?,
-        labelExpression: LabelExpression?,
-        output: Writer?,
-        checkLiquibaseTables: Boolean = true, // Unused
+        tag: String? = null,
+        contexts: Contexts? = null,
+        labelExpression: LabelExpression? = null,
+        output: Writer = logWriter,
     ) {
-        this.liquibase.update(
-            contexts,
-            labelExpression,
-            output,
-            checkLiquibaseTables
-        )
+        return this.liquibase.update(tag, contexts, labelExpression, output)
     }
 
     @Throws(LiquibaseException::class)
-    fun updateCountSql(count: Int, contexts: Contexts?, labelExpression: LabelExpression?, output: Writer?) {
-        return this.liquibase.updateCountSql(count, contexts, labelExpression, output)
+    fun update(
+        tag: String? = null,
+        contexts: String? = null,
+        labelExpression: String? = null,
+        output: Writer = logWriter,
+    ) {
+        return this.liquibase.update(tag, Contexts(contexts), LabelExpression(labelExpression), output)
     }
 
     @Throws(LiquibaseException::class)
-    fun update(changesToApply: Int, contexts: String?) {
-        return this.liquibase.update(changesToApply, contexts)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun update(changesToApply: Int, contexts: Contexts?, labelExpression: LabelExpression?) {
-        return this.liquibase.update(changesToApply, contexts, labelExpression)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun update(tag: String?, contexts: String?) {
-        return this.liquibase.update(tag, contexts)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun update(tag: String?, contexts: Contexts?) {
-        return this.liquibase.update(tag, contexts)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun update(tag: String?, contexts: Contexts?, labelExpression: LabelExpression?) {
-        return this.liquibase.update(tag, contexts, labelExpression)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun updateToTagSql(tag: String, contexts: Contexts?, labelExpression: LabelExpression?, writer: Writer?) {
-        return this.liquibase.updateToTagSql(tag, contexts, labelExpression, writer)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun update(changesToApply: Int, contexts: String?, output: Writer?) {
-        return this.liquibase.update(changesToApply, contexts, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun update(changesToApply: Int, contexts: Contexts?, labelExpression: LabelExpression?, output: Writer?) {
+    fun update(
+        changesToApply: Int,
+        contexts: Contexts? = null,
+        labelExpression: LabelExpression? = null,
+        output: Writer = logWriter,
+    ) {
         return this.liquibase.update(changesToApply, contexts, labelExpression, output)
     }
 
     @Throws(LiquibaseException::class)
-    fun update(tag: String?, contexts: String?, output: Writer?) {
-        return this.liquibase.update(tag, contexts, output)
+    fun update(
+        changesToApply: Int,
+        contexts: String? = null,
+        labelExpression: String? = null,
+        output: Writer = logWriter,
+    ) {
+        return this.liquibase.update(changesToApply, Contexts(contexts), LabelExpression(labelExpression), output)
     }
 
     @Throws(LiquibaseException::class)
-    fun update(tag: String?, contexts: Contexts?, output: Writer?) {
-        return this.liquibase.update(tag, contexts, output)
+    fun updateCountSql(
+        count: Int,
+        contexts: Contexts? = null,
+        labelExpression: LabelExpression? = null,
+        output: Writer = logWriter,
+    ) {
+        return this.liquibase.updateCountSql(count, contexts, labelExpression, output)
     }
 
     @Throws(LiquibaseException::class)
-    fun update(tag: String?, contexts: Contexts?, labelExpression: LabelExpression?, output: Writer?) {
-        return this.liquibase.update(tag, contexts, labelExpression, output)
-    }
-
-    @Deprecated("use {@link LoggingExecutorTextUtil#outputHeader(String, Database, String))}")
-    @Throws(
-        DatabaseException::class
-    )
-    fun outputHeader(message: String?) {
-        return this.liquibase.outputHeader(message)
-    }
-
-    // ---------- RollbackCountSql Family of methods
-    @Throws(LiquibaseException::class)
-    fun rollback(changesToRollback: Int, contexts: String?, output: Writer?) {
-        return this.liquibase.rollback(changesToRollback, contexts, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(changesToRollback: Int, contexts: Contexts?, output: Writer?) {
-        return this.liquibase.rollback(changesToRollback, contexts, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(changesToRollback: Int, contexts: Contexts?, labelExpression: LabelExpression?, output: Writer?) {
-        return this.liquibase.rollback(changesToRollback, contexts, labelExpression, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(changesToRollback: Int, rollbackScript: String?, contexts: String?, output: Writer?) {
-        return this.liquibase.rollback(changesToRollback, rollbackScript, contexts, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(changesToRollback: Int, rollbackScript: String?, contexts: Contexts?, output: Writer?) {
-        return this.liquibase.rollback(changesToRollback, rollbackScript, contexts, output)
+    fun updateToTagSql(
+        tag: String,
+        contexts: Contexts? = null,
+        labelExpression: LabelExpression? = null,
+        writer: Writer = logWriter,
+    ) {
+        return this.liquibase.updateToTagSql(tag, contexts, labelExpression, writer)
     }
 
     @Throws(LiquibaseException::class)
     fun rollback(
         changesToRollback: Int,
-        rollbackScript: String?,
-        contexts: Contexts?,
-        labelExpression: LabelExpression?,
-        output: Writer?
+        rollbackScript: String? = null,
+        contexts: Contexts? = null,
+        labelExpression: LabelExpression? = null,
+        output: Writer = logWriter,
     ) {
         return this.liquibase
             .rollback(changesToRollback, rollbackScript, contexts, labelExpression, output)
     }
 
-    // ---------- End RollbackCountSql Family of methods
-    // ---------- RollbackCount Family of methods
-    @Throws(LiquibaseException::class)
-    fun rollback(changesToRollback: Int, contexts: String?) {
-        return this.liquibase.rollback(changesToRollback, contexts)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(changesToRollback: Int, contexts: Contexts?, labelExpression: LabelExpression?) {
-        return this.liquibase.rollback(changesToRollback, contexts, labelExpression)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(changesToRollback: Int, rollbackScript: String?, contexts: String?) {
-        return this.liquibase.rollback(changesToRollback, rollbackScript, contexts)
-    }
-
     @Throws(LiquibaseException::class)
     fun rollback(
         changesToRollback: Int,
-        rollbackScript: String?,
-        contexts: Contexts?,
-        labelExpression: LabelExpression?
+        rollbackScript: String? = null,
+        contexts: String? = null,
+        labelExpression: String? = null,
+        output: Writer = logWriter,
     ) {
-        return this.liquibase.rollback(changesToRollback, rollbackScript, contexts, labelExpression)
-    }
-
-    // ---------- End RollbackCount Family of methods
-    // ---------- RollbackSQL Family of methods
-    @Throws(LiquibaseException::class)
-    fun rollback(tagToRollBackTo: String?, contexts: String?, output: Writer?) {
-        return this.liquibase.rollback(tagToRollBackTo, contexts, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(tagToRollBackTo: String?, contexts: Contexts?, output: Writer?) {
-        return this.liquibase.rollback(tagToRollBackTo, contexts, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(tagToRollBackTo: String?, contexts: Contexts?, labelExpression: LabelExpression?, output: Writer?) {
-        return this.liquibase.rollback(tagToRollBackTo, contexts, labelExpression, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(tagToRollBackTo: String?, rollbackScript: String?, contexts: String?, output: Writer?) {
-        return this.liquibase.rollback(tagToRollBackTo, rollbackScript, contexts, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(tagToRollBackTo: String?, rollbackScript: String?, contexts: Contexts?, output: Writer?) {
-        return this.liquibase.rollback(tagToRollBackTo, rollbackScript, contexts, output)
+        return this.liquibase
+            .rollback(changesToRollback, rollbackScript, Contexts(contexts), LabelExpression(labelExpression), output)
     }
 
     @Throws(LiquibaseException::class)
     fun rollback(
-        tagToRollBackTo: String?,
-        rollbackScript: String?,
-        contexts: Contexts?,
-        labelExpression: LabelExpression?,
-        output: Writer?
+        tagToRollBackTo: String,
+        rollbackScript: String? = null,
+        output: Writer = logWriter,
+    ) {
+        return this.liquibase
+            .rollback(tagToRollBackTo, rollbackScript, Contexts(), LabelExpression(), output)
+    }
+
+    @Throws(LiquibaseException::class)
+    fun rollback(
+        tagToRollBackTo: String,
+        rollbackScript: String? = null,
+        contexts: Contexts? = null,
+        labelExpression: LabelExpression? = null,
+        output: Writer = logWriter,
     ) {
         return this.liquibase
             .rollback(tagToRollBackTo, rollbackScript, contexts, labelExpression, output)
     }
 
-    // ---------- End RollbackSQL Family of methods
-    // ---------- Rollback (To Tag) Family of methods
-    @Throws(LiquibaseException::class)
-    fun rollback(tagToRollBackTo: String?, contexts: String?) {
-        return this.liquibase.rollback(tagToRollBackTo, contexts)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(tagToRollBackTo: String?, contexts: Contexts?) {
-        return this.liquibase.rollback(tagToRollBackTo, contexts)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(tagToRollBackTo: String?, contexts: Contexts?, labelExpression: LabelExpression?) {
-        return this.liquibase.rollback(tagToRollBackTo, contexts, labelExpression)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(tagToRollBackTo: String?, rollbackScript: String?, contexts: String?) {
-        return this.liquibase.rollback(tagToRollBackTo, rollbackScript, contexts)
-    }
-
     @Throws(LiquibaseException::class)
     fun rollback(
-        tagToRollBackTo: String?,
-        rollbackScript: String?,
-        contexts: Contexts?,
-    ) {
-        return this.liquibase.rollback(tagToRollBackTo, rollbackScript, contexts, LabelExpression())
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(
-        tagToRollBackTo: String?,
-        rollbackScript: String?,
-        contexts: Contexts?,
-        labelExpression: LabelExpression
-    ) {
-        return this.liquibase.rollback(tagToRollBackTo, rollbackScript, contexts, labelExpression)
-    }
-
-    // ---------- End Rollback (To Tag) Family of methods
-    // ---------- RollbackToDateSql Family of methods
-    @Throws(LiquibaseException::class)
-    fun rollback(dateToRollBackTo: Date?, contexts: String?, output: Writer?) {
-        return this.liquibase.rollback(dateToRollBackTo, contexts, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(dateToRollBackTo: Date?, rollbackScript: String?, contexts: String?, output: Writer?) {
-        return this.liquibase.rollback(dateToRollBackTo, rollbackScript, contexts, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(dateToRollBackTo: Date?, contexts: Contexts?, labelExpression: LabelExpression?, output: Writer?) {
-        return this.liquibase.rollback(dateToRollBackTo, contexts, labelExpression, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(
-        dateToRollBackTo: Date?,
-        rollbackScript: String?,
-        contexts: Contexts?,
-        labelExpression: LabelExpression?,
-        output: Writer?
+        tagToRollBackTo: String,
+        rollbackScript: String? = null,
+        contexts: String? = null,
+        labelExpression: String? = null,
+        output: Writer = logWriter,
     ) {
         return this.liquibase
-            .rollback(dateToRollBackTo, rollbackScript, contexts, labelExpression, output)
-    }
-
-    // ---------- End RollbackToDateSql Family of methods
-    // ---------- RollbackToDate Family of methods
-    @Throws(LiquibaseException::class)
-    fun rollback(dateToRollBackTo: Date?, contexts: String?) {
-        return this.liquibase.rollback(dateToRollBackTo, contexts)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(dateToRollBackTo: Date?, contexts: Contexts?, labelExpression: LabelExpression?) {
-        return this.liquibase.rollback(dateToRollBackTo, contexts, labelExpression)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun rollback(dateToRollBackTo: Date?, rollbackScript: String?, contexts: String?) {
-        return this.liquibase.rollback(dateToRollBackTo, rollbackScript, contexts)
+            .rollback(tagToRollBackTo, rollbackScript, Contexts(contexts), LabelExpression(labelExpression), output)
     }
 
     @Throws(LiquibaseException::class)
     fun rollback(
-        dateToRollBackTo: Date?,
-        rollbackScript: String?,
-        contexts: Contexts?,
-        labelExpression: LabelExpression?
+        dateToRollBackTo: LocalDateTime,
+        rollbackScript: String? = null,
+        output: Writer = logWriter,
     ) {
-        return this.liquibase.rollback(dateToRollBackTo, rollbackScript, contexts, labelExpression)
+        return this.liquibase
+            .rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, Contexts(), LabelExpression(), output)
     }
 
     @Throws(LiquibaseException::class)
-    fun changeLogSync(contexts: String?, output: Writer?) {
-        return this.liquibase.changeLogSync(contexts, output)
+    fun rollback(
+        dateToRollBackTo: LocalDateTime,
+        rollbackScript: String? = null,
+        contexts: Contexts? = null,
+        labelExpression: LabelExpression? = null,
+        output: Writer = logWriter,
+    ) {
+        return this.liquibase
+            .rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, contexts, labelExpression, output)
     }
 
     @Throws(LiquibaseException::class)
-    fun changeLogSync(contexts: Contexts?, labelExpression: LabelExpression?, output: Writer?) {
-        return this.liquibase.changeLogSync(contexts, labelExpression, output)
+    fun rollback(
+        dateToRollBackTo: LocalDateTime,
+        rollbackScript: String? = null,
+        contexts: String? = null,
+        labelExpression: String? = null,
+        output: Writer = logWriter,
+    ) {
+        return this.liquibase
+            .rollback(
+                dateToRollBackTo.toJavaUtilDate(),
+                rollbackScript,
+                Contexts(contexts),
+                LabelExpression(labelExpression),
+                output
+            )
     }
 
     @Throws(LiquibaseException::class)
-    fun changeLogSync(contexts: String?) {
-        return this.liquibase.changeLogSync(contexts)
-    }
-
-    @Deprecated("use version with LabelExpression")
-    @Throws(LiquibaseException::class)
-    fun changeLogSync(contexts: Contexts?) {
-        return this.liquibase.changeLogSync(contexts)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun changeLogSync(contexts: Contexts?, labelExpression: LabelExpression?) {
-        return this.liquibase.changeLogSync(contexts, labelExpression)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun changeLogSync(tag: String?, contexts: String?) {
-        return this.liquibase.changeLogSync(tag, contexts)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun changeLogSync(tag: String?, contexts: Contexts?, labelExpression: LabelExpression?) {
-        return this.liquibase.changeLogSync(tag, contexts, labelExpression)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun changeLogSync(tag: String, contexts: String?, output: Writer?) {
-        return this.liquibase.changeLogSync(tag, contexts, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun changeLogSync(tag: String, contexts: Contexts?, labelExpression: LabelExpression?, output: Writer?) {
+    fun changeLogSync(
+        tag: String,
+        contexts: Contexts? = null,
+        labelExpression: LabelExpression? = null,
+        output: Writer = logWriter,
+    ) {
         return this.liquibase.changeLogSync(tag, contexts, labelExpression, output)
     }
 
     @Throws(LiquibaseException::class)
-    fun markNextChangeSetRan(contexts: String?, output: Writer?) {
-        return this.liquibase.markNextChangeSetRan(contexts, output)
+    fun changeLogSync(
+        tag: String,
+        contexts: String? = null,
+        labelExpression: String? = null,
+        output: Writer = logWriter,
+    ) {
+        return this.liquibase.changeLogSync(tag, Contexts(contexts), LabelExpression(labelExpression), output)
     }
 
     @Throws(LiquibaseException::class)
-    fun markNextChangeSetRan(contexts: Contexts?, labelExpression: LabelExpression?, output: Writer?) {
+    fun markNextChangeSetRan(
+        contexts: Contexts? = null,
+        labelExpression: LabelExpression? = null,
+        output: Writer = logWriter,
+    ) {
         return this.liquibase.markNextChangeSetRan(contexts, labelExpression, output)
     }
 
     @Throws(LiquibaseException::class)
-    fun markNextChangeSetRan(contexts: String?) {
-        return this.liquibase.markNextChangeSetRan(contexts)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun markNextChangeSetRan(contexts: Contexts?, labelExpression: LabelExpression?) {
-        return this.liquibase.markNextChangeSetRan(contexts, labelExpression)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun futureRollbackSQL(contexts: String?, output: Writer?) {
-        return this.liquibase.futureRollbackSQL(contexts, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun futureRollbackSQL(output: Writer?) {
-        return this.liquibase.futureRollbackSQL(output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun futureRollbackSQL(contexts: String?, output: Writer?, checkLiquibaseTables: Boolean) {
-        return this.liquibase.futureRollbackSQL(contexts, output, checkLiquibaseTables)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun futureRollbackSQL(count: Int?, contexts: String?, output: Writer?) {
-        return this.liquibase.futureRollbackSQL(count, contexts, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun futureRollbackSQL(contexts: Contexts?, labelExpression: LabelExpression?, output: Writer?) {
-        return this.liquibase.futureRollbackSQL(contexts, labelExpression, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun futureRollbackSQL(count: Int?, contexts: String?, output: Writer?, checkLiquibaseTables: Boolean) {
-        return this.liquibase.futureRollbackSQL(count, contexts, output, checkLiquibaseTables)
+    fun markNextChangeSetRan(
+        contexts: String? = null,
+        labelExpression: String? = null,
+        output: Writer = logWriter,
+    ) {
+        return this.liquibase.markNextChangeSetRan(Contexts(contexts), LabelExpression(labelExpression), output)
     }
 
     @Throws(LiquibaseException::class)
     fun futureRollbackSQL(
-        count: Int?,
-        contexts: Contexts?,
+        count: Int? = null,
+        tag: String? = null,
+        contexts: Contexts? = null,
         labelExpression: LabelExpression?,
-        output: Writer?,
+        output: Writer = logWriter,
+        checkLiquibaseTables: Boolean
     ) {
         return this.liquibase
-            .futureRollbackSQL(count, contexts, labelExpression, output)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun futureRollbackSQL(
-        count: Int?,
-        contexts: Contexts?,
-        labelExpression: LabelExpression?,
-        output: Writer?,
-        checkLiquibaseTables: Boolean = true
-    ) {
-        return this.liquibase
-            .futureRollbackSQL(count, contexts, labelExpression, output, checkLiquibaseTables)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun futureRollbackSQL(tag: String?, contexts: Contexts?, labelExpression: LabelExpression?, output: Writer?) {
-        return this.liquibase.futureRollbackSQL(tag, contexts, labelExpression, output)
+            .overrideFutureRollbackSQL(count, tag, contexts, labelExpression, output, checkLiquibaseTables)
     }
 
     @Throws(DatabaseException::class)
-    fun dropAll() {
-        return this.liquibase.dropAll()
-    }
-
-    @Throws(DatabaseException::class)
-    fun dropAll(dropDbclhistory: Boolean?) {
-        return this.liquibase.dropAll(dropDbclhistory)
-    }
-
-    @Throws(DatabaseException::class)
-    fun dropAll(vararg schemas: CatalogAndSchema?) {
+    fun dropAll(vararg schemas: CatalogAndSchema) {
         return this.liquibase.dropAll(*schemas)
     }
 
     @Throws(DatabaseException::class)
-    fun dropAll(dropDbclhistory: Boolean?, vararg schemas: CatalogAndSchema?) {
+    fun dropAll(dropDbclhistory: Boolean? = null, vararg schemas: CatalogAndSchema) {
         return this.liquibase.dropAll(dropDbclhistory, *schemas)
     }
 
@@ -570,17 +320,21 @@ class LiquibaseClient(
     }
 
     @Throws(LiquibaseException::class)
-    fun updateTestingRollback(contexts: String?) {
+    fun updateTestingRollback(contexts: String? = null) {
         return this.liquibase.updateTestingRollback(contexts)
     }
 
     @Throws(LiquibaseException::class)
-    fun updateTestingRollback(contexts: Contexts?, labelExpression: LabelExpression?) {
+    fun updateTestingRollback(contexts: Contexts? = null, labelExpression: LabelExpression? = null) {
         return this.liquibase.updateTestingRollback(contexts, labelExpression)
     }
 
     @Throws(LiquibaseException::class)
-    fun updateTestingRollback(tag: String?, contexts: Contexts?, labelExpression: LabelExpression?) {
+    fun updateTestingRollback(
+        tag: String? = null,
+        contexts: Contexts? = null,
+        labelExpression: LabelExpression? = null
+    ) {
         return this.liquibase.updateTestingRollback(tag, contexts, labelExpression)
     }
 
@@ -588,7 +342,7 @@ class LiquibaseClient(
     fun checkLiquibaseTables(
         updateExistingNullChecksums: Boolean,
         databaseChangeLog: DatabaseChangeLog,
-        contexts: Contexts?,
+        contexts: Contexts? = null,
         labelExpression: LabelExpression?
     ) {
         return this.liquibase.checkLiquibaseTables(
@@ -609,7 +363,7 @@ class LiquibaseClient(
     }
 
     @Throws(LiquibaseException::class)
-    fun reportLocks(out: PrintStream?) {
+    fun reportLocks(out: PrintStream? = null) {
         return this.liquibase.reportLocks(out)
     }
 
@@ -618,85 +372,82 @@ class LiquibaseClient(
         return this.liquibase.forceReleaseLocks()
     }
 
-    @Deprecated("use version with LabelExpression")
-    @Throws(LiquibaseException::class)
-    fun listUnrunChangeSets(contexts: Contexts?): List<ChangeSet> {
-        return this.liquibase.listUnrunChangeSets(contexts)
-    }
-
     @Throws(LiquibaseException::class)
     fun listUnrunChangeSets(
-        contexts: Contexts?,
-        labels: LabelExpression,
-    ): List<ChangeSet> {
-        return this.liquibase.listUnrunChangeSets(contexts, labels)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun listUnrunChangeSets(
-        contexts: Contexts?,
+        contexts: Contexts? = null,
         labels: LabelExpression,
         checkLiquibaseTables: Boolean = true
     ): List<ChangeSet> {
         return this.liquibase.listUnrunChangeSets(contexts, labels, checkLiquibaseTables)
     }
 
-    @Deprecated("use version with LabelExpression")
-    @Throws(LiquibaseException::class)
-    fun getChangeSetStatuses(contexts: Contexts?): List<ChangeSetStatus> {
-        return this.liquibase.getChangeSetStatuses(contexts)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun getChangeSetStatuses(contexts: Contexts?, labelExpression: LabelExpression): List<ChangeSetStatus> {
-        return this.liquibase.getChangeSetStatuses(contexts, labelExpression)
-    }
-
     @Throws(LiquibaseException::class)
     fun getChangeSetStatuses(
-        contexts: Contexts?,
+        contexts: Contexts? = null,
         labelExpression: LabelExpression,
-        checkLiquibaseTables: Boolean
+        checkLiquibaseTables: Boolean = true
     ): List<ChangeSetStatus> {
         return this.liquibase.getChangeSetStatuses(contexts, labelExpression, checkLiquibaseTables)
     }
 
     @Throws(LiquibaseException::class)
-    fun reportStatus(verbose: Boolean, contexts: String?, out: Writer?) {
-        return this.liquibase.reportStatus(verbose, contexts, out)
+    fun getChangeSetStatuses(
+        contexts: String? = null,
+        labelExpression: String,
+        checkLiquibaseTables: Boolean = true
+    ): List<ChangeSetStatus> {
+        return this.liquibase
+            .getChangeSetStatuses(Contexts(contexts), LabelExpression(labelExpression), checkLiquibaseTables)
     }
 
     @Throws(LiquibaseException::class)
-    fun reportStatus(verbose: Boolean, contexts: Contexts?, out: Writer?) {
-        return this.liquibase.reportStatus(verbose, contexts, out)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun reportStatus(verbose: Boolean, contexts: Contexts?, labels: LabelExpression?, out: Writer?) {
+    fun reportStatus(
+        verbose: Boolean,
+        contexts: Contexts? = null,
+        labels: LabelExpression? = null,
+        out: Writer = logWriter,
+    ) {
         return this.liquibase.reportStatus(verbose, contexts, labels, out)
     }
 
     @Throws(LiquibaseException::class)
-    fun listUnexpectedChangeSets(contexts: String?): Collection<RanChangeSet> {
-        return this.liquibase.listUnexpectedChangeSets(contexts)
+    fun reportStatus(
+        verbose: Boolean,
+        contexts: String? = null,
+        labels: String? = null,
+        out: Writer = logWriter,
+    ) {
+        return this.liquibase.reportStatus(verbose, Contexts(contexts), LabelExpression(labels), out)
     }
 
     @Throws(LiquibaseException::class)
-    fun listUnexpectedChangeSets(contexts: Contexts?, labelExpression: LabelExpression?): Collection<RanChangeSet> {
+    fun listUnexpectedChangeSets(
+        contexts: Contexts? = null,
+        labelExpression: LabelExpression? = null
+    ): Collection<RanChangeSet> {
         return this.liquibase.listUnexpectedChangeSets(contexts, labelExpression)
     }
 
     @Throws(LiquibaseException::class)
-    fun reportUnexpectedChangeSets(verbose: Boolean, contexts: String?, out: Writer?) {
+    fun listUnexpectedChangeSets(contexts: String? = null, labelExpression: String? = null): Collection<RanChangeSet> {
+        return this.liquibase.listUnexpectedChangeSets(Contexts(contexts), LabelExpression(labelExpression))
+    }
+
+    @Throws(LiquibaseException::class)
+    fun reportUnexpectedChangeSets(
+        verbose: Boolean,
+        contexts: String? = null,
+        out: Writer = logWriter,
+    ) {
         return this.liquibase.reportUnexpectedChangeSets(verbose, contexts, out)
     }
 
     @Throws(LiquibaseException::class)
     fun reportUnexpectedChangeSets(
         verbose: Boolean,
-        contexts: Contexts?,
-        labelExpression: LabelExpression?,
-        out: Writer?
+        contexts: Contexts? = null,
+        labelExpression: LabelExpression? = null,
+        out: Writer = logWriter,
     ) {
         return this.liquibase.reportUnexpectedChangeSets(verbose, contexts, labelExpression, out)
     }
@@ -717,25 +468,10 @@ class LiquibaseClient(
     }
 
     @Throws(LiquibaseException::class)
-    fun generateDocumentation(outputDirectory: String?) {
-        return this.liquibase.generateDocumentation(outputDirectory)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun generateDocumentation(outputDirectory: String?, contexts: String?) {
-        return this.liquibase.generateDocumentation(outputDirectory, contexts)
-    }
-
-    @Throws(LiquibaseException::class)
-    fun generateDocumentation(outputDirectory: String?, contexts: String?, vararg schemaList: CatalogAndSchema?) {
-        return this.liquibase.generateDocumentation(outputDirectory, contexts, *schemaList)
-    }
-
-    @Throws(LiquibaseException::class)
     fun generateDocumentation(
-        outputDirectory: String?,
-        contexts: Contexts?,
-        labelExpression: LabelExpression?,
+        outputDirectory: String,
+        contexts: Contexts? = null,
+        labelExpression: LabelExpression? = null,
         vararg schemaList: CatalogAndSchema?
     ) {
         return this.liquibase
@@ -743,7 +479,11 @@ class LiquibaseClient(
     }
 
     @Throws(LiquibaseException::class)
-    fun diff(referenceDatabase: Database?, targetDatabase: Database?, compareControl: CompareControl?): DiffResult {
+    fun diff(
+        referenceDatabase: Database,
+        targetDatabase: Database? = null,
+        compareControl: CompareControl? = null
+    ): DiffResult {
         return this.liquibase.diff(referenceDatabase, targetDatabase, compareControl)
     }
 
@@ -752,37 +492,23 @@ class LiquibaseClient(
         return this.liquibase.validate()
     }
 
-    fun setChangeLogParameter(key: String?, value: Any?) {
+    fun setChangeLogParameter(key: String, value: Any? = null) {
         return this.liquibase.setChangeLogParameter(key, value)
     }
 
-    @SafeVarargs
     @Throws(DatabaseException::class, CommandExecutionException::class)
     fun generateChangeLog(
-        catalogAndSchema: CatalogAndSchema?,
-        changeLogWriter: DiffToChangeLog?,
-        outputStream: PrintStream?,
-        vararg snapshotTypes: Class<out DatabaseObject?>?
+        catalogAndSchema: CatalogAndSchema = CatalogAndSchema.DEFAULT,
+        changeLogWriter: DiffToChangeLog? = null,
+        outputStream: PrintStream? = null,
+        vararg snapshotTypes: KClass<out DatabaseObject>
     ) {
-        return this.liquibase
-            .generateChangeLog(catalogAndSchema, changeLogWriter, outputStream, *snapshotTypes)
-    }
-
-    @SafeVarargs
-    @Throws(DatabaseException::class, CommandExecutionException::class)
-    fun generateChangeLog(
-        catalogAndSchema: CatalogAndSchema?,
-        changeLogWriter: DiffToChangeLog?,
-        outputStream: PrintStream?,
-        changeLogSerializer: ChangeLogSerializer?,
-        vararg snapshotTypes: Class<out DatabaseObject?>?
-    ) {
+        @Suppress("SpreadOperator")
         return this.liquibase.generateChangeLog(
             catalogAndSchema,
             changeLogWriter,
             outputStream,
-            changeLogSerializer,
-            *snapshotTypes
+            *snapshotTypes.map { it.java }.toTypedArray()
         )
     }
 

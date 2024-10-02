@@ -1,12 +1,12 @@
 @file:Suppress("ktlint:standard:no-consecutive-comments", "CyclomaticComplexMethod")
 
-package momosetkn.liquibase.client
+package momosetkn.liquibase.command.client
 
-import momosetkn.liquibase.client.LiquibaseCommandExecutor.executeCommand
+import momosetkn.liquibase.command.client.LiquibaseCommandExecutor.executeCommand
 import java.time.temporal.TemporalAccessor
 
 @Suppress("LargeClass", "TooManyFunctions")
-class LiquibaseClient(
+class LiquibaseCommandClient(
     override val configureBlock: ConfigureLiquibaseDslBlock,
 ) : ConfigureLiquibase {
     init {
@@ -725,7 +725,7 @@ class LiquibaseClient(
             globalArgs,
             listOfNotNullStringToString(
                 "changelog-file" to changelogFile,
-                "date" to LiquibaseClientConfig.dateTimeFormatter.format(date),
+                "date" to LiquibaseCommandClientConfig.dateTimeFormatter.format(date),
                 "url" to url,
                 changeExecListenerClass?.let { "change-exec-listener-class" to it },
                 changeExecListenerPropertiesFile?.let { "change-exec-listener-properties-file" to it },
@@ -777,7 +777,7 @@ class LiquibaseClient(
             listOfNotNullStringToString(
                 outputFile?.let { "output-file" to it },
                 "changelog-file" to changelogFile,
-                "date" to LiquibaseClientConfig.dateTimeFormatter.format(date),
+                "date" to LiquibaseCommandClientConfig.dateTimeFormatter.format(date),
                 "url" to url,
                 changeExecListenerClass?.let { "change-exec-listener-class" to it },
                 changeExecListenerPropertiesFile?.let { "change-exec-listener-properties-file" to it },
