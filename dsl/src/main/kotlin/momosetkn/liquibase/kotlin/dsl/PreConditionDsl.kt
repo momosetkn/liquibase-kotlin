@@ -30,7 +30,6 @@ import liquibase.precondition.core.ViewExistsPrecondition
 import momosetkn.liquibase.kotlin.dsl.Expressions.evalClassNameExpressions
 import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
 import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressions
-import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressionsOrNull
 import momosetkn.liquibase.kotlin.dsl.util.ReflectionUtils.new
 import kotlin.reflect.KClass
 
@@ -258,7 +257,7 @@ class PreConditionDsl<PRECONDITION_LOGIC : PreconditionLogic>(
         val dsl = KeyValueDsl(changeLog)
         val map = dsl(block)
         map.forEach { (key, value) ->
-            val expandedValue = value.tryEvalExpressionsOrNull(changeLog)?.toString()
+            val expandedValue = value?.tryEvalExpressions(changeLog)?.toString()
             precondition.setParam(key, expandedValue)
         }
 

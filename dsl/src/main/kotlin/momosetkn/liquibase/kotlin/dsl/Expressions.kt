@@ -15,10 +15,6 @@ internal object Expressions {
         }
     }
 
-    fun <E : Any> E?.tryEvalExpressionsOrNull(changeLog: DatabaseChangeLog): E? {
-        return this?.tryEvalExpressions(changeLog)
-    }
-
     // Any is because it is for DSL.
     fun Any.evalClassNameExpressions(changeLog: DatabaseChangeLog): String {
         return when (this) {
