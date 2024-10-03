@@ -1,5 +1,6 @@
 package momosetkn.utils
 
+import momosetkn.utils.StringUtils.toLf
 import org.intellij.lang.annotations.Language
 
 object DDLUtils {
@@ -64,8 +65,4 @@ object DDLUtils {
     fun sql(
         @Language("sql") sql: String
     ) = sql
-}
-
-private fun String.toLf(): String {
-    return this.replace(System.lineSeparator(), "\n")
 }

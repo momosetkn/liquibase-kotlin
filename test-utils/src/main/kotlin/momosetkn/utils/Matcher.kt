@@ -1,9 +1,8 @@
 package momosetkn.utils
 
 import io.kotest.matchers.shouldBe
+import momosetkn.utils.StringUtils.toLf
 
-infix fun String.shouldMatchWithoutLineBreaks(expected: String?): String {
-    val actualWithoutLineBreaks = this.lines().joinToString("\n")
-    val expectedWithoutLineBreaks = expected?.lines()?.joinToString("\n")
-    return actualWithoutLineBreaks shouldBe expectedWithoutLineBreaks
+infix fun String.shouldMatchWithoutLineBreaks(expected: String): String {
+    return this.toLf() shouldBe expected.toLf()
 }

@@ -24,7 +24,7 @@ object DatabaseServer {
     val startedContainer
         get() =
             requireNotNull(container) {
-                "momosetkn.Database is not started"
+                "${DatabaseServer::class.qualifiedName} is not started"
             }
 
     @Synchronized
@@ -87,7 +87,6 @@ object DatabaseServer {
                 schema.append(rs.getString(1)).append("\n")
             }
 
-            // Integration into LF
             schema.toString()
         }
     }
