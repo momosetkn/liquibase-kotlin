@@ -1,5 +1,6 @@
 package momosetkn.utils
 
+import momosetkn.utils.StringUtils.toLf
 import org.intellij.lang.annotations.Language
 
 object DDLUtils {
@@ -25,7 +26,7 @@ object DDLUtils {
 
     fun String.toMainDdl(): String {
         val databaseChangeLogTableDdl = """
-            CREATE MEMORY TABLE "PUBLIC"."DATABASECHANGELOG"(
+            CREATE CACHED TABLE "PUBLIC"."DATABASECHANGELOG"(
                 "ID" CHARACTER VARYING(255) NOT NULL,
                 "AUTHOR" CHARACTER VARYING(255) NOT NULL,
                 "FILENAME" CHARACTER VARYING(255) NOT NULL,
@@ -43,7 +44,7 @@ object DDLUtils {
             );
         """.trimIndent()
         val databaseChangeLogLockTableDdl = """
-            CREATE MEMORY TABLE "PUBLIC"."DATABASECHANGELOGLOCK"(
+            CREATE CACHED TABLE "PUBLIC"."DATABASECHANGELOGLOCK"(
                 "ID" INTEGER NOT NULL,
                 "LOCKED" BOOLEAN NOT NULL,
                 "LOCKGRANTED" TIMESTAMP,
@@ -64,8 +65,4 @@ object DDLUtils {
     fun sql(
         @Language("sql") sql: String
     ) = sql
-}
-
-private fun String.toLf(): String {
-    return this.replace(System.lineSeparator(), "\n")
 }

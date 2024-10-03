@@ -10,8 +10,8 @@ import momosetkn.liquibase.command.client.LiquibaseCommandClient
 import momosetkn.liquibase.kotlin.change.customKomapperJdbcChange
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
-import momosetkn.utils.Database
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
+import momosetkn.utils.DatabaseServer
 import momosetkn.utils.InterchangeableChangeLog
 import momosetkn.utils.set
 import momosetkn.utils.shouldMatchWithoutLineBreaks
@@ -22,10 +22,10 @@ import java.util.UUID
 
 class CustomKomapperJdbcChangeSetSpec : FunSpec({
     beforeEach {
-        Database.start()
+        DatabaseServer.start()
     }
     afterEach {
-        Database.stop()
+        DatabaseServer.stop()
     }
     val client = LiquibaseCommandClient {
         globalArgs {
@@ -37,7 +37,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
 
     context("forwardOnly") {
         fun subject() {
-            val container = Database.startedContainer
+            val container = DatabaseServer.startedContainer
             client.update(
                 driver = container.driver,
                 url = container.jdbcUrl,
@@ -83,16 +83,16 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
         }
         test("can migrate") {
             subject()
-            Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
+            DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
-                    CREATE MEMORY TABLE "PUBLIC"."COMPANY2"(
+                    CREATE CACHED TABLE "PUBLIC"."COMPANY2"(
                         "ID" UUID NOT NULL,
                         "NAME" CHARACTER VARYING(255)
                     );
                     ALTER TABLE "PUBLIC"."COMPANY2" ADD CONSTRAINT "PUBLIC"."CONSTRAINT_A" PRIMARY KEY("ID");
                 """.trimIndent()
             )
-            val db = Database.komapperDb()
+            val db = DatabaseServer.komapperDb()
             val query = QueryDsl.from(c).single()
             val item = db.runQuery(query)
             item.name shouldBe "CreatedByKomapper_name"
@@ -102,7 +102,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
     context("forward and rollback") {
         val startedTag = "started"
         fun subject() {
-            val container = Database.startedContainer
+            val container = DatabaseServer.startedContainer
             client.update(
                 driver = container.driver,
                 url = container.jdbcUrl,
@@ -164,7 +164,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
             }
             test("can rollback") {
                 subject()
-                Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql("")
+                DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql("")
             }
         }
         context("rollback arg is none") {

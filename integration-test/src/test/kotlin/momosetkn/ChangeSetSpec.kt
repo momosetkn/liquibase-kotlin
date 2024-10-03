@@ -9,8 +9,8 @@ import momosetkn.liquibase.command.client.LiquibaseCommandClient
 import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
-import momosetkn.utils.Database
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
+import momosetkn.utils.DatabaseServer
 import momosetkn.utils.InterchangeableChangeLog
 import momosetkn.utils.set
 import momosetkn.utils.shouldMatchWithoutLineBreaks
@@ -20,10 +20,10 @@ import org.komapper.core.dsl.query.single
 
 class ChangeSetSpec : FunSpec({
     beforeEach {
-        Database.start()
+        DatabaseServer.start()
     }
     afterEach {
-        Database.stop()
+        DatabaseServer.stop()
     }
     val client = LiquibaseCommandClient {
         globalArgs {
@@ -33,7 +33,7 @@ class ChangeSetSpec : FunSpec({
         }
     }
     fun subject() {
-        val container = Database.startedContainer
+        val container = DatabaseServer.startedContainer
         client.update(
             driver = container.driver,
             url = container.jdbcUrl,
@@ -52,7 +52,7 @@ class ChangeSetSpec : FunSpec({
         }
         test("can migrate") {
             subject()
-            val db = Database.komapperDb()
+            val db = DatabaseServer.komapperDb()
             val d = Meta.databasechangelog
             val result = db.runQuery {
                 QueryDsl.from(d).single()
@@ -61,7 +61,7 @@ class ChangeSetSpec : FunSpec({
         }
     }
     context("preConditions") {
-        fun databaseUsername() = Database.startedContainer.username
+        fun databaseUsername() = DatabaseServer.startedContainer.username
         context("postgresql and <currentUser>") {
             InterchangeableChangeLog.set {
                 changeSet(author = "user", id = "100") {
@@ -76,16 +76,16 @@ class ChangeSetSpec : FunSpec({
             }
             test("can migrate") {
                 subject()
-                Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
+                DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                     """
-                    CREATE MEMORY TABLE "PUBLIC"."COMPANY"(
+                    CREATE CACHED TABLE "PUBLIC"."COMPANY"(
                         "ID" UUID NOT NULL,
                         "NAME" CHARACTER VARYING(256)
                     );
                     ALTER TABLE "PUBLIC"."COMPANY" ADD CONSTRAINT "PUBLIC"."PK_COMPANY" PRIMARY KEY("ID");
                     """.trimIndent()
                 )
-                val db = Database.komapperDb()
+                val db = DatabaseServer.komapperDb()
                 val d = Meta.databasechangelog
                 val result = db.runQuery {
                     QueryDsl.from(d).single()
@@ -107,8 +107,8 @@ class ChangeSetSpec : FunSpec({
             }
             test("can migrate") {
                 subject()
-                Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql("")
-                val db = Database.komapperDb()
+                DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql("")
+                val db = DatabaseServer.komapperDb()
                 val d = Meta.databasechangelog
                 val result = db.runQuery {
                     QueryDsl.from(d).single()
@@ -138,16 +138,16 @@ class ChangeSetSpec : FunSpec({
             }
             test("can migrate") {
                 subject()
-                Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
+                DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                     """
-                    CREATE MEMORY TABLE "PUBLIC"."COMPANY"(
+                    CREATE CACHED TABLE "PUBLIC"."COMPANY"(
                         "ID" UUID NOT NULL,
                         "NAME" CHARACTER VARYING(256)
                     );
                     ALTER TABLE "PUBLIC"."COMPANY" ADD CONSTRAINT "PUBLIC"."PK_COMPANY" PRIMARY KEY("ID");
                     """.trimIndent()
                 )
-                val db = Database.komapperDb()
+                val db = DatabaseServer.komapperDb()
                 val d = Meta.databasechangelog
                 val result = db.runQuery {
                     QueryDsl.from(d).single()
@@ -202,9 +202,9 @@ class ChangeSetSpec : FunSpec({
         }
         test("can migrate") {
             subject()
-            Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
+            DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
-                    CREATE MEMORY TABLE "PUBLIC"."TABLE_A"(
+                    CREATE CACHED TABLE "PUBLIC"."TABLE_A"(
                         "ID" INTEGER NOT NULL,
                         "NAME" CHARACTER VARYING(255)
                     );
@@ -228,9 +228,9 @@ class ChangeSetSpec : FunSpec({
         }
         test("can migrate") {
             subject()
-            Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
+            DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
-                    CREATE MEMORY TABLE "PUBLIC"."TABLE_A"(
+                    CREATE CACHED TABLE "PUBLIC"."TABLE_A"(
                         "ID" INTEGER NOT NULL,
                         "NAME" CHARACTER VARYING(255)
                     );
@@ -250,9 +250,9 @@ class ChangeSetSpec : FunSpec({
         }
         test("can migrate") {
             subject()
-            Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
+            DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
-                   CREATE MEMORY TABLE "PUBLIC".U&"\5bff\53f8"(
+                   CREATE CACHED TABLE "PUBLIC".U&"\5bff\53f8"(
                        U&"\ff49\ff44" INTEGER NOT NULL,
                        U&"\5bff\53f8\30cd\30bf\306e\540d\524d" CHARACTER VARYING(255)
                    );
@@ -288,9 +288,9 @@ class ChangeSetSpec : FunSpec({
             shouldThrow<CommandExecutionException> {
                 subject()
             }
-            Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
+            DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
-                    CREATE MEMORY TABLE "PUBLIC"."COMPANY"(
+                    CREATE CACHED TABLE "PUBLIC"."COMPANY"(
                         "ID" UUID NOT NULL,
                         "NAME" CHARACTER VARYING(256)
                     );
@@ -307,7 +307,7 @@ class ChangeSetSpec : FunSpec({
         }
         test("can migrate") {
             subject()
-            val db = Database.komapperDb()
+            val db = DatabaseServer.komapperDb()
             val d = Meta.databasechangelog
             val result = db.runQuery {
                 QueryDsl.from(d).single()

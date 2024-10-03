@@ -12,6 +12,7 @@ rootProject.name = "liquibase-kotlin"
 
 // integration-test
 include("integration-test")
+include("test-utils")
 
 // production code
 // dsl
