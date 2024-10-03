@@ -58,20 +58,24 @@ Client module can execute Liquibase commands programmatically.
 
 example
 ```kotlin
-val client = LiquibaseClient {
-    globalArgs {
+configureLiquibase {
+    global {
         general {
             showBanner = false
         }
     }
 }
-client.update(
+val database = LiquibaseDatabaseFactory.create(
     driver = "org.postgresql.Driver",
     url = "jdbc:postgresql://127.0.0.1:5432/test",
     username = "root",
     password = "test",
-    changelogFile = "db.changelog.all.kts",
 )
+val liquibaseClient = LiquibaseClient(
+    changelogFile = "db.changelog.all.kts",
+    database = database,
+)
+liquibaseClient.update()
 ```
 
 ### Use Komapper on customChange

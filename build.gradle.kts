@@ -61,6 +61,7 @@ val libraryProjects =
             "script-serializer",
             "compiled-serializer",
             // client
+            "command-client",
             "client",
             // custom-change
             "custom-komapper-jdbc-change",

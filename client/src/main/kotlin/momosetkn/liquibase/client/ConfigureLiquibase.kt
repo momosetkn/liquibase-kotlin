@@ -2,38 +2,49 @@ package momosetkn.liquibase.client
 
 typealias ConfigureLiquibaseDslBlock = ConfigureLiquibaseDsl.() -> Unit
 typealias LiquibaseGlobalArgsDslBlock = LiquibaseGlobalArgsDsl.() -> Unit
-typealias LiquibaseCommandArgsDslBlock = LiquibaseCommandArgsDsl.() -> Unit
-typealias LiquibaseSystemEnvArgsDslBlock = LiquibaseSystemEnvArgsDsl.() -> Unit
+typealias LiquibaseSystemEnvArgsDslBlock = LiquibaseSystemArgs.() -> Unit
 
-interface ConfigureLiquibase {
-    // require override
-    val configureBlock: ConfigureLiquibaseDslBlock
-
-    val configuredArgs: ConfiguredArgs
-        get() {
-            val dsl = ConfigureLiquibaseDsl()
-            return dsl(configureBlock)
-        }
-
-    fun getGlobalArgs(): List<Pair<String, String>> {
-        val dsl = LiquibaseGlobalArgsDsl()
-        val args = configuredArgs.globalArgsDslBlock?.let { dsl(it) } ?: emptyList()
-        return args.flatMap { it.serialize() }
-    }
-
-    fun getCommandArgs(): List<Pair<String, String>> {
-        val dsl = LiquibaseCommandArgsDsl()
-        val args = configuredArgs.commandArgsDslBlock?.let { dsl(it) } ?: emptyList()
-        return args.flatMap { it.serialize() }
-    }
-
-    fun setSystemEnvArgs() {
-        val dsl = LiquibaseSystemEnvArgsDsl()
-        val args = configuredArgs.systemEnvArgsDslBlock?.let { dsl(it) } ?: emptyList()
-        args
-            .flatMap { it.serialize() }
+private class ConfigureLiquibase(
+    private val configureBlock: ConfigureLiquibaseDslBlock
+) {
+    fun configure() {
+        val configuredArgs = configuredArgs()
+        val allArgs = getAllArgs(configuredArgs)
+        allArgs
             .forEach { (key, value) ->
-                System.setProperty(key, value)
+                if (value == null) {
+                    System.clearProperty(key)
+                } else {
+                    System.setProperty(key, value)
+                }
             }
     }
+
+    private fun configuredArgs(): ConfiguredArgs {
+        val dsl = ConfigureLiquibaseDsl()
+        return dsl(configureBlock)
+    }
+
+    private fun getAllArgs(configuredArgs: ConfiguredArgs): List<Pair<String, String?>> {
+        return getGlobalArgs(configuredArgs) + getSystemEnvArgs(configuredArgs)
+    }
+
+    private fun getGlobalArgs(configuredArgs: ConfiguredArgs): List<Pair<String, String?>> {
+        val dsl = LiquibaseGlobalArgsDsl()
+        val args = configuredArgs.globalDslBlock?.let { dsl(it) } ?: emptyList()
+        return args.flatMap { it.serialize() }
+    }
+
+    private fun getSystemEnvArgs(configuredArgs: ConfiguredArgs): List<Pair<String, String?>> {
+        val liquibaseSystemArgs = LiquibaseSystemArgs()
+        val args = configuredArgs.systemDslBlock?.let {
+            it(liquibaseSystemArgs)
+            liquibaseSystemArgs.serialize()
+        } ?: emptyList()
+        return args
+    }
 }
+
+fun configureLiquibase(
+    block: ConfigureLiquibaseDslBlock,
+) = ConfigureLiquibase(block).configure()

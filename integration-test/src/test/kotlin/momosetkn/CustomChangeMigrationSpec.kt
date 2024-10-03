@@ -3,7 +3,7 @@ package momosetkn
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import momosetkn.liquibase.changelogs.customechannge.ExecuteCountTaskCustomChange
-import momosetkn.liquibase.client.LiquibaseClient
+import momosetkn.liquibase.command.client.LiquibaseCommandClient
 import momosetkn.liquibase.kotlin.parser.KotlinCompiledDatabaseChangeLog
 import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
@@ -21,7 +21,7 @@ class CustomChangeMigrationSpec : FunSpec({
 
     context("Migrate and serialize") {
         test("can migrate") {
-            val client = LiquibaseClient {
+            val client = LiquibaseCommandClient {
                 globalArgs {
                     general {
                         showBanner = false

@@ -3,6 +3,8 @@ package momosetkn
 import io.kotest.core.spec.style.FunSpec
 import momosetkn.liquibase.changelogs.CompiledDatabaseChangelogAll
 import momosetkn.liquibase.client.LiquibaseClient
+import momosetkn.liquibase.client.LiquibaseDatabaseFactory
+import momosetkn.liquibase.client.configureLiquibase
 import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
 import momosetkn.utils.DDLUtils.sql
@@ -10,12 +12,21 @@ import momosetkn.utils.DDLUtils.toMainDdl
 import momosetkn.utils.Database
 import momosetkn.utils.ResourceUtils.getResourceAsString
 import momosetkn.utils.shouldMatchWithoutLineBreaks
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
 import java.nio.file.Paths
 
 class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
     beforeSpec {
         Database.start()
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.RESOURCE_DIR)
+        configureLiquibase {
+            global {
+                general {
+                    showBanner = false
+                }
+            }
+        }
     }
     afterSpec {
         Database.stop()
@@ -23,55 +34,45 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
 
     context("Migrate and serialize") {
         test("can migrate") {
-            val client = LiquibaseClient {
-                globalArgs {
-                    general {
-                        showBanner = false
-                    }
-                }
-            }
             val container = Database.startedContainer
-            client.update(
+            val database = LiquibaseDatabaseFactory.create(
                 driver = container.driver,
                 url = container.jdbcUrl,
                 username = container.username,
                 password = container.password,
-                changelogFile = PARSER_INPUT_CHANGELOG,
             )
-            client.rollback(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
-                changelogFile = PARSER_INPUT_CHANGELOG,
-                tag = "started",
+            val liquibaseClient = LiquibaseClient(
+                changeLogFile = PARSER_INPUT_CHANGELOG,
+                database = database,
             )
-            client.update(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
-                changelogFile = PARSER_INPUT_CHANGELOG,
-            )
+            println("${this::class.simpleName} -- before update")
+            liquibaseClient.update()
+            println("${this::class.simpleName} -- before rollback")
+            liquibaseClient.rollback(tagToRollBackTo = "started")
+            println("${this::class.simpleName} -- before update(2)")
+            liquibaseClient.update()
             val actualSerializedChangeLogFile =
                 Paths.get(Constants.RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
             val f = actualSerializedChangeLogFile.toFile()
             if (f.exists()) f.delete()
-            client.generateChangelog(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
-                changelogFile = actualSerializedChangeLogFile.toString(),
+            val generateLiquibaseClient = LiquibaseClient(
+                changeLogFile = f.toString(),
+                database = database,
             )
+            println("${this::class.simpleName} -- before generateChangeLog")
+            val baos = ByteArrayOutputStream()
+            generateLiquibaseClient.generateChangeLog(
+                outputStream = PrintStream(baos),
+            )
+            val generateResult = baos.toString()
+            println(generateResult) // empty
 
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
             Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
-            val actual = getFileAsString(SERIALIZER_ACTUAL_CHANGELOG)
-                .maskingChangeSet()
+            val actual = f.readText().maskingChangeSet()
             val expect = getResourceAsString(SERIALIZER_EXPECT_CHANGELOG)
                 .maskingChangeSet()
             actual shouldMatchWithoutLineBreaks expect
@@ -79,9 +80,6 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
     }
 }) {
     companion object {
-        private fun getFileAsString(path: String) =
-            Paths.get(Constants.RESOURCE_DIR, path).toFile().readText()
-
         private val changeSetRegex = Regex("""changeSet\(author = "(.+)", id = "(\d+)-(\d)"\) \{""")
 
         private fun String.maskingChangeSet() =

@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import komapper.databasechangelog
 import liquibase.exception.CommandExecutionException
-import momosetkn.liquibase.client.LiquibaseClient
+import momosetkn.liquibase.command.client.LiquibaseCommandClient
 import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
@@ -25,7 +25,7 @@ class ChangeSetSpec : FunSpec({
     afterEach {
         Database.stop()
     }
-    val client = LiquibaseClient {
+    val client = LiquibaseCommandClient {
         globalArgs {
             general {
                 showBanner = false

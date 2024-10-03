@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":compiled-serializer"))
     implementation(project(":script-parser"))
     implementation(project(":compiled-parser"))
+    implementation(project(":command-client"))
     implementation(project(":client"))
     implementation(project(":custom-komapper-jdbc-change"))
 
@@ -44,9 +45,17 @@ dependencies {
     // h2database
     testImplementation("com.h2database:h2:2.3.232")
 }
+
+configurations.all {
+    resolutionStrategy {
+        force("org.liquibase:liquibase-core:$liquibaseVersion")
+    }
+}
+
 tasks.test {
     useJUnitPlatform()
     systemProperty("kotest.framework.classpath.scanning.config.disable", "true")
+    systemProperty("liquibaseVersion", liquibaseVersion)
 }
 
 tasks {

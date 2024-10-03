@@ -10,27 +10,20 @@ class ConfigureLiquibaseDsl {
         return configuredArgs
     }
 
-    fun globalArgs(block: LiquibaseGlobalArgsDslBlock) {
+    fun global(block: LiquibaseGlobalArgsDslBlock) {
         configuredArgs = configuredArgs.copy(
-            globalArgsDslBlock = block,
+            globalDslBlock = block,
         )
     }
 
-    fun commandArgs(block: LiquibaseCommandArgsDslBlock) {
+    fun system(block: LiquibaseSystemEnvArgsDslBlock) {
         configuredArgs = configuredArgs.copy(
-            commandArgsDslBlock = block,
-        )
-    }
-
-    fun systemEnvArg(block: LiquibaseSystemEnvArgsDslBlock) {
-        configuredArgs = configuredArgs.copy(
-            systemEnvArgsDslBlock = block,
+            systemDslBlock = block,
         )
     }
 }
 
 data class ConfiguredArgs(
-    var globalArgsDslBlock: LiquibaseGlobalArgsDslBlock? = null,
-    var commandArgsDslBlock: LiquibaseCommandArgsDslBlock? = null,
-    var systemEnvArgsDslBlock: LiquibaseSystemEnvArgsDslBlock? = null,
+    var globalDslBlock: LiquibaseGlobalArgsDslBlock? = null,
+    var systemDslBlock: LiquibaseSystemEnvArgsDslBlock? = null,
 )

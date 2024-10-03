@@ -48,8 +48,10 @@ class KotlinCompiledChangeLogSerializer : ChangeLogSerializer {
     private fun <T : ChangeLogChild> getPackageName(changeSets: List<T>): String {
         val filePath = (changeSets[0] as? ChangeSet)?.filePath
             ?: return ""
+        // \a\b\c\Clazz.kt -> a.b.c
         return filePath
-            .removePrefix(sourceRootPath.toString())
+            .toUnixFileSeparator()
+            .removePrefix(sourceRootPath.toString().toUnixFileSeparator())
             .removePrefix("/")
             .substringBeforeLast("/")
             .replace("/", ".")
@@ -73,5 +75,8 @@ class KotlinCompiledChangeLogSerializer : ChangeLogSerializer {
 
     companion object {
         var sourceRootPath = java.nio.file.Path.of("src/main/kotlin")
+
+        private fun String.toUnixFileSeparator() = this
+            .replace("\\", "/") // for windows
     }
 }
