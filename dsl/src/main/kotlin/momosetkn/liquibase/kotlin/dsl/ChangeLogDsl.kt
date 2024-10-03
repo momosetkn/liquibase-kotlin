@@ -219,6 +219,17 @@ class ChangeLogDsl(
         )
     }
 
+    /**
+     * Defines preconditions for the ChangeLog.
+     * [official-document](https://docs.liquibase.com/concepts/changelogs/preconditions.html)
+     *
+     * @param onError Indicates the behavior when an error occurs.
+     * @param onErrorMessage Custom message to be displayed when an error occurs.
+     * @param onFail Indicates the behavior when a failure occurs.
+     * @param onFailMessage Custom message to be displayed when a failure occurs.
+     * @param onSqlOutput Custom SQL output settings.
+     * @param block The block of code containing preconditions.
+     */
     fun preConditions(
         onError: String? = null,
         onErrorMessage: String? = null,
@@ -231,8 +242,8 @@ class ChangeLogDsl(
             PreconditionContainerContext(
                 onError = onError,
                 onFail = onFail,
-                onFailMessage = onFailMessage,
-                onErrorMessage = onErrorMessage,
+                onFailMessage = onFailMessage?.evalExpressions(changeLog),
+                onErrorMessage = onErrorMessage?.evalExpressions(changeLog),
                 onSqlOutput = onSqlOutput,
             )
         val dsl =
@@ -240,7 +251,7 @@ class ChangeLogDsl(
                 changeLog = changeLog,
                 preconditionContainerContext = preconditionContainerContext,
             )
-        kotlin.runCatching {
+        runCatching {
             dsl(block)
         }.fold(
             onSuccess = {
@@ -255,6 +266,20 @@ class ChangeLogDsl(
         )
     }
 
+    /**
+     * Sets a property in the change log with a specified name and value, optionally from an external file.
+     * [official-document](https://docs.liquibase.com/concepts/changelogs/property-substitution.html)
+     *
+     * @param name The name of the property. Required.
+     * @param value The value of the property. Required.
+     * @param file Optional file path from which to load additional properties. The path is evaluated for expressions.
+     * @param relativeToChangelogFile Optional flag indicating whether the file path is relative to the changelog file.
+     * @param context Optional context for which the property is valid.
+     * @param contextFilter Optional filter to apply to the context.
+     * @param labels Optional labels for the property.
+     * @param dbms Optional DBMS-specific flag for the property.
+     * @param global Flag indicating whether the property is global across all change logs. Defaults to true.
+     */
     fun property(
         name: String,
         value: String,
@@ -264,14 +289,12 @@ class ChangeLogDsl(
         contextFilter: String? = null,
         labels: String? = null, // todo: nothing document
         dbms: String? = null,
-        global: Boolean? = true,
+        global: Boolean = true,
     ) {
         val contextFilterOrContext = contextFilter ?: context
-        val typedContext = ContextExpression(contextFilterOrContext)
+        val typedContext = ContextExpression(contextFilterOrContext?.evalExpressions(changeLog))
 
-        val typedLabels = labels?.let { Labels(it) }
-
-        val global = global ?: true
+        val typedLabels = labels?.let { Labels(it.evalExpressions(changeLog)) }
 
         // https://docs.liquibase.com/concepts/changelogs/property-substitution.html#xml_example
         val changeLogParameters = changeLog.changeLogParameters
@@ -287,7 +310,7 @@ class ChangeLogDsl(
                 changeLog,
             )
         } else {
-            val propFile = file.toString()
+            val propFile = file.evalExpressions(changeLog)
             val relativeTo =
                 if (relativeToChangelogFile == true) {
                     changeLog.physicalFilePath
@@ -317,18 +340,27 @@ class ChangeLogDsl(
         }
     }
 
+    /**
+     * Removes a specific property from a ChangeSet in the change log based on the given parameters.
+     * [official-document](https://docs.liquibase.com/concepts/changelogs/property-substitution.html)
+     *
+     * @param change The identifier of the change to modify.
+     * @param dbms The database management system for which the property is being removed.
+     * @param remove The property to be removed from the ChangeSet.
+     */
     fun removeChangeSetProperty(
         change: String,
         dbms: String,
         remove: String,
     ) {
         val currentDatabase = changeLog.changeLogParameters.database
-        if (!DatabaseList.definitionMatches(dbms, currentDatabase, false)) {
+        val evaluatedDbms = dbms.evalExpressions(changeLog)
+        if (!DatabaseList.definitionMatches(evaluatedDbms, currentDatabase, false)) {
             return
         }
 
         val changeVisitor =
-            ChangeVisitorFactory.getInstance().create(change)
+            ChangeVisitorFactory.getInstance().create(change.evalExpressions(changeLog))
                 ?: throw ChangeLogParseException(
                     "DatabaseChangeLog: $change is not a valid change type",
                 )
@@ -339,7 +371,7 @@ class ChangeLogDsl(
                 object : AddColumnChangeVisitor() {
                     override fun getRemove() = remove
 
-                    override fun getDbms(): Set<String?> = dbms.splitAndTrim().toSet()
+                    override fun getDbms(): Set<String?> = evaluatedDbms.splitAndTrim().toSet()
                 }
             } ?: throw ChangeLogParseException(
                 "changeVisitor: $changeVisitor is not a valid changeVisitor type",
