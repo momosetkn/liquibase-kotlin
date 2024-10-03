@@ -7,9 +7,6 @@ import java.sql.Connection
 import java.sql.DriverManager
 import kotlin.system.measureTimeMillis
 
-@Deprecated("use DatabaseServer", ReplaceWith("DatabaseServer"))
-typealias Database = DatabaseServer
-
 object DatabaseServer {
     private val log = LoggerFactory.getLogger(this.javaClass.name)
 

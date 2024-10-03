@@ -13,8 +13,8 @@ import momosetkn.liquibase.client.configureLiquibase
 import momosetkn.liquibase.kotlin.parser.KotlinCompiledLiquibaseChangeLogParser
 import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
-import momosetkn.utils.Database
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
+import momosetkn.utils.DatabaseServer
 import momosetkn.utils.InterchangeableChangeLog
 import momosetkn.utils.set
 import momosetkn.utils.toVersion
@@ -32,7 +32,7 @@ class LiquibaseClientSpec : FunSpec({
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.RESOURCE_DIR)
     }
     beforeEach {
-        Database.start()
+        DatabaseServer.start()
         configureLiquibase {
             global {
                 general {
@@ -42,11 +42,11 @@ class LiquibaseClientSpec : FunSpec({
         }
     }
     afterEach {
-        Database.stop()
+        DatabaseServer.stop()
     }
 
     fun liquibaseClient(changeLogFile: String? = null): LiquibaseClient {
-        val container = Database.startedContainer
+        val container = DatabaseServer.startedContainer
         val database = LiquibaseDatabaseFactory.create(
             driver = container.driver,
             url = container.jdbcUrl,
@@ -76,7 +76,7 @@ class LiquibaseClientSpec : FunSpec({
         test("can migrate") {
             liquibaseClient().update(tag = "finish",)
 
-            val db = Database.komapperDb()
+            val db = DatabaseServer.komapperDb()
             val d = Meta.databasechangelog
             val result = db.runQuery {
                 QueryDsl.from(d)

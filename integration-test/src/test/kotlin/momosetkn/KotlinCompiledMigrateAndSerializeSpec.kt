@@ -9,7 +9,7 @@ import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
-import momosetkn.utils.Database
+import momosetkn.utils.DatabaseServer
 import momosetkn.utils.ResourceUtils.getResourceAsString
 import momosetkn.utils.shouldMatchWithoutLineBreaks
 import java.io.ByteArrayOutputStream
@@ -18,7 +18,7 @@ import java.nio.file.Paths
 
 class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
     beforeSpec {
-        Database.start()
+        DatabaseServer.start()
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.RESOURCE_DIR)
         configureLiquibase {
             global {
@@ -29,12 +29,12 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
         }
     }
     afterSpec {
-        Database.stop()
+        DatabaseServer.stop()
     }
 
     context("Migrate and serialize") {
         test("can migrate") {
-            val container = Database.startedContainer
+            val container = DatabaseServer.startedContainer
             val database = LiquibaseDatabaseFactory.create(
                 driver = container.driver,
                 url = container.jdbcUrl,
@@ -69,7 +69,7 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
 
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
-            Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
+            DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
             val actual = f.readText().maskingChangeSet()
