@@ -78,7 +78,7 @@ class ChangeSetSpec : FunSpec({
                 subject()
                 Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                     """
-                    CREATE MEMORY TABLE "PUBLIC"."COMPANY"(
+                    CREATE CACHED TABLE "PUBLIC"."COMPANY"(
                         "ID" UUID NOT NULL,
                         "NAME" CHARACTER VARYING(256)
                     );
@@ -140,7 +140,7 @@ class ChangeSetSpec : FunSpec({
                 subject()
                 Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                     """
-                    CREATE MEMORY TABLE "PUBLIC"."COMPANY"(
+                    CREATE CACHED TABLE "PUBLIC"."COMPANY"(
                         "ID" UUID NOT NULL,
                         "NAME" CHARACTER VARYING(256)
                     );
@@ -204,7 +204,7 @@ class ChangeSetSpec : FunSpec({
             subject()
             Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
-                    CREATE MEMORY TABLE "PUBLIC"."TABLE_A"(
+                    CREATE CACHED TABLE "PUBLIC"."TABLE_A"(
                         "ID" INTEGER NOT NULL,
                         "NAME" CHARACTER VARYING(255)
                     );
@@ -230,7 +230,7 @@ class ChangeSetSpec : FunSpec({
             subject()
             Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
-                    CREATE MEMORY TABLE "PUBLIC"."TABLE_A"(
+                    CREATE CACHED TABLE "PUBLIC"."TABLE_A"(
                         "ID" INTEGER NOT NULL,
                         "NAME" CHARACTER VARYING(255)
                     );
@@ -252,7 +252,7 @@ class ChangeSetSpec : FunSpec({
             subject()
             Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
-                   CREATE MEMORY TABLE "PUBLIC".U&"\5bff\53f8"(
+                   CREATE CACHED TABLE "PUBLIC".U&"\5bff\53f8"(
                        U&"\ff49\ff44" INTEGER NOT NULL,
                        U&"\5bff\53f8\30cd\30bf\306e\540d\524d" CHARACTER VARYING(255)
                    );
@@ -290,7 +290,7 @@ class ChangeSetSpec : FunSpec({
             }
             Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
-                    CREATE MEMORY TABLE "PUBLIC"."COMPANY"(
+                    CREATE CACHED TABLE "PUBLIC"."COMPANY"(
                         "ID" UUID NOT NULL,
                         "NAME" CHARACTER VARYING(256)
                     );

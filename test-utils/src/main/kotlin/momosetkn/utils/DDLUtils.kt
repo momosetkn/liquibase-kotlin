@@ -25,7 +25,7 @@ object DDLUtils {
 
     fun String.toMainDdl(): String {
         val databaseChangeLogTableDdl = """
-            CREATE MEMORY TABLE "PUBLIC"."DATABASECHANGELOG"(
+            CREATE CACHED TABLE "PUBLIC"."DATABASECHANGELOG"(
                 "ID" CHARACTER VARYING(255) NOT NULL,
                 "AUTHOR" CHARACTER VARYING(255) NOT NULL,
                 "FILENAME" CHARACTER VARYING(255) NOT NULL,
@@ -43,7 +43,7 @@ object DDLUtils {
             );
         """.trimIndent()
         val databaseChangeLogLockTableDdl = """
-            CREATE MEMORY TABLE "PUBLIC"."DATABASECHANGELOGLOCK"(
+            CREATE CACHED TABLE "PUBLIC"."DATABASECHANGELOGLOCK"(
                 "ID" INTEGER NOT NULL,
                 "LOCKED" BOOLEAN NOT NULL,
                 "LOCKGRANTED" TIMESTAMP,

@@ -85,7 +85,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
             subject()
             Database.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
-                    CREATE MEMORY TABLE "PUBLIC"."COMPANY2"(
+                    CREATE CACHED TABLE "PUBLIC"."COMPANY2"(
                         "ID" UUID NOT NULL,
                         "NAME" CHARACTER VARYING(255)
                     );
