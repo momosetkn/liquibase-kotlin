@@ -271,8 +271,6 @@ class ChangeLogDsl(
      *
      * @param name The name of the property. Required.
      * @param value The value of the property. Required.
-     * @param file Optional file path from which to load additional properties. The path is evaluated for expressions.
-     * @param relativeToChangelogFile Optional flag indicating whether the file path is relative to the changelog file.
      * @param context Optional context for which the property is valid.
      * @param contextFilter Optional filter to apply to the context.
      * @param labels Optional labels for the property.
@@ -282,7 +280,45 @@ class ChangeLogDsl(
     fun property(
         name: String,
         value: String,
-        file: String? = null,
+        context: String? = null,
+        contextFilter: String? = null,
+        labels: String? = null, // todo: nothing document
+        dbms: String? = null,
+        global: Boolean = true,
+    ) {
+        val contextFilterOrContext = contextFilter ?: context
+        val typedContext = ContextExpression(contextFilterOrContext?.evalExpressions(changeLog))
+
+        val typedLabels = labels?.let { Labels(it.evalExpressions(changeLog)) }
+
+        // https://docs.liquibase.com/concepts/changelogs/property-substitution.html#xml_example
+        val changeLogParameters = changeLog.changeLogParameters
+
+        changeLogParameters.set(
+            name,
+            value,
+            typedContext,
+            typedLabels,
+            dbms,
+            global,
+            changeLog,
+        )
+    }
+
+    /**
+     * Loads properties from the specified file and sets them in the change log parameters.
+     * [official-document](https://docs.liquibase.com/concepts/changelogs/property-substitution.html)
+     *
+     * @param file The name of the file containing the properties. Required.
+     * @param relativeToChangelogFile Whether the file path is relative to the changelog file.
+     * @param context The context for which the properties should be applied.
+     * @param contextFilter A filter defining which contexts the properties should be applied to.
+     * @param labels The labels for which the properties should be applied.
+     * @param dbms The database management system for which the properties should be applied.
+     * @param global Whether the properties should be applied globally.
+     */
+    fun property(
+        file: String,
         relativeToChangelogFile: Boolean? = null,
         context: String? = null,
         contextFilter: String? = null,
@@ -298,45 +334,30 @@ class ChangeLogDsl(
         // https://docs.liquibase.com/concepts/changelogs/property-substitution.html#xml_example
         val changeLogParameters = changeLog.changeLogParameters
 
-        if (file == null) {
-            changeLogParameters.set(
-                name,
-                value,
-                typedContext,
-                typedLabels,
-                dbms,
-                global,
-                changeLog,
-            )
-        } else {
-            val propFile = file.evalExpressions(changeLog)
-            val relativeTo =
-                if (relativeToChangelogFile == true) {
-                    changeLog.physicalFilePath
-                } else {
-                    null
+        val propFile = file.evalExpressions(changeLog)
+        val resource =
+            if (relativeToChangelogFile == true) {
+                resourceAccessor.get(changeLog.physicalFilePath).resolveSibling(propFile)
+            } else {
+                resourceAccessor.get(propFile)
+            }
+        resource
+            .openInputStream()
+            .use { stream ->
+                val props = Properties()
+                props.load(stream)
+                props.forEach { (k, v) ->
+                    changeLogParameters.set(
+                        k.toString(),
+                        v.toString(),
+                        typedContext,
+                        typedLabels,
+                        dbms,
+                        global,
+                        changeLog,
+                    )
                 }
-            resourceAccessor
-                .get(
-                    relativeTo,
-                ).resolveSibling(propFile)
-                .openInputStream()
-                .use { stream ->
-                    val props = Properties()
-                    props.load(stream)
-                    props.forEach { (k, v) ->
-                        changeLogParameters.set(
-                            k.toString(),
-                            v.toString(),
-                            typedContext,
-                            typedLabels,
-                            dbms,
-                            global,
-                            changeLog,
-                        )
-                    }
-                }
-        }
+            }
     }
 
     /**
