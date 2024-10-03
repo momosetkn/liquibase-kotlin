@@ -55,7 +55,6 @@ import liquibase.statement.DatabaseFunction
 import liquibase.statement.SequenceNextValueFunction
 import momosetkn.liquibase.kotlin.dsl.Expressions.evalClassNameExpressions
 import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
-import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
 import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressions
 import momosetkn.liquibase.kotlin.dsl.Expressions.tryEvalExpressionsOrNull
 import org.intellij.lang.annotations.Language
@@ -1510,7 +1509,7 @@ class ChangeSetDsl(
      */
     fun stop(message: String? = null) {
         val change = changeSetSupport.createChange("stop") as StopChange
-        change.message = message.evalExpressionsOrNull(changeLog)
+        change.message = message?.evalExpressions(changeLog)
         changeSetSupport.addChange(change)
     }
 

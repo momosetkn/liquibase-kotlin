@@ -2,7 +2,7 @@ package momosetkn.liquibase.kotlin.dsl
 
 import liquibase.change.ConstraintsConfig
 import liquibase.changelog.DatabaseChangeLog
-import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
+import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
 
 @ChangeLogDslMarker
 class ConstraintDsl(
@@ -42,21 +42,21 @@ class ConstraintDsl(
     ) {
         constraint.apply {
             this.isNullable = nullable
-            this.notNullConstraintName = notNullConstraintName.evalExpressionsOrNull(changeLog)
+            this.notNullConstraintName = notNullConstraintName?.evalExpressions(changeLog)
             this.isPrimaryKey = primaryKey
-            this.primaryKeyName = primaryKeyName.evalExpressionsOrNull(changeLog)
-            this.primaryKeyTablespace = primaryKeyTablespace.evalExpressionsOrNull(changeLog)
-            this.references = references.evalExpressionsOrNull(changeLog)
+            this.primaryKeyName = primaryKeyName?.evalExpressions(changeLog)
+            this.primaryKeyTablespace = primaryKeyTablespace?.evalExpressions(changeLog)
+            this.references = references?.evalExpressions(changeLog)
             this.referencedTableCatalogName =
-                referencedTableCatalogName.evalExpressionsOrNull(changeLog)
-            this.referencedTableSchemaName = referencedTableSchemaName.evalExpressionsOrNull(changeLog)
-            this.referencedTableName = referencedTableName.evalExpressionsOrNull(changeLog)
-            this.referencedColumnNames = referencedColumnNames.evalExpressionsOrNull(changeLog)
+                referencedTableCatalogName?.evalExpressions(changeLog)
+            this.referencedTableSchemaName = referencedTableSchemaName?.evalExpressions(changeLog)
+            this.referencedTableName = referencedTableName?.evalExpressions(changeLog)
+            this.referencedColumnNames = referencedColumnNames?.evalExpressions(changeLog)
             this.isUnique = unique
-            this.uniqueConstraintName = uniqueConstraintName.evalExpressionsOrNull(changeLog)
-            this.checkConstraint = checkConstraint.evalExpressionsOrNull(changeLog)
+            this.uniqueConstraintName = uniqueConstraintName?.evalExpressions(changeLog)
+            this.checkConstraint = checkConstraint?.evalExpressions(changeLog)
             this.isDeleteCascade = deleteCascade
-            this.foreignKeyName = foreignKeyName.evalExpressionsOrNull(changeLog)
+            this.foreignKeyName = foreignKeyName?.evalExpressions(changeLog)
             this.isInitiallyDeferred = initiallyDeferred
             this.isDeferrable = deferrable
             this.validateNullable = validateNullable

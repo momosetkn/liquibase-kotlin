@@ -9,7 +9,6 @@ import liquibase.sql.visitor.RegExpReplaceSqlVisitor
 import liquibase.sql.visitor.ReplaceSqlVisitor
 import liquibase.sql.visitor.SqlVisitor
 import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
-import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
 import momosetkn.liquibase.kotlin.dsl.util.ReflectionUtils.new
 import momosetkn.liquibase.kotlin.dsl.util.StringsUtil.splitAndTrim
 
@@ -83,7 +82,7 @@ class ModifySqlDsl(
             applyToRollback: Boolean? = null,
         ): ModifySqlDsl {
             val typedDbms: Set<String>? =
-                dbms.evalExpressionsOrNull(changeLog)?.splitAndTrim()?.toSet()
+                dbms?.evalExpressions(changeLog)?.splitAndTrim()?.toSet()
             val typedContextFilter: ContextExpression? =
                 contextFilter?.evalExpressions(changeLog)?.let {
                     ContextExpression(it)

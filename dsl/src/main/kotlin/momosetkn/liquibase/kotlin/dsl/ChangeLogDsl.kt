@@ -15,7 +15,6 @@ import liquibase.database.ObjectQuotingStrategy
 import liquibase.exception.ChangeLogParseException
 import liquibase.resource.ResourceAccessor
 import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
-import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
 import momosetkn.liquibase.kotlin.dsl.util.ReflectionUtils.loadKClass
 import momosetkn.liquibase.kotlin.dsl.util.ReflectionUtils.new
 import momosetkn.liquibase.kotlin.dsl.util.StringsUtil.splitAndTrim
@@ -94,10 +93,10 @@ class ChangeLogDsl(
                 runAlways ?: false,
                 runOnChange ?: false,
                 filePath.toString(),
-                contextFilterOrContext.evalExpressionsOrNull(changeLog),
-                dbms.evalExpressionsOrNull(changeLog),
-                runWith.evalExpressionsOrNull(changeLog),
-                runWithSpoolFile.evalExpressionsOrNull(changeLog),
+                contextFilterOrContext?.evalExpressions(changeLog),
+                dbms?.evalExpressions(changeLog),
+                runWith?.evalExpressions(changeLog),
+                runWithSpoolFile?.evalExpressions(changeLog),
                 runInTransaction ?: true,
                 enumObjectQuotingStrategy,
                 changeLog,

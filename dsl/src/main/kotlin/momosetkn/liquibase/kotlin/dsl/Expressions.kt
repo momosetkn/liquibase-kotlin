@@ -37,12 +37,4 @@ internal object Expressions {
             )
             ?: this
     }
-
-    @Deprecated(
-        "Use a non-nullable String and evalExpressions(changeLog) instead",
-        ReplaceWith("this?.evalExpressions(changeLog)")
-    )
-    fun String?.evalExpressionsOrNull(changeLog: DatabaseChangeLog): String? {
-        return this?.evalExpressions(changeLog)
-    }
 }
