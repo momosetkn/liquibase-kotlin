@@ -8,6 +8,7 @@ import liquibase.change.visitor.AddColumnChangeVisitor
 import liquibase.change.visitor.ChangeVisitorFactory
 import liquibase.changelog.ChangeSet
 import liquibase.changelog.DatabaseChangeLog
+import liquibase.changelog.DatabaseChangeLog.OnUnknownFileFormat
 import liquibase.changelog.IncludeAllFilter
 import liquibase.database.DatabaseList
 import liquibase.database.ObjectQuotingStrategy
@@ -26,6 +27,31 @@ class ChangeLogDsl(
     private val changeLog: DatabaseChangeLog,
     private val resourceAccessor: ResourceAccessor,
 ) {
+    /**
+     * Adds a new ChangeSet to the current ChangeLog.
+     * [official-document](https://docs.liquibase.com/concepts/changelogs/changeset.html)
+     *
+     * @param author The author of the ChangeSet. Required.
+     * @param id The unique identifier for the ChangeSet. Required.
+     * @param contextFilter Optional context filter for the ChangeSet.
+     * @param context Optional context for the ChangeSet.
+     * @param created Optional timestamp when the ChangeSet was created.
+     * @param dbms Optional DBMS-specific flag for executing the ChangeSet.
+     * @param failOnError Optional flag indicating whether to fail if an error occurs.
+     * @param ignore Optional flag indicating whether to ignore the ChangeSet.
+     * @param labels Optional labels for the ChangeSet.
+     * @param logicalFilePath Optional logical file path for the ChangeSet.
+     * @param objectQuotingStrategy Optional quoting strategy for the ChangeSet.
+     * @param onValidationFail Optional strategy on validation failure.
+     * @param runAlways Optional flag indicating whether to run the ChangeSet always.
+     * @param runInTransaction Optional flag indicating whether to run the ChangeSet in a transaction.
+     * @param runOnChange Optional flag indicating whether to run the ChangeSet on change.
+     * @param runOrder Optional run order for the ChangeSet.
+     * @param runWith Optional RunWith strategy for the ChangeSet.
+     * @param runWithSpoolFile Optional RunWithSpoolFile strategy for the ChangeSet.
+     * @param comment Optional comment for the ChangeSet.
+     * @param block The block containing ChangeSet DSL.
+     */
     fun changeSet(
         author: String,
         id: String,
@@ -59,7 +85,7 @@ class ChangeLogDsl(
                     )
                 }
             }
-        val filePath = logicalFilePath ?: changeLog.filePath
+        val filePath = logicalFilePath?.evalExpressions(changeLog) ?: changeLog.filePath
         val contextFilterOrContext = contextFilter ?: context
         val changeSet =
             ChangeSet(
@@ -97,6 +123,19 @@ class ChangeLogDsl(
         changeLog.addChangeSet(changeSet)
     }
 
+    /**
+     * Includes and processes the specified file in the change log.
+     * [official-document](https://docs.liquibase.com/change-types/include.html)
+     *
+     * @param file The path to the file that needs to be included. This path is evaluated for expressions. Required.
+     * @param contextFilter Optional context filter to be applied for the inclusion.
+     * @param context Optional context for the inclusion. This is the same as contextFilter.
+     * @param errorIfMissing Flag indicating whether an error should be raised if the file is missing. Defaults to true.
+     * @param ignore Flag indicating whether this inclusion should be ignored. Defaults to false.
+     * @param labels Optional labels to be applied for the inclusion.
+     * @param relativeToChangelogFile Flag indicating whether the file path is relative to the changelog file.
+     * Defaults to false.
+     */
     fun include(
         file: String,
         contextFilter: String? = null,
@@ -106,33 +145,49 @@ class ChangeLogDsl(
         labels: String? = null,
         relativeToChangelogFile: Boolean = false,
     ) {
-        val fileName =
-            changeLog
-                .changeLogParameters
-                .expandExpressions(file, changeLog)
+        val fileName = file.evalExpressions(changeLog)
         val contextFilterOrContext = contextFilter ?: context
-        val includeContexts = ContextExpression(contextFilterOrContext)
-        val typedLabels = labels?.let { Labels(it) }
+        val includeContexts = ContextExpression(contextFilterOrContext?.evalExpressions(changeLog))
+        val typedLabels = labels?.let { Labels(it.evalExpressions(changeLog)) }
 
         changeLog.include(
             fileName,
-            relativeToChangelogFile ?: false,
-            errorIfMissing ?: false,
+            relativeToChangelogFile,
+            errorIfMissing,
             resourceAccessor,
             includeContexts,
             typedLabels,
-            ignore ?: false,
-            DatabaseChangeLog.OnUnknownFileFormat.WARN, // TODO: set by user
+            ignore,
+            onUnknownFileFormat,
         )
     }
 
+    /**
+     * Includes all resources from a specified path into the change log, optionally filtering them by various criteria.
+     * [official-document](https://docs.liquibase.com/change-types/includeall.html)
+     *
+     * @param path The path from which to include all resources. This path is evaluated for expressions. Required.
+     * @param contextFilter Optional context filter to be applied for the inclusion.
+     * @param context Optional context for the inclusion. This is the same as contextFilter.
+     * @param endsWithFilter Optional filter to include only resources with a specific ending.
+     * @param errorIfMissingOrEmpty Flag indicating whether an error should be raised if no resources are found.
+     * Defaults to true.
+     * @param filter Optional custom filter function to include or exclude specific resources based on their path.
+     * @param ignore Flag indicating whether this inclusion should be ignored. Defaults to false.
+     * @param labels Optional labels to be applied for the inclusion.
+     * @param maxDepth Optional maximum depth for recursively including resources.
+     * @param minDepth Optional minimum depth for recursively including resources.
+     * @param relativeToChangelogFile Flag indicating whether the path is relative to the changelog file.
+     * Defaults to false.
+     * @param resourceComparator Optional comparator for ordering the resources.
+     */
     fun includeAll(
         path: String,
         contextFilter: String? = null,
         context: String? = null, // same to contextFilter
         endsWithFilter: String? = null,
         errorIfMissingOrEmpty: Boolean = true, // optional
-        filter: String? = null,
+        filter: ((String) -> Boolean)? = null,
         ignore: Boolean = false, // optional
         labels: String? = null,
         maxDepth: Int? = null,
@@ -140,15 +195,17 @@ class ChangeLogDsl(
         relativeToChangelogFile: Boolean = false, // optional
         resourceComparator: Any? = null,
     ) {
-        @Suppress("UNCHECKED_CAST")
         val typedResourceComparator: Comparator<String> = getComparatorByAny(resourceComparator)
         val contextFilterOrContext = contextFilter ?: context
-        val includeContexts = ContextExpression(contextFilterOrContext)
-        val typedLabels = labels?.let { Labels(it) }
+        val includeContexts = ContextExpression(contextFilterOrContext?.evalExpressions(changeLog))
+        val typedLabels = labels?.let { Labels(it.evalExpressions(changeLog)) }
+        val includeAllFilter = filter?.let {
+            IncludeAllFilter { changeLogPath -> filter(changeLogPath) }
+        }
         changeLog.includeAll(
             path.evalExpressions(changeLog),
             relativeToChangelogFile,
-            filter as IncludeAllFilter?, // FIXME
+            includeAllFilter,
             errorIfMissingOrEmpty,
             typedResourceComparator,
             resourceAccessor,
@@ -157,8 +214,8 @@ class ChangeLogDsl(
             ignore,
             minDepth ?: 0,
             maxDepth ?: Integer.MAX_VALUE,
-            endsWithFilter ?: "",
-            null, // TODO: confirm
+            endsWithFilter?.evalExpressions(changeLog) ?: "",
+            null,
         )
     }
 
@@ -307,5 +364,9 @@ class ChangeLogDsl(
             }
         } ?: Comparator.comparing { it.replace("WEB-INF/classes/", "") }
         return typedResourceComparator
+    }
+
+    companion object {
+        var onUnknownFileFormat = OnUnknownFileFormat.WARN
     }
 }
