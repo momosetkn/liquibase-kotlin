@@ -19,7 +19,7 @@ import java.nio.file.Paths
 class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
     beforeSpec {
         DatabaseServer.start()
-        KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.RESOURCE_DIR)
+        KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.TEST_RESOURCE_DIR)
         configureLiquibase {
             global {
                 general {
@@ -29,7 +29,7 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
         }
     }
     afterSpec {
-        DatabaseServer.stop()
+        DatabaseServer.clear()
     }
 
     context("Migrate and serialize") {
@@ -52,7 +52,7 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
             println("${this::class.simpleName} -- before update(2)")
             liquibaseClient.update()
             val actualSerializedChangeLogFile =
-                Paths.get(Constants.RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
+                Paths.get(Constants.TEST_RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
             val f = actualSerializedChangeLogFile.toFile()
             if (f.exists()) f.delete()
             val generateLiquibaseClient = LiquibaseClient(

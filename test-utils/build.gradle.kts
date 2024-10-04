@@ -48,3 +48,13 @@ tasks {
         }
     }
 }
+
+// To run in a separate process.
+tasks.register<JavaExec>("startH2Server") {
+    group = "Database"
+    description = "Starts the H2 Database TCP server"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("org.h2.tools.Server")
+    val port = project.findProperty("port")?.toString()!!
+    args = listOf("-tcp", "-tcpAllowOthers", "-tcpPort", port, "-trace", "-ifNotExists")
+}

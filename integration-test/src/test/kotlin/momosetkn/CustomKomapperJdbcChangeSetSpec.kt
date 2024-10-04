@@ -25,7 +25,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
         DatabaseServer.start()
     }
     afterEach {
-        DatabaseServer.stop()
+        DatabaseServer.clear()
     }
     val client = LiquibaseCommandClient {
         globalArgs {

@@ -26,7 +26,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
         }
     }
     afterSpec {
-        DatabaseServer.stop()
+        DatabaseServer.clear()
     }
 
     context("Migrate and serialize") {
@@ -49,7 +49,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
             println("${this::class.simpleName} -- before update(2)")
             liquibaseClient.update()
             val actualSerializedChangeLogFile =
-                Paths.get(Constants.RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
+                Paths.get(Constants.TEST_RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
             val f = actualSerializedChangeLogFile.toFile()
             if (f.exists()) f.delete()
             val generateLiquibaseClient = LiquibaseClient(

@@ -1,8 +1,8 @@
 package momosetkn.utils
 
-import org.h2.tools.Server
 import org.slf4j.LoggerFactory
 import java.net.ServerSocket
+import java.nio.file.Path
 import java.sql.Connection
 import java.sql.DriverManager
 import kotlin.system.measureTimeMillis
@@ -11,10 +11,12 @@ object DatabaseServer {
     private val log = LoggerFactory.getLogger(this.javaClass.name)
 
     private var container: DatabaseConfig? = null
+    private val gradlewUtils = GradlewUtils()
 
     // For a clean run every time,
-    private const val DATABASE_DIRECTORY = "./build/tmp/test"
     private const val DATABASE_NAME = "liquibase_kotlin_test"
+    private const val LAUNCH_INITIAL_WAIT = 200L
+    private const val CONFIRM_ESTABLISHED_INTERVAL = 50L
 
     // Automatically find a free port
     private val PORT = ServerSocket(0).use { socket ->
@@ -39,41 +41,43 @@ object DatabaseServer {
     }
 
     private fun createServer(): DatabaseConfig {
+        val dir = databaseDirectory()
         val databaseConfig = DatabaseConfig(
             driver = "org.h2.Driver",
-            jdbcUrl = "jdbc:h2:tcp://127.0.0.1:$PORT/$DATABASE_DIRECTORY/$DATABASE_NAME",
+            jdbcUrl = "jdbc:h2:tcp://127.0.0.1:$PORT/$dir/$DATABASE_NAME",
             username = "sa",
             password = "",
         )
-        Server.createTcpServer(
-            "-tcpPort",
-            "$PORT",
-            "-tcpAllowOthers"
-        ).start()
         Class.forName(databaseConfig.driver)
         val launchTime =
             measureTimeMillis {
-                // create db
-                val conn = DriverManager.getConnection(
-                    "jdbc:h2:$DATABASE_DIRECTORY/$DATABASE_NAME;DB_CLOSE_DELAY=-1",
-                    databaseConfig.username,
-                    databaseConfig.password
-                )
-                conn.use {
-                    checkDb(it)
-                }
+                lunchH2Server(PORT)
+                recursiveCheckDbLoop(databaseConfig)
             }
         log.info("database started in $launchTime ms")
         return databaseConfig
     }
 
     @Synchronized
-    fun stop() {
+    fun clear() {
         this.container?.also { container ->
             getConnection(container).use {
                 dropDb(it)
             }
         }
+    }
+
+    private fun lunchH2Server(port: Int): () -> Unit {
+        val command = listOfNotNull(
+            gradlewUtils.getDefaultShell(),
+            "./gradlew",
+            "test-utils:startH2Server",
+            "-Pport=$port"
+        )
+        val destroy = gradlewUtils.executeCommand(command)
+        Thread.sleep(LAUNCH_INITIAL_WAIT)
+
+        return destroy
     }
 
     fun generateDdl(): String {
@@ -91,8 +95,25 @@ object DatabaseServer {
         }
     }
 
-    private fun getConnection(container: DatabaseConfig) =
+    fun getConnection(container: DatabaseConfig) =
         DriverManager.getConnection(container.jdbcUrl, container.username, container.password)
+
+    private fun databaseDirectory() =
+        Path.of(System.getProperty("user.dir")).resolveSibling("build/tmp/test")
+
+    private tailrec fun recursiveCheckDbLoop(container: DatabaseConfig) {
+        val isSuccess = runCatching {
+            getConnection(container).use {
+                checkDb(it)
+            }
+        }.isSuccess
+        if (isSuccess) {
+            return
+        } else {
+            Thread.sleep(CONFIRM_ESTABLISHED_INTERVAL)
+            recursiveCheckDbLoop(container)
+        }
+    }
 
     private fun checkDb(conn: Connection) {
         val stmt = conn.createStatement()

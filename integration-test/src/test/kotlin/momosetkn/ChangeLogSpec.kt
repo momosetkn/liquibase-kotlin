@@ -2,7 +2,6 @@ package momosetkn
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.mpp.file
 import komapper.databasechangelog
 import momosetkn.liquibase.command.client.LiquibaseCommandClient
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
@@ -18,7 +17,7 @@ class ChangeLogSpec : FunSpec({
         DatabaseServer.start()
     }
     afterEach {
-        DatabaseServer.stop()
+        DatabaseServer.clear()
     }
     val client = LiquibaseCommandClient {
         globalArgs {
@@ -53,6 +52,43 @@ class ChangeLogSpec : FunSpec({
             val d = Meta.databasechangelog
             val result = db.runQuery {
                 QueryDsl.from(d).single()
+            }
+            result.tag shouldBe "value1_file_value3"
+        }
+    }
+
+    context("removeChangeSetProperty") {
+        InterchangeableChangeLog.set {
+            property(name = "key1", value = "value1")
+            property(name = "key2", value = "value2")
+            property(file = "ChangeLogSpec/prop.txt")
+            changeSet(author = "user", id = "100") {
+                tagDatabase("\${key1}_\${file_key3}")
+            }
+            removeChangeSetProperty(
+                change = "addColumn",
+                dbms = "",
+                remove = "key1",
+            )
+            changeSet(author = "user", id = "101") {
+                createTable(tableName = "company") {
+                    column(type = "uuid", name = "id")
+                }
+            }
+            changeSet(author = "user", id = "102") {
+                addColumn(tableName = "company") {
+                    column(type = "varchar(255)", name = "name")
+                }
+            }
+        }
+        test("can use property") {
+            subject()
+            val db = DatabaseServer.komapperDb()
+            val d = Meta.databasechangelog
+            val result = db.runQuery {
+                QueryDsl.from(d)
+                    .orderBy(d.id)
+                    .limit(1).single()
             }
             result.tag shouldBe "value1_file_value3"
         }

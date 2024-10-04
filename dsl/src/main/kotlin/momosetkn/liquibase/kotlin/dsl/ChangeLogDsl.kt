@@ -391,7 +391,7 @@ class ChangeLogDsl(
                 object : AddColumnChangeVisitor() {
                     override fun getRemove() = remove
 
-                    override fun getDbms(): Set<String?> = evaluatedDbms.splitAndTrim().toSet()
+                    override fun getDbms(): Set<String> = evaluatedDbms.splitAndTrim().toSet()
                 }
             } ?: throw ChangeLogParseException(
                 "changeVisitor: $changeVisitor is not a valid changeVisitor type",
