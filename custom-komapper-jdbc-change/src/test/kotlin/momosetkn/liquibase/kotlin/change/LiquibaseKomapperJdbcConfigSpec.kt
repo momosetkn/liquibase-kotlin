@@ -2,6 +2,7 @@ package momosetkn.liquibase.kotlin.change
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import liquibase.database.core.CockroachDatabase
 import liquibase.database.core.DB2Database
@@ -29,7 +30,7 @@ import org.komapper.dialect.oracle.jdbc.OracleJdbcDialect
 import org.komapper.dialect.postgresql.jdbc.PostgreSqlJdbcDialect
 import org.komapper.jdbc.JdbcDatabase
 import java.io.PrintWriter
-import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
 import java.sql.Connection
 import java.util.logging.Logger
 import kotlin.reflect.KClass
@@ -44,51 +45,60 @@ class LiquibaseKomapperJdbcConfigSpec : FunSpec({
         )
     }
 
+    @Suppress("MaxLineLength")
+    val errorMessage = "I could not find the `org.komapper.jdbc.JdbcDialects` that should be used. Please set the `momosetkn.liquibase.kotlin.change.LiquibaseKomapperJdbcConfig.provideJdbcDatabase`."
+
     context("CockroachDatabase") {
         test("not supported") {
-            shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<IllegalStateException> {
                 subject(CockroachDatabase::class)
             }
+            exception.message shouldBe errorMessage
         }
     }
 
     context("DB2Database") {
         test("not supported") {
-            shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<IllegalStateException> {
                 subject(DB2Database::class)
             }
+            exception.message shouldBe errorMessage
         }
     }
 
     context("Db2zDatabase") {
         test("not supported") {
-            shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<IllegalStateException> {
                 subject(Db2zDatabase::class)
             }
+            exception.message shouldBe errorMessage
         }
     }
 
     context("DerbyDatabase") {
         test("not supported") {
-            shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<IllegalStateException> {
                 subject(DerbyDatabase::class)
             }
+            exception.message shouldBe errorMessage
         }
     }
 
     context("EnterpriseDBDatabase") {
         test("not supported") {
-            shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<IllegalStateException> {
                 subject(EnterpriseDBDatabase::class)
             }
+            exception.message shouldBe errorMessage
         }
     }
 
     context("FirebirdDatabase") {
         test("not supported") {
-            shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<IllegalStateException> {
                 subject(FirebirdDatabase::class)
             }
+            exception.message shouldBe errorMessage
         }
     }
 
@@ -101,25 +111,28 @@ class LiquibaseKomapperJdbcConfigSpec : FunSpec({
 
     context("HsqlDatabase") {
         test("not supported") {
-            shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<IllegalStateException> {
                 subject(HsqlDatabase::class)
             }
+            exception.message shouldBe errorMessage
         }
     }
 
     context("InformixDatabase") {
         test("not supported") {
-            shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<IllegalStateException> {
                 subject(InformixDatabase::class)
             }
+            exception.message shouldBe errorMessage
         }
     }
 
     context("Ingres9Database") {
         test("not supported") {
-            shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<IllegalStateException> {
                 subject(Ingres9Database::class)
             }
+            exception.message shouldBe errorMessage
         }
     }
 
@@ -132,9 +145,10 @@ class LiquibaseKomapperJdbcConfigSpec : FunSpec({
 
     context("MSSQLDatabase") {
         test("not supported") {
-            shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<IllegalStateException> {
                 subject(MSSQLDatabase::class)
             }
+            exception.message shouldBe errorMessage
         }
     }
 
@@ -161,33 +175,37 @@ class LiquibaseKomapperJdbcConfigSpec : FunSpec({
 
     context("SnowflakeDatabase") {
         test("not supported") {
-            shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<IllegalStateException> {
                 subject(SnowflakeDatabase::class)
             }
+            exception.message shouldBe errorMessage
         }
     }
 
     context("SQLiteDatabase") {
         test("not supported") {
-            shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<IllegalStateException> {
                 subject(SQLiteDatabase::class)
             }
+            exception.message shouldBe errorMessage
         }
     }
 
     context("SybaseASADatabase") {
         test("not supported") {
-            shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<IllegalStateException> {
                 subject(SybaseASADatabase::class)
             }
+            exception.message shouldBe errorMessage
         }
     }
 
     context("SybaseDatabase") {
         test("not supported") {
-            shouldThrow<IllegalArgumentException> {
+            val exception = shouldThrow<IllegalStateException> {
                 subject(SybaseDatabase::class)
             }
+            exception.message shouldBe errorMessage
         }
     }
 })

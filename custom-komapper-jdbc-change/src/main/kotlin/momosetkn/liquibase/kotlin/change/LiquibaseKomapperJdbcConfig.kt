@@ -26,7 +26,11 @@ object LiquibaseKomapperJdbcConfig {
             onSuccess = { it },
             onFailure = {
                 val loader = ServiceLoader.load(JdbcDialectFactory::class.java)
-                val factory = loader.single()
+                val factory = loader.singleOrNull()
+                checkNotNull(factory) {
+                    @Suppress("MaxLineLength")
+                    "I could not find the `org.komapper.jdbc.JdbcDialects` that should be used. Please set the `${this::class.qualifiedName}.provideJdbcDatabase`."
+                }
                 factory.create()
             }
         )
