@@ -1,6 +1,10 @@
 package momosetkn.liquibase.kotlin.change.custom.exposed
 
 import liquibase.exception.ValidationErrors
+import momosetkn.liquibase.kotlin.change.custom.core.CustomRollbackableTaskChangeDefineImpl
+import momosetkn.liquibase.kotlin.change.custom.core.CustomTaskChangeDefineImpl
+import momosetkn.liquibase.kotlin.change.custom.core.ForwardOnlyTaskCustomChange
+import momosetkn.liquibase.kotlin.change.custom.core.RollbackTaskCustomChange
 import momosetkn.liquibase.kotlin.change.custom.core.addCustomChange
 import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
 
@@ -12,19 +16,21 @@ fun ChangeSetDsl.customExposedMigrationChange(
 ) {
     val change = if (rollback != null) {
         val define = CustomRollbackableTaskChangeDefineImpl(
-            execute,
-            validate,
-            rollback,
-            confirmationMessage,
+            executeBlock = execute,
+            validateBlock = validate,
+            rollbackBlock = rollback,
+            confirmationMessage = confirmationMessage,
+            transformDatabase = { it.toExposedMigrationDatabase() },
         )
-        RollbackTaskCustomExposedMigrationChange(define)
+        RollbackTaskCustomChange(define)
     } else {
         val define = CustomTaskChangeDefineImpl(
-            execute,
-            validate,
-            confirmationMessage,
+            executeBlock = execute,
+            validateBlock = validate,
+            confirmationMessage = confirmationMessage,
+            transformDatabase = { it.toExposedMigrationDatabase() },
         )
-        ForwardOnlyTaskCustomExposedMigrationChange(define)
+        ForwardOnlyTaskCustomChange(define)
     }
     addCustomChange(change)
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>ForbiddenComment:RollbackTaskCustomChange.kt$RollbackTaskCustomChange$// FIXME: CustomTaskRollback has a bug that causes it to be rolled back twice, but there is a workaround.</ID>
+  </CurrentIssues>
+</SmellBaseline>
