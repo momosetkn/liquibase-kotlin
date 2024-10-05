@@ -65,6 +65,8 @@ val libraryProjects =
             "client",
             // custom-change
             "custom-komapper-jdbc-change",
+            "custom-jooq-change",
+            "custom-change-core",
         )
     }
 configure(libraryProjects) {
