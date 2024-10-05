@@ -1,7 +1,6 @@
 val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
 val liquibaseKotlinVersion = rootProject.properties["liquibaseKotlinVersion"] as String
-val kotlinVersion = rootProject.properties["kotlinVersion"] as String
 val komapperVersion = rootProject.properties["komapperVersion"] as String
 
 dependencies {
@@ -13,8 +12,6 @@ dependencies {
     // komapper
     implementation("org.komapper:komapper-core:$komapperVersion")
     implementation("org.komapper:komapper-jdbc:$komapperVersion")
-    // reflection
-    api("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
     // test
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
