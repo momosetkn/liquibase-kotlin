@@ -29,7 +29,7 @@ import java.nio.file.Paths
 @OptIn(ExperimentalKotest::class)
 class LiquibaseClientSpec : FunSpec({
     beforeSpec {
-        KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.RESOURCE_DIR)
+        KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.TEST_RESOURCE_DIR)
     }
     beforeEach {
         DatabaseServer.start()
@@ -42,7 +42,7 @@ class LiquibaseClientSpec : FunSpec({
         }
     }
     afterEach {
-        DatabaseServer.stop()
+        DatabaseServer.clear()
     }
 
     fun liquibaseClient(changeLogFile: String? = null): LiquibaseClient {
@@ -86,7 +86,7 @@ class LiquibaseClientSpec : FunSpec({
     }
 
     context("generateChangeLog") {
-        val outputFile = File("src/main/resources/${LiquibaseClientSpec::class.simpleName}/generateChangeLog.kt")
+        val outputFile = File("src/test/resources/${LiquibaseClientSpec::class.simpleName}/generateChangeLog.kt")
         InterchangeableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 createTable(tableName = "company") {
@@ -128,7 +128,7 @@ class LiquibaseClientSpec : FunSpec({
     }
 
     context("updateCountSql").config(
-        enabled = System.getProperty("liquibaseVersion").toVersion() >= "4.29.2".toVersion()
+        enabled = System.getProperty("liquibaseVersion", "999.9.9").toVersion() >= "4.29.2".toVersion()
     ) {
         InterchangeableChangeLog.set {
             changeSet(author = "user", id = "100") {
@@ -149,7 +149,7 @@ class LiquibaseClientSpec : FunSpec({
     }
 
     context("updateToTagSql").config(
-        enabled = System.getProperty("liquibaseVersion").toVersion() >= "4.29.2".toVersion()
+        enabled = System.getProperty("liquibaseVersion", "999.9.9").toVersion() >= "4.29.2".toVersion()
     ) {
         InterchangeableChangeLog.set {
             changeSet(author = "user", id = "100") {
@@ -166,7 +166,10 @@ class LiquibaseClientSpec : FunSpec({
         }
         test("can output sql") {
             val sw = StringWriter()
-            liquibaseClient().updateToTagSql("finish", output = sw)
+            liquibaseClient().use {
+                it.updateToTagSql("finish", output = sw)
+            }
+            DatabaseServer.generateDdl()
             println(sw.toString())
             sw.toString() shouldStartWith "-- Create Database Lock Table"
         }

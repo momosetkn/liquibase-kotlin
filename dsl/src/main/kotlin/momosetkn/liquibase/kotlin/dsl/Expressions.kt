@@ -10,13 +10,9 @@ internal object Expressions {
     @Suppress("UNCHECKED_CAST")
     fun <E : Any> E.tryEvalExpressions(changeLog: DatabaseChangeLog): E {
         return when (this) {
-            is String -> checkNotNull(this.evalExpressions(changeLog))
+            is String -> this.evalExpressions(changeLog) as E
             else -> this
-        } as E
-    }
-
-    fun <E : Any> E?.tryEvalExpressionsOrNull(changeLog: DatabaseChangeLog): E? {
-        return this?.tryEvalExpressions(changeLog)
+        }
     }
 
     // Any is because it is for DSL.
@@ -36,9 +32,5 @@ internal object Expressions {
                 changeLog,
             )
             ?: this
-    }
-
-    fun String?.evalExpressionsOrNull(changeLog: DatabaseChangeLog): String? {
-        return this?.evalExpressions(changeLog)
     }
 }

@@ -4,7 +4,6 @@ import liquibase.change.AddColumnConfig
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.statement.DatabaseFunction
 import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
-import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
 import momosetkn.liquibase.kotlin.dsl.util.DateUtils.toDate
 import java.math.BigInteger
 import java.time.temporal.TemporalAccessor
@@ -52,7 +51,7 @@ class AddColumnDsl(
 
         column.name = name.evalExpressions(changeLog)
         column.type = type?.evalExpressions(changeLog)
-        column.value = value.evalExpressionsOrNull(changeLog)
+        column.value = value?.evalExpressions(changeLog)
         afterColumn?.also {
             column.afterColumn = afterColumn.evalExpressions(changeLog)
         }
@@ -61,26 +60,26 @@ class AddColumnDsl(
             column.beforeColumn = it.evalExpressions(changeLog)
         }
         column.computed = computed
-        column.defaultValue = defaultValue.evalExpressionsOrNull(changeLog)
+        column.defaultValue = defaultValue?.evalExpressions(changeLog)
         column.defaultValueBoolean = defaultValueBoolean
         defaultValueComputed?.also {
             column.defaultValueComputed = DatabaseFunction(it)
         }
-        column.defaultValueConstraintName = defaultValueConstraintName.evalExpressionsOrNull(changeLog)
+        column.defaultValueConstraintName = defaultValueConstraintName?.evalExpressions(changeLog)
         defaultValueDate?.also {
             column.defaultValueDate = it.toDate()
         }
         column.defaultValueNumeric = defaultValueNumeric
         column.descending = descending
         column.encoding = encoding
-        column.generationType = generationType.evalExpressionsOrNull(changeLog)
+        column.generationType = generationType?.evalExpressions(changeLog)
         incrementBy?.also {
             column.incrementBy = BigInteger.valueOf(it)
         }
         position?.also {
             column.position = position
         }
-        column.remarks = remarks.evalExpressionsOrNull(changeLog)
+        column.remarks = remarks?.evalExpressions(changeLog)
         startWith?.also {
             column.startWith = BigInteger.valueOf(it)
         }

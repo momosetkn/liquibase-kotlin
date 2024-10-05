@@ -1,5 +1,5 @@
 package momosetkn.utils
 
 object Constants {
-    const val RESOURCE_DIR = "src/main/resources"
+    const val TEST_RESOURCE_DIR = "src/test/resources"
 }

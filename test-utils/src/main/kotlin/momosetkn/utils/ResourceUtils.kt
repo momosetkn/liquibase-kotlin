@@ -10,5 +10,5 @@ object ResourceUtils {
             .readAllBytes()
             .let { String(it) }
     fun getResourceFileAsString(path: String) =
-        Paths.get(Constants.RESOURCE_DIR, path).toFile().readText()
+        Paths.get(Constants.TEST_RESOURCE_DIR, path).toFile().readText()
 }

@@ -3,7 +3,6 @@ package momosetkn.liquibase.kotlin.dsl
 import liquibase.change.ColumnConfig
 import liquibase.changelog.DatabaseChangeLog
 import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressions
-import momosetkn.liquibase.kotlin.dsl.Expressions.evalExpressionsOrNull
 
 @ChangeLogDslMarker
 class WhereParamsDsl(
@@ -24,7 +23,7 @@ class WhereParamsDsl(
     ) {
         val columnConfig = ColumnConfig()
         columnConfig.name = name.evalExpressions(changeLog)
-        columnConfig.value = value.evalExpressionsOrNull(changeLog)
+        columnConfig.value = value?.evalExpressions(changeLog)
 
         params.add(columnConfig)
     }

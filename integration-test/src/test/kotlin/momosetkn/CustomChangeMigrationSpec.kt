@@ -13,10 +13,10 @@ import java.nio.file.Paths
 class CustomChangeMigrationSpec : FunSpec({
     beforeSpec {
         DatabaseServer.start()
-        KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.RESOURCE_DIR)
+        KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.TEST_RESOURCE_DIR)
     }
     afterSpec {
-        DatabaseServer.stop()
+        DatabaseServer.clear()
     }
 
     context("Migrate and serialize") {
