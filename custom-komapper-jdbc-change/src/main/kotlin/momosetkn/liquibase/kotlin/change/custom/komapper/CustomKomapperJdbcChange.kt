@@ -20,7 +20,7 @@ fun ChangeSetDsl.customKomapperJdbcChange(
             validateBlock = validate,
             rollbackBlock = rollback,
             confirmationMessage = confirmationMessage,
-            transformDatabase = { it.toKomapperJdbcDatabase() },
+            transformDatabase = ::transformDatabase,
         )
         RollbackTaskCustomChange(define)
     } else {
@@ -28,9 +28,15 @@ fun ChangeSetDsl.customKomapperJdbcChange(
             executeBlock = execute,
             validateBlock = validate,
             confirmationMessage = confirmationMessage,
-            transformDatabase = { it.toKomapperJdbcDatabase() },
+            transformDatabase = ::transformDatabase,
         )
         ForwardOnlyTaskCustomChange(define)
     }
     addCustomChange(change)
+}
+
+private fun transformDatabase(liquibaseDatabase: liquibase.database.Database): org.komapper.jdbc.JdbcDatabase {
+    val datasource = liquibaseDatabase.toJavaxSqlDataSource()
+    val database = LiquibaseKomapperJdbcConfig.provideJdbcDatabase(datasource, liquibaseDatabase.shortName)
+    return database
 }

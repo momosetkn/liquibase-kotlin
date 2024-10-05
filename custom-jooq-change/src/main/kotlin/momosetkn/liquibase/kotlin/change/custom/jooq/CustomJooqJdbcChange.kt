@@ -6,6 +6,7 @@ import momosetkn.liquibase.kotlin.change.custom.core.CustomTaskChangeDefineImpl
 import momosetkn.liquibase.kotlin.change.custom.core.ForwardOnlyTaskCustomChange
 import momosetkn.liquibase.kotlin.change.custom.core.RollbackTaskCustomChange
 import momosetkn.liquibase.kotlin.change.custom.core.addCustomChange
+import momosetkn.liquibase.kotlin.change.custom.komapper.toJavaxSqlDataSource
 import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
 
 fun ChangeSetDsl.customJooqChange(
@@ -20,7 +21,7 @@ fun ChangeSetDsl.customJooqChange(
             validateBlock = validate,
             rollbackBlock = rollback,
             confirmationMessage = confirmationMessage,
-            transformDatabase = { it.toJooqDSLContext() },
+            transformDatabase = ::transformDatabase,
         )
         RollbackTaskCustomChange(define)
     } else {
@@ -28,9 +29,15 @@ fun ChangeSetDsl.customJooqChange(
             executeBlock = execute,
             validateBlock = validate,
             confirmationMessage = confirmationMessage,
-            transformDatabase = { it.toJooqDSLContext() },
+            transformDatabase = ::transformDatabase,
         )
         ForwardOnlyTaskCustomChange(define)
     }
     addCustomChange(change)
+}
+
+private fun transformDatabase(liquibaseDatabase: liquibase.database.Database): org.jooq.DSLContext {
+    val datasource = liquibaseDatabase.toJavaxSqlDataSource()
+    val database = LiquibaseJooqConfig.provideDSLContext(datasource, liquibaseDatabase.shortName)
+    return database
 }
