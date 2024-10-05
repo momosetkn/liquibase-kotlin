@@ -114,6 +114,41 @@ changeSet(author = "momose (generated)", id = "1715520327312-40") {
 }
 ```
 
+### Use jOOQ on customChange
+
+`liquibase-kotlin-custom-jooq-change` module can use [jOOQ](https://www.jooq.org/) on customChange
+
+> [!NOTE]
+> can use both the `kotlin-script` and `kotlin-compiled`.
+
+add bellow dependencies.
+
+```kotlin
+implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-jooq-change:$liquibaseKotlinVersion")
+```
+
+changeSet example
+```kotlin
+changeSet(author = "momose (generated)", id = "1715520327312-40") {
+    customJooqChange(
+        execute = { db ->
+            val query = 
+                """
+                CREATE TABLE created_by_komapper (
+                    id uuid NOT NULL,
+                    name character varying(256)
+                );
+                """.trimIndent()
+            db.execute(query)
+        },
+        rollback = { db ->
+            val query = "DROP TABLE created_by_komapper"
+            db.execute(query)
+        },
+    )
+}
+```
+
 ## Prerequisite
 
 - JDK 17 or later

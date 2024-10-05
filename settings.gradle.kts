@@ -29,4 +29,7 @@ include("compiled-serializer")
 // client
 include("command-client")
 include("client")
+// custom-change
+include("custom-change-core")
 include("custom-komapper-jdbc-change")
+include("custom-jooq-change")

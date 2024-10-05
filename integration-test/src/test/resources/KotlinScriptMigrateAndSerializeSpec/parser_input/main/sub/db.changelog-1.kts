@@ -74,4 +74,23 @@ databaseChangeLog {
             },
         )
     }
+
+    changeSet(author = "momose (generated)", id = "1715520327312-50") {
+        customJooqChange(
+            execute = { db ->
+                val query =
+                    """
+                    CREATE TABLE created_by_jooq (
+                        id uuid NOT NULL,
+                        name character varying(256)
+                    );
+                    """.trimIndent()
+                db.execute(query)
+            },
+            rollback = { db ->
+                val query = "DROP TABLE created_by_jooq"
+                db.execute(query)
+            },
+        )
+    }
 }

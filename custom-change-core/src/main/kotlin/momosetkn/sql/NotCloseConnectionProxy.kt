@@ -6,7 +6,7 @@ import java.util.concurrent.Executor
 /**
  * Not close connection.
  * Closed by liquibase.
- * therefore, not close in custom-komappaer-jdbc-change.
+ * therefore, not close in custom-change.
  */
 @Suppress("TooManyFunctions")
 class NotCloseConnectionProxy(

@@ -1,4 +1,4 @@
-package momosetkn.liquibase.kotlin.change
+package momosetkn.liquibase.kotlin.change.custom.komapper
 
 import liquibase.change.custom.CustomChange
 import liquibase.change.custom.CustomTaskChange
@@ -6,7 +6,7 @@ import liquibase.database.Database
 import liquibase.exception.ValidationErrors
 import liquibase.resource.ResourceAccessor
 
-class ForwardOnlyTaskCustomChange(
+class ForwardOnlyTaskCustomKomapperJdbcChange(
     private val define: CustomTaskChangeDefineImpl,
 ) : CustomChange, CustomTaskChange {
     private var resourceAccessor: ResourceAccessor? = null

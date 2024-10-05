@@ -1,4 +1,4 @@
-package momosetkn.liquibase.kotlin.change
+package momosetkn.liquibase.kotlin.change.custom.komapper
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.types.shouldBeInstanceOf

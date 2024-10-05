@@ -1,9 +1,7 @@
-package momosetkn.liquibase.kotlin.change
+package momosetkn.liquibase.kotlin.change.custom.jooq
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import liquibase.database.core.CockroachDatabase
 import liquibase.database.core.DB2Database
 import liquibase.database.core.Db2zDatabase
@@ -23,189 +21,154 @@ import liquibase.database.core.SQLiteDatabase
 import liquibase.database.core.SnowflakeDatabase
 import liquibase.database.core.SybaseASADatabase
 import liquibase.database.core.SybaseDatabase
-import org.komapper.dialect.h2.jdbc.H2JdbcDialect
-import org.komapper.dialect.mariadb.jdbc.MariaDbJdbcDialect
-import org.komapper.dialect.mysql.jdbc.MySqlJdbcDialect
-import org.komapper.dialect.oracle.jdbc.OracleJdbcDialect
-import org.komapper.dialect.postgresql.jdbc.PostgreSqlJdbcDialect
-import org.komapper.jdbc.JdbcDatabase
+import org.jooq.DSLContext
+import org.jooq.SQLDialect
 import java.io.PrintWriter
-import java.lang.IllegalStateException
 import java.sql.Connection
 import java.util.logging.Logger
 import kotlin.reflect.KClass
 import liquibase.database.Database as LiquibaseDatabase
 
-class LiquibaseKomapperJdbcConfigSpec : FunSpec({
-    fun subject(clazz: KClass<out LiquibaseDatabase>): JdbcDatabase {
+class LiquibaseJooqConfigSpec : FunSpec({
+    fun subject(clazz: KClass<out LiquibaseDatabase>): DSLContext {
         val liquibaseDatabase = clazz.constructors.find { it.parameters.isEmpty() }!!.call()
-        return LiquibaseKomapperJdbcConfig.defaultProvideJdbcDatabase(
+        return LiquibaseJooqConfig.defaultProvideDSLContext(
             javaxSqlDataSource = MockDataSource,
             liquibaseDatabaseShortName = liquibaseDatabase.shortName
         )
     }
 
-    @Suppress("MaxLineLength")
-    val errorMessage = "I could not find the `org.komapper.jdbc.JdbcDialects` that should be used. Please set the `momosetkn.liquibase.kotlin.change.LiquibaseKomapperJdbcConfig.provideJdbcDatabase`."
-
     context("CockroachDatabase") {
         test("not supported") {
-            val exception = shouldThrow<IllegalStateException> {
-                subject(CockroachDatabase::class)
-            }
-            exception.message shouldBe errorMessage
+            val actual = subject(CockroachDatabase::class)
+            actual.dialect() shouldBe SQLDialect.DEFAULT
         }
     }
 
     context("DB2Database") {
         test("not supported") {
-            val exception = shouldThrow<IllegalStateException> {
-                subject(DB2Database::class)
-            }
-            exception.message shouldBe errorMessage
+            val actual = subject(DB2Database::class)
+            actual.dialect() shouldBe SQLDialect.DEFAULT
         }
     }
 
     context("Db2zDatabase") {
         test("not supported") {
-            val exception = shouldThrow<IllegalStateException> {
-                subject(Db2zDatabase::class)
-            }
-            exception.message shouldBe errorMessage
+            val actual = subject(Db2zDatabase::class)
+            actual.dialect() shouldBe SQLDialect.DEFAULT
         }
     }
 
     context("DerbyDatabase") {
-        test("not supported") {
-            val exception = shouldThrow<IllegalStateException> {
-                subject(DerbyDatabase::class)
-            }
-            exception.message shouldBe errorMessage
+        test("supported") {
+            val actual = subject(DerbyDatabase::class)
+            actual.dialect() shouldBe SQLDialect.DERBY
         }
     }
 
     context("EnterpriseDBDatabase") {
         test("not supported") {
-            val exception = shouldThrow<IllegalStateException> {
-                subject(EnterpriseDBDatabase::class)
-            }
-            exception.message shouldBe errorMessage
+            val actual = subject(EnterpriseDBDatabase::class)
+            actual.dialect() shouldBe SQLDialect.DEFAULT
         }
     }
 
     context("FirebirdDatabase") {
-        test("not supported") {
-            val exception = shouldThrow<IllegalStateException> {
-                subject(FirebirdDatabase::class)
-            }
-            exception.message shouldBe errorMessage
+        test("supported") {
+            val actual = subject(FirebirdDatabase::class)
+            actual.dialect() shouldBe SQLDialect.FIREBIRD
         }
     }
 
     context("H2Database") {
         test("supported") {
             val actual = subject(H2Database::class)
-            actual.config.dialect.shouldBeInstanceOf<H2JdbcDialect>()
+            actual.dialect() shouldBe SQLDialect.H2
         }
     }
 
     context("HsqlDatabase") {
-        test("not supported") {
-            val exception = shouldThrow<IllegalStateException> {
-                subject(HsqlDatabase::class)
-            }
-            exception.message shouldBe errorMessage
+        test("supported") {
+            val actual = subject(HsqlDatabase::class)
+            actual.dialect() shouldBe SQLDialect.HSQLDB
         }
     }
 
     context("InformixDatabase") {
         test("not supported") {
-            val exception = shouldThrow<IllegalStateException> {
-                subject(InformixDatabase::class)
-            }
-            exception.message shouldBe errorMessage
+            val actual = subject(InformixDatabase::class)
+            actual.dialect() shouldBe SQLDialect.DEFAULT
         }
     }
 
     context("Ingres9Database") {
         test("not supported") {
-            val exception = shouldThrow<IllegalStateException> {
-                subject(Ingres9Database::class)
-            }
-            exception.message shouldBe errorMessage
+            val actual = subject(Ingres9Database::class)
+            actual.dialect() shouldBe SQLDialect.DEFAULT
         }
     }
 
     context("MariaDBDatabase") {
         test("supported") {
             val actual = subject(MariaDBDatabase::class)
-            actual.config.dialect.shouldBeInstanceOf<MariaDbJdbcDialect>()
+            actual.dialect() shouldBe SQLDialect.MARIADB
         }
     }
 
     context("MSSQLDatabase") {
         test("not supported") {
-            val exception = shouldThrow<IllegalStateException> {
-                subject(MSSQLDatabase::class)
-            }
-            exception.message shouldBe errorMessage
+            val actual = subject(MSSQLDatabase::class)
+            actual.dialect() shouldBe SQLDialect.DEFAULT
         }
     }
 
     context("MySQLDatabase") {
         test("supported") {
             val actual = subject(MySQLDatabase::class)
-            actual.config.dialect.shouldBeInstanceOf<MySqlJdbcDialect>()
+            actual.dialect() shouldBe SQLDialect.MYSQL
         }
     }
 
     context("OracleDatabase") {
         test("supported") {
             val actual = subject(OracleDatabase::class)
-            actual.config.dialect.shouldBeInstanceOf<OracleJdbcDialect>()
+            actual.dialect() shouldBe SQLDialect.DEFAULT
         }
     }
 
     context("PostgresDatabase") {
         test("supported") {
             val actual = subject(PostgresDatabase::class)
-            actual.config.dialect.shouldBeInstanceOf<PostgreSqlJdbcDialect>()
+            actual.dialect() shouldBe SQLDialect.POSTGRES
         }
     }
 
     context("SnowflakeDatabase") {
         test("not supported") {
-            val exception = shouldThrow<IllegalStateException> {
-                subject(SnowflakeDatabase::class)
-            }
-            exception.message shouldBe errorMessage
+            val actual = subject(SnowflakeDatabase::class)
+            actual.dialect() shouldBe SQLDialect.DEFAULT
         }
     }
 
     context("SQLiteDatabase") {
         test("not supported") {
-            val exception = shouldThrow<IllegalStateException> {
-                subject(SQLiteDatabase::class)
-            }
-            exception.message shouldBe errorMessage
+            val actual = subject(SQLiteDatabase::class)
+            actual.dialect() shouldBe SQLDialect.SQLITE
         }
     }
 
     context("SybaseASADatabase") {
         test("not supported") {
-            val exception = shouldThrow<IllegalStateException> {
+            val actual =
                 subject(SybaseASADatabase::class)
-            }
-            exception.message shouldBe errorMessage
+            actual.dialect() shouldBe SQLDialect.DEFAULT
         }
     }
 
     context("SybaseDatabase") {
         test("not supported") {
-            val exception = shouldThrow<IllegalStateException> {
-                subject(SybaseDatabase::class)
-            }
-            exception.message shouldBe errorMessage
+            val actual = subject(SybaseDatabase::class)
+            actual.dialect() shouldBe SQLDialect.DEFAULT
         }
     }
 })

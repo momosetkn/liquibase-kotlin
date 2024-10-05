@@ -3,11 +3,10 @@ package momosetkn
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import komapper.Company2
 import komapper.company2
 import liquibase.exception.CommandExecutionException
 import momosetkn.liquibase.command.client.LiquibaseCommandClient
-import momosetkn.liquibase.kotlin.change.custom.komapper.customKomapperJdbcChange
+import momosetkn.liquibase.kotlin.change.custom.jooq.customJooqChange
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
@@ -15,12 +14,13 @@ import momosetkn.utils.DatabaseServer
 import momosetkn.utils.InterchangeableChangeLog
 import momosetkn.utils.set
 import momosetkn.utils.shouldMatchWithoutLineBreaks
+import org.jooq.impl.DSL
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.query.single
 import java.util.UUID
 
-class CustomKomapperJdbcChangeSetSpec : FunSpec({
+class CustomJooqChangeSetSpec : FunSpec({
     beforeEach {
         DatabaseServer.start()
     }
@@ -49,34 +49,31 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
         val c = Meta.company2
         InterchangeableChangeLog.set {
             changeSet(author = "momose", id = "100-10") {
-                customKomapperJdbcChange(
+                customJooqChange(
                     execute = { db ->
-                        val query = QueryDsl.executeScript(
+                        val query =
                             """
                                 CREATE TABLE company2 (
                                     id uuid primary key,
                                     name character varying(255)
                                 );
                             """.trimIndent()
-                        )
-                        db.runQuery(query)
+                        db.execute(query)
                     },
                     rollback = { db ->
-                        val query = QueryDsl.executeScript("DROP TABLE company2")
-                        db.runQuery(query)
+                        val query = "DROP TABLE company2"
+                        db.execute(query)
                     },
                 )
             }
             changeSet(author = "momose", id = "100-20") {
-                customKomapperJdbcChange(
+                customJooqChange(
                     execute = { db ->
-                        val query = QueryDsl.insert(c).single(
-                            Company2(
-                                id = UUID.randomUUID(),
-                                name = "CreatedByKomapper_name",
-                            )
-                        )
-                        db.runQuery(query)
+                        val query = db
+                            .insertInto(DSL.table("company2"))
+                            .set(DSL.field("id", UUID::class.java), UUID.randomUUID())
+                            .set(DSL.field("name", String::class.java), "CreatedByJooq_name")
+                        query.execute()
                     },
                 )
             }
@@ -95,7 +92,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
             val db = DatabaseServer.komapperDb()
             val query = QueryDsl.from(c).single()
             val item = db.runQuery(query)
-            item.name shouldBe "CreatedByKomapper_name"
+            item.name shouldBe "CreatedByJooq_name"
         }
     }
 
@@ -119,6 +116,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
                 tag = startedTag,
             )
         }
+
         val c = Meta.company2
         context("rollback arg is given") {
             InterchangeableChangeLog.set {
@@ -126,38 +124,34 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
                     tagDatabase(startedTag)
                 }
                 changeSet(author = "momose", id = "100-10") {
-                    customKomapperJdbcChange(
+                    customJooqChange(
                         execute = { db ->
-                            val query = QueryDsl.executeScript(
-                                """
+                            val query = """
                                     CREATE TABLE company2 (
                                         id uuid primary key,
                                         name character varying(255)
                                     );
-                                """.trimIndent()
-                            )
-                            db.runQuery(query)
+                            """.trimIndent()
+                            db.execute(query)
                         },
                         rollback = { db ->
-                            val query = QueryDsl.executeScript("DROP TABLE company2")
-                            db.runQuery(query)
+                            val query = "DROP TABLE company2"
+                            db.execute(query)
                         },
                     )
                 }
                 changeSet(author = "momose", id = "100-20") {
-                    customKomapperJdbcChange(
+                    customJooqChange(
                         execute = { db ->
-                            val query = QueryDsl.insert(c).single(
-                                Company2(
-                                    id = UUID.randomUUID(),
-                                    name = "CreatedByKomapper_name",
-                                )
-                            )
-                            db.runQuery(query)
+                            val query = db
+                                .insertInto(DSL.table("company2"))
+                                .set(DSL.field("id", UUID::class.java), UUID.randomUUID())
+                                .set(DSL.field("name", String::class.java), "CreatedByJooq_name")
+                            query.execute()
                         },
                         rollback = { db ->
-                            val query = QueryDsl.delete(c).all()
-                            db.runQuery(query)
+                            val query = "truncate table company2"
+                            db.execute(query)
                         }
                     )
                 }
@@ -173,34 +167,31 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
                     tagDatabase(startedTag)
                 }
                 changeSet(author = "momose", id = "100-10") {
-                    customKomapperJdbcChange(
+                    customJooqChange(
                         execute = { db ->
-                            val query = QueryDsl.executeScript(
+                            val query =
                                 """
                                     CREATE TABLE company2 (
                                         id uuid primary key,
                                         name character varying(255)
                                     );
                                 """.trimIndent()
-                            )
-                            db.runQuery(query)
+                            db.execute(query)
                         },
                         rollback = { db ->
-                            val query = QueryDsl.executeScript("DROP TABLE company2")
-                            db.runQuery(query)
+                            val query = "DROP TABLE company2"
+                            db.execute(query)
                         },
                     )
                 }
                 changeSet(author = "momose", id = "100-20") {
-                    customKomapperJdbcChange(
+                    customJooqChange(
                         execute = { db ->
-                            val query = QueryDsl.insert(c).single(
-                                Company2(
-                                    id = UUID.randomUUID(),
-                                    name = "CreatedByKomapper_name",
-                                )
-                            )
-                            db.runQuery(query)
+                            val query = db
+                                .insertInto(DSL.table("company2"))
+                                .set(DSL.field("id", UUID::class.java), UUID.randomUUID())
+                                .set(DSL.field("name", String::class.java), "CreatedByJooq_name")
+                            query.execute()
                         }
                     )
                 }
