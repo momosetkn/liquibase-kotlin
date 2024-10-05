@@ -361,12 +361,13 @@ class ChangeLogDsl(
     }
 
     /**
-     * Removes a specific property from a ChangeSet in the change log based on the given parameters.
-     * [official-document](https://docs.liquibase.com/concepts/changelogs/property-substitution.html)
+     * Removes a specific property from a change log based on the given parameters.
+     * It exists to remove properties that are not supported by the DBMS.
+     * [official-document](https://docs.liquibase.com/change-types/remove-change-set-property.html)
      *
-     * @param change The identifier of the change to modify.
-     * @param dbms The database management system for which the property is being removed.
-     * @param remove The property to be removed from the ChangeSet.
+     * @param change type of change. Only support 'addColumn'.
+     * @param dbms database name. Values such as 'all or none' are also available.
+     * @param remove The property to be removed from the Change.
      */
     fun removeChangeSetProperty(
         change: String,
@@ -384,8 +385,8 @@ class ChangeLogDsl(
                 ?: throw ChangeLogParseException(
                     "DatabaseChangeLog: $change is not a valid change type",
                 )
-        val overrideChangeVisitor =
-            (changeVisitor as? AddColumnChangeVisitor)?.let {
+        val overrideChangeVisitor = when (changeVisitor) {
+            is AddColumnChangeVisitor ->
                 // cannot use kotlin by(delegate).
                 // because AddColumnChangeVisitor is an abstract class.
                 object : AddColumnChangeVisitor() {
@@ -393,9 +394,10 @@ class ChangeLogDsl(
 
                     override fun getDbms(): Set<String> = evaluatedDbms.splitAndTrim().toSet()
                 }
-            } ?: throw ChangeLogParseException(
+            else -> throw ChangeLogParseException(
                 "changeVisitor: $changeVisitor is not a valid changeVisitor type",
             )
+        }
 
         changeLog.changeVisitors.add(overrideChangeVisitor)
     }
