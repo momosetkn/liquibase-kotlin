@@ -1,7 +1,7 @@
 package momosetkn.liquibase.kotlin.change.custom.jooq
 
 import liquibase.exception.ValidationErrors
-import momosetkn.liquibase.kotlin.change.custom.komapper.addCustomChange
+import momosetkn.liquibase.kotlin.change.custom.core.addCustomChange
 import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
 
 fun ChangeSetDsl.customJooqChange(

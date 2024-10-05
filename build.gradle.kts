@@ -67,6 +67,7 @@ val libraryProjects =
             "custom-komapper-jdbc-change",
             "custom-jooq-change",
             "custom-change-core",
+            "custom-exposed-migration-change",
         )
     }
 configure(libraryProjects) {

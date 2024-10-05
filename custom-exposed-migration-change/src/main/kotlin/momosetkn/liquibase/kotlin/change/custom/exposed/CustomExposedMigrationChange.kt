@@ -1,14 +1,14 @@
-package momosetkn.liquibase.kotlin.change.custom.komapper
+package momosetkn.liquibase.kotlin.change.custom.exposed
 
 import liquibase.exception.ValidationErrors
 import momosetkn.liquibase.kotlin.change.custom.core.addCustomChange
 import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
 
-fun ChangeSetDsl.customKomapperJdbcChange(
-    confirmationMessage: String = "Executed CustomKomapperChange.",
-    rollback: ((org.komapper.jdbc.JdbcDatabase) -> Unit)? = null,
-    validate: (org.komapper.jdbc.JdbcDatabase) -> ValidationErrors = { ValidationErrors() },
-    execute: (org.komapper.jdbc.JdbcDatabase) -> Unit,
+fun ChangeSetDsl.customExposedMigrationChange(
+    confirmationMessage: String = "Executed CustomExposedMigrationChange.",
+    rollback: ((org.jetbrains.exposed.sql.Database) -> Unit)? = null,
+    validate: (org.jetbrains.exposed.sql.Database) -> ValidationErrors = { ValidationErrors() },
+    execute: (org.jetbrains.exposed.sql.Database) -> Unit,
 ) {
     val change = if (rollback != null) {
         val define = CustomRollbackableTaskChangeDefineImpl(
@@ -17,14 +17,14 @@ fun ChangeSetDsl.customKomapperJdbcChange(
             rollback,
             confirmationMessage,
         )
-        RollbackTaskCustomKomapperJdbcChange(define)
+        RollbackTaskCustomExposedMigrationChange(define)
     } else {
         val define = CustomTaskChangeDefineImpl(
             execute,
             validate,
             confirmationMessage,
         )
-        ForwardOnlyTaskCustomKomapperJdbcChange(define)
+        ForwardOnlyTaskCustomExposedMigrationChange(define)
     }
     addCustomChange(change)
 }

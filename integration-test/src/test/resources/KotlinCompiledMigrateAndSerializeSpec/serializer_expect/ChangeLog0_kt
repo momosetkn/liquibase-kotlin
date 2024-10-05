@@ -13,6 +13,17 @@ class ChangeLog0 : KotlinCompiledDatabaseChangeLog({
     }
 
     changeSet(author = "**********", id = "*************-2") {
+        createTable(tableName = "CREATED_BY_EXPOSED") {
+            column(autoIncrement = true, name = "ID", type = "INT") {
+                constraints(nullable = false, primaryKey = true, primaryKeyName = "CONSTRAINT_8")
+            }
+            column(name = "name", type = "VARCHAR(256)") {
+                constraints(nullable = false)
+            }
+        }
+    }
+
+    changeSet(author = "**********", id = "*************-3") {
         createTable(tableName = "CREATED_BY_JOOQ") {
             column(name = "ID", type = "UUID") {
                 constraints(nullable = false)
@@ -21,7 +32,7 @@ class ChangeLog0 : KotlinCompiledDatabaseChangeLog({
         }
     }
 
-    changeSet(author = "**********", id = "*************-3") {
+    changeSet(author = "**********", id = "*************-4") {
         createTable(tableName = "CREATED_BY_KOMAPPER") {
             column(name = "ID", type = "UUID") {
                 constraints(nullable = false)
@@ -30,7 +41,7 @@ class ChangeLog0 : KotlinCompiledDatabaseChangeLog({
         }
     }
 
-    changeSet(author = "**********", id = "*************-4") {
+    changeSet(author = "**********", id = "*************-5") {
         createTable(tableName = "EMPLOYEE") {
             column(name = "ID", type = "UUID") {
                 constraints(nullable = false, primaryKey = true, primaryKeyName = "PK_EMPLOYEE")
@@ -45,13 +56,13 @@ class ChangeLog0 : KotlinCompiledDatabaseChangeLog({
         }
     }
 
-    changeSet(author = "**********", id = "*************-5") {
+    changeSet(author = "**********", id = "*************-6") {
         createIndex(associatedWith = "", indexName = "EMPLOYEE_COMPANY_ID_FKEY_INDEX_21", tableName = "EMPLOYEE") {
             column(name = "COMPANY_ID")
         }
     }
 
-    changeSet(author = "**********", id = "*************-6") {
+    changeSet(author = "**********", id = "*************-7") {
         addForeignKeyConstraint(baseColumnNames = "COMPANY_ID", baseTableName = "EMPLOYEE", constraintName = "EMPLOYEE_COMPANY_ID_FKEY", deferrable = false, initiallyDeferred = false, onDelete = "CASCADE", onUpdate = "RESTRICT", referencedColumnNames = "ID", referencedTableName = "COMPANY", validate = true)
     }
 

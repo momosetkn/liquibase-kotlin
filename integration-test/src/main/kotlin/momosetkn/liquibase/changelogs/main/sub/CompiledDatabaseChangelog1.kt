@@ -1,8 +1,12 @@
 package momosetkn.liquibase.changelogs.main.sub
 
+import momosetkn.liquibase.kotlin.change.custom.exposed.customExposedMigrationChange
 import momosetkn.liquibase.kotlin.change.custom.jooq.customJooqChange
 import momosetkn.liquibase.kotlin.change.custom.komapper.customKomapperJdbcChange
 import momosetkn.liquibase.kotlin.parser.KotlinCompiledDatabaseChangeLog
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.komapper.core.dsl.QueryDsl
 
 class CompiledDatabaseChangelog1 : KotlinCompiledDatabaseChangeLog({
@@ -97,6 +101,27 @@ class CompiledDatabaseChangelog1 : KotlinCompiledDatabaseChangeLog({
             rollback = { db ->
                 val query = "DROP TABLE created_by_jooq"
                 db.execute(query)
+            },
+        )
+    }
+
+    changeSet(author = "momose (generated)", id = "1715520327312-60") {
+        @Suppress("MagicNumber")
+        val createdByJooq = object : Table("created_by_exposed") {
+            val id = integer("id").autoIncrement()
+            val name = varchar("name", 256)
+            override val primaryKey = PrimaryKey(id)
+        }
+        customExposedMigrationChange(
+            execute = { db ->
+                transaction(db) {
+                    SchemaUtils.create(createdByJooq)
+                }
+            },
+            rollback = { db ->
+                transaction(db) {
+                    SchemaUtils.drop(createdByJooq)
+                }
             },
         )
     }
