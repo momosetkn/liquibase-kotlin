@@ -1,5 +1,6 @@
 package momosetkn.liquibase.changelogs.main.sub
 
+import momosetkn.liquibase.kotlin.change.custom.jooq.customJooqChange
 import momosetkn.liquibase.kotlin.change.custom.komapper.customKomapperJdbcChange
 import momosetkn.liquibase.kotlin.parser.KotlinCompiledDatabaseChangeLog
 import org.komapper.core.dsl.QueryDsl
@@ -77,6 +78,25 @@ class CompiledDatabaseChangelog1 : KotlinCompiledDatabaseChangeLog({
             rollback = { db ->
                 val query = QueryDsl.executeScript("DROP TABLE created_by_komapper")
                 db.runQuery(query)
+            },
+        )
+    }
+
+    changeSet(author = "momose (generated)", id = "1715520327312-50") {
+        customJooqChange(
+            execute = { db ->
+                val query =
+                    """
+                    CREATE TABLE created_by_jooq (
+                        id uuid NOT NULL,
+                        name character varying(256)
+                    );
+                    """.trimIndent()
+                db.execute(query)
+            },
+            rollback = { db ->
+                val query = "DROP TABLE created_by_jooq"
+                db.execute(query)
             },
         )
     }
