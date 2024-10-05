@@ -107,7 +107,7 @@ class CompiledDatabaseChangelog1 : KotlinCompiledDatabaseChangeLog({
 
     changeSet(author = "momose (generated)", id = "1715520327312-60") {
         @Suppress("MagicNumber")
-        val createdByJooq = object : Table("created_by_exposed") {
+        val createdByExposed = object : Table("created_by_exposed") {
             val id = integer("id").autoIncrement()
             val name = varchar("name", 256)
             override val primaryKey = PrimaryKey(id)
@@ -115,12 +115,12 @@ class CompiledDatabaseChangelog1 : KotlinCompiledDatabaseChangeLog({
         customExposedMigrationChange(
             execute = { db ->
                 transaction(db) {
-                    SchemaUtils.create(createdByJooq)
+                    SchemaUtils.create(createdByExposed)
                 }
             },
             rollback = { db ->
                 transaction(db) {
-                    SchemaUtils.drop(createdByJooq)
+                    SchemaUtils.drop(createdByExposed)
                 }
             },
         )
