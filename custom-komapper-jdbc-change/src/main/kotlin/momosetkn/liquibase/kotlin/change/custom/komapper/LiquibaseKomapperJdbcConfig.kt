@@ -1,4 +1,4 @@
-package momosetkn.liquibase.kotlin.change
+package momosetkn.liquibase.kotlin.change.custom.komapper
 
 import org.komapper.jdbc.JdbcDatabase
 import org.komapper.jdbc.JdbcDialect

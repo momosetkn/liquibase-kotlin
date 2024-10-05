@@ -2,6 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>ForbiddenComment:RollbackTaskCustomChange.kt$RollbackTaskCustomChange$// FIXME: CustomTaskRollback has a bug that causes it to be rolled back twice, but there is a workaround.</ID>
+    <ID>ForbiddenComment:RollbackTaskCustomKomapperJdbcChange.kt$RollbackTaskCustomKomapperJdbcChange$// FIXME: CustomTaskRollback has a bug that causes it to be rolled back twice, but there is a workaround.</ID>
   </CurrentIssues>
 </SmellBaseline>

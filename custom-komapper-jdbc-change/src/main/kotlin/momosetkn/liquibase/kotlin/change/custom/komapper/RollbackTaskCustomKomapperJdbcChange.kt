@@ -1,4 +1,4 @@
-package momosetkn.liquibase.kotlin.change
+package momosetkn.liquibase.kotlin.change.custom.komapper
 
 import liquibase.change.custom.CustomChange
 import liquibase.change.custom.CustomTaskChange
@@ -7,7 +7,7 @@ import liquibase.database.Database
 import liquibase.exception.ValidationErrors
 import liquibase.resource.ResourceAccessor
 
-class RollbackTaskCustomChange(
+class RollbackTaskCustomKomapperJdbcChange(
     private val define: CustomRollbackableTaskChangeDefineImpl,
 ) : CustomChange, CustomTaskChange, CustomTaskRollback {
     private var alreadyRollbackFlg = false

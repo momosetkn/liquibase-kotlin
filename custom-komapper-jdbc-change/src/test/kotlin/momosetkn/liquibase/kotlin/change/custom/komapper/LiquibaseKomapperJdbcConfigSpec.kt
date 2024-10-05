@@ -1,4 +1,4 @@
-package momosetkn.liquibase.kotlin.change
+package momosetkn.liquibase.kotlin.change.custom.komapper
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
@@ -46,7 +46,7 @@ class LiquibaseKomapperJdbcConfigSpec : FunSpec({
     }
 
     @Suppress("MaxLineLength")
-    val errorMessage = "I could not find the `org.komapper.jdbc.JdbcDialects` that should be used. Please set the `momosetkn.liquibase.kotlin.change.LiquibaseKomapperJdbcConfig.provideJdbcDatabase`."
+    val errorMessage = "I could not find the `org.komapper.jdbc.JdbcDialects` that should be used. Please set the `momosetkn.liquibase.kotlin.change.custom.komapper.LiquibaseKomapperJdbcConfig.provideJdbcDatabase`."
 
     context("CockroachDatabase") {
         test("not supported") {

@@ -1,8 +1,5 @@
-package momosetkn.liquibase.kotlin.change
+package momosetkn.liquibase.kotlin.change.custom.komapper
 
-import liquibase.change.custom.CustomChange
-import liquibase.change.custom.CustomChangeWrapper
-import liquibase.change.custom.setCustomChange
 import liquibase.exception.ValidationErrors
 import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
 
@@ -19,20 +16,14 @@ fun ChangeSetDsl.customKomapperJdbcChange(
             rollback,
             confirmationMessage,
         )
-        RollbackTaskCustomChange(define)
+        RollbackTaskCustomKomapperJdbcChange(define)
     } else {
         val define = CustomTaskChangeDefineImpl(
             execute,
             validate,
             confirmationMessage,
         )
-        ForwardOnlyTaskCustomChange(define)
+        ForwardOnlyTaskCustomKomapperJdbcChange(define)
     }
-    addChange(change)
-}
-
-private fun ChangeSetDsl.addChange(change: CustomChange) {
-    val customChangeWrapper = this.changeSetSupport.createChange("customChange") as CustomChangeWrapper
-    customChangeWrapper.setCustomChange(change)
-    changeSetSupport.addChange(customChangeWrapper)
+    addCustomChange(change)
 }

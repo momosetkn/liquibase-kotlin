@@ -7,7 +7,7 @@ import komapper.Company2
 import komapper.company2
 import liquibase.exception.CommandExecutionException
 import momosetkn.liquibase.command.client.LiquibaseCommandClient
-import momosetkn.liquibase.kotlin.change.customKomapperJdbcChange
+import momosetkn.liquibase.kotlin.change.custom.komapper.customKomapperJdbcChange
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb

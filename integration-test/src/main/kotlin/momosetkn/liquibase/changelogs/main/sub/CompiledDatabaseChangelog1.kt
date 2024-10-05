@@ -1,6 +1,6 @@
 package momosetkn.liquibase.changelogs.main.sub
 
-import momosetkn.liquibase.kotlin.change.customKomapperJdbcChange
+import momosetkn.liquibase.kotlin.change.custom.komapper.customKomapperJdbcChange
 import momosetkn.liquibase.kotlin.parser.KotlinCompiledDatabaseChangeLog
 import org.komapper.core.dsl.QueryDsl
 

@@ -7,6 +7,7 @@ val komapperVersion = rootProject.properties["komapperVersion"] as String
 dependencies {
     implementation(project(":dsl"))
     implementation(project(":script-parser"))
+    api(project(":custom-change-core"))
     // liquibase
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
     // komapper
