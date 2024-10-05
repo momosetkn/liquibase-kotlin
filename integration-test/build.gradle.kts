@@ -5,7 +5,7 @@ val komapperVersion = rootProject.properties["komapperVersion"] as String
 
 plugins {
     id("com.google.devtools.ksp") version "2.0.20-1.0.25"
-    id("org.komapper.gradle") version "3.0.0"
+    id("org.komapper.gradle") version "3.1.0"
 }
 
 dependencies {
