@@ -1,7 +1,6 @@
-package momosetkn.liquibase.kotlin.change.custom.exposed
+package momosetkn.liquibase.kotlin.change.custom.ktorm
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import liquibase.database.core.CockroachDatabase
 import liquibase.database.core.DB2Database
@@ -22,23 +21,18 @@ import liquibase.database.core.SQLiteDatabase
 import liquibase.database.core.SnowflakeDatabase
 import liquibase.database.core.SybaseASADatabase
 import liquibase.database.core.SybaseDatabase
-import org.jetbrains.exposed.sql.vendors.H2Dialect
-import org.jetbrains.exposed.sql.vendors.MariaDBDialect
-import org.jetbrains.exposed.sql.vendors.MysqlDialect
-import org.jetbrains.exposed.sql.vendors.OracleDialect
-import org.jetbrains.exposed.sql.vendors.PostgreSQLDialect
-import org.jetbrains.exposed.sql.vendors.SQLiteDialect
-import org.jetbrains.exposed.sql.vendors.VendorDialect
-import java.io.PrintWriter
-import java.sql.Connection
-import java.util.logging.Logger
+import org.ktorm.database.SqlDialect
+import org.ktorm.support.mysql.MySqlDialect
+import org.ktorm.support.oracle.OracleDialect
+import org.ktorm.support.postgresql.PostgreSqlDialect
+import org.ktorm.support.sqlite.SQLiteDialect
 import kotlin.reflect.KClass
 import liquibase.database.Database as LiquibaseDatabase
 
-class LiquibaseExposedMigrationConfigSpec : FunSpec({
-    fun subject(clazz: KClass<out LiquibaseDatabase>): VendorDialect? {
+class LiquibaseKtormConfigSpec : FunSpec({
+    fun subject(clazz: KClass<out LiquibaseDatabase>): SqlDialect {
         val liquibaseDatabase = clazz.constructors.find { it.parameters.isEmpty() }!!.call()
-        return LiquibaseExposedMigrationConfig.getDialect(
+        return LiquibaseKtormConfig.getDialect(
             liquibaseDatabase.shortName
         )
     }
@@ -46,91 +40,91 @@ class LiquibaseExposedMigrationConfigSpec : FunSpec({
     context("CockroachDatabase") {
         test("not supported") {
             val actual = subject(CockroachDatabase::class)
-            actual shouldBe null
+            actual.shouldBeTypeOf<StandardSqlDialect>()
         }
     }
 
     context("DB2Database") {
         test("not supported") {
             val actual = subject(DB2Database::class)
-            actual shouldBe null
+            actual.shouldBeTypeOf<StandardSqlDialect>()
         }
     }
 
     context("Db2zDatabase") {
         test("not supported") {
             val actual = subject(Db2zDatabase::class)
-            actual shouldBe null
+            actual.shouldBeTypeOf<StandardSqlDialect>()
         }
     }
 
     context("DerbyDatabase") {
         test("supported") {
             val actual = subject(DerbyDatabase::class)
-            actual shouldBe null
+            actual.shouldBeTypeOf<StandardSqlDialect>()
         }
     }
 
     context("EnterpriseDBDatabase") {
         test("not supported") {
             val actual = subject(EnterpriseDBDatabase::class)
-            actual shouldBe null
+            actual.shouldBeTypeOf<StandardSqlDialect>()
         }
     }
 
     context("FirebirdDatabase") {
         test("not supported") {
             val actual = subject(FirebirdDatabase::class)
-            actual shouldBe null
+            actual.shouldBeTypeOf<StandardSqlDialect>()
         }
     }
 
     context("H2Database") {
         test("supported") {
             val actual = subject(H2Database::class)
-            actual.shouldBeTypeOf<H2Dialect>()
+            actual.shouldBeTypeOf<StandardSqlDialect>()
         }
     }
 
     context("HsqlDatabase") {
         test("supported") {
             val actual = subject(HsqlDatabase::class)
-            actual shouldBe null
+            actual.shouldBeTypeOf<StandardSqlDialect>()
         }
     }
 
     context("InformixDatabase") {
         test("not supported") {
             val actual = subject(InformixDatabase::class)
-            actual shouldBe null
+            actual.shouldBeTypeOf<StandardSqlDialect>()
         }
     }
 
     context("Ingres9Database") {
         test("not supported") {
             val actual = subject(Ingres9Database::class)
-            actual shouldBe null
+            actual.shouldBeTypeOf<StandardSqlDialect>()
         }
     }
 
     context("MariaDBDatabase") {
         test("supported") {
             val actual = subject(MariaDBDatabase::class)
-            actual.shouldBeTypeOf<MariaDBDialect>()
+            actual.shouldBeTypeOf<StandardSqlDialect>()
         }
     }
 
     context("MSSQLDatabase") {
         test("not supported") {
             val actual = subject(MSSQLDatabase::class)
-            actual shouldBe null
+            actual.shouldBeTypeOf<StandardSqlDialect>()
         }
     }
 
     context("MySQLDatabase") {
         test("supported") {
             val actual = subject(MySQLDatabase::class)
-            actual.shouldBeTypeOf<MysqlDialect>()
+            actual.shouldBeTypeOf<MySqlDialect>()
         }
     }
 
@@ -144,14 +138,14 @@ class LiquibaseExposedMigrationConfigSpec : FunSpec({
     context("PostgresDatabase") {
         test("supported") {
             val actual = subject(PostgresDatabase::class)
-            actual.shouldBeTypeOf<PostgreSQLDialect>()
+            actual.shouldBeTypeOf<PostgreSqlDialect>()
         }
     }
 
     context("SnowflakeDatabase") {
         test("not supported") {
             val actual = subject(SnowflakeDatabase::class)
-            actual shouldBe null
+            actual.shouldBeTypeOf<StandardSqlDialect>()
         }
     }
 
@@ -166,52 +160,14 @@ class LiquibaseExposedMigrationConfigSpec : FunSpec({
         test("not supported") {
             val actual =
                 subject(SybaseASADatabase::class)
-            actual shouldBe null
+            actual.shouldBeTypeOf<StandardSqlDialect>()
         }
     }
 
     context("SybaseDatabase") {
         test("not supported") {
             val actual = subject(SybaseDatabase::class)
-            actual shouldBe null
+            actual.shouldBeTypeOf<StandardSqlDialect>()
         }
     }
 })
-
-val StubDataSource = object : javax.sql.DataSource {
-    override fun getLogWriter(): PrintWriter {
-        TODO("Not yet implemented")
-    }
-
-    override fun setLogWriter(out: PrintWriter?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun setLoginTimeout(seconds: Int) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getLoginTimeout(): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun getParentLogger(): Logger {
-        TODO("Not yet implemented")
-    }
-
-    override fun <T : Any?> unwrap(iface: Class<T>?): T {
-        TODO("Not yet implemented")
-    }
-
-    override fun isWrapperFor(iface: Class<*>?): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun getConnection(): Connection {
-        TODO("Not yet implemented")
-    }
-
-    override fun getConnection(username: String?, password: String?): Connection {
-        TODO("Not yet implemented")
-    }
-}

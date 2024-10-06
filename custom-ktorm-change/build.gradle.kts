@@ -1,6 +1,6 @@
 val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
-val jooqVersion = rootProject.properties["jooqVersion"] as String
+val ktormVersion = rootProject.properties["ktormVersion"] as String
 
 dependencies {
     implementation(project(":dsl"))
@@ -8,12 +8,17 @@ dependencies {
     api(project(":custom-change-core"))
     // liquibase
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
-    // jooq
-    implementation("org.jooq:jooq:$jooqVersion")
+    // ktorm
+    implementation("org.ktorm:ktorm-core:$ktormVersion")
 
     // test
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testImplementation("org.ktorm:ktorm-support-mysql:$ktormVersion")
+    testImplementation("org.ktorm:ktorm-support-oracle:$ktormVersion")
+    testImplementation("org.ktorm:ktorm-support-postgresql:$ktormVersion")
+    testImplementation("org.ktorm:ktorm-support-sqlite:$ktormVersion")
+    testImplementation("org.ktorm:ktorm-support-sqlserver:$ktormVersion")
 }
 
 tasks.test {

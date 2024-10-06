@@ -68,6 +68,7 @@ val libraryProjects =
             "custom-jooq-change",
             "custom-change-core",
             "custom-exposed-migration-change",
+            "custom-ktorm-change",
         )
     }
 configure(libraryProjects) {
