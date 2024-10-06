@@ -34,11 +34,11 @@ class DatabaseChangelogAll : KotlinCompiledDatabaseChangeLog({
 
 ```kotlin
 class DatabaseChangelog0 : KotlinCompiledDatabaseChangeLog({
-    changeSet(author = "momose (generated)", id = "1715520327312-0") {
+    changeSet(author = "momose", id = "100-0") {
         tagDatabase("started")
     }
 
-    changeSet(author = "momose (generated)", id = "1715520327312-10") {
+    changeSet(author = "momose", id = "100-10") {
         createTable(tableName = "company") {
             column(name = "id", type = "UUID") {
                 constraints(nullable = false, primaryKey = true)
@@ -93,7 +93,7 @@ implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-ko
 
 changeSet example
 ```kotlin
-changeSet(author = "momose (generated)", id = "1715520327312-40") {
+changeSet(author = "momose", id = "100-40") {
     customKomapperJdbcChange(
         execute = { db ->
             val query = QueryDsl.executeScript(
@@ -129,7 +129,7 @@ implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-jo
 
 changeSet example
 ```kotlin
-changeSet(author = "momose (generated)", id = "1715520327312-40") {
+changeSet(author = "momose", id = "100-40") {
     customJooqChange(
         execute = { db ->
             val query = 
@@ -144,6 +144,82 @@ changeSet(author = "momose (generated)", id = "1715520327312-40") {
         rollback = { db ->
             val query = "DROP TABLE created_by_komapper"
             db.execute(query)
+        },
+    )
+}
+```
+
+### Use Exposed-migration on customChange
+
+`liquibase-kotlin-custom-exposed-migration-change` module can use [Exposed](https://jetbrains.github.io/Exposed/home.html) on customChange
+
+> [!NOTE]
+> can use both the `kotlin-script` and `kotlin-compiled`.
+
+add bellow dependencies.
+
+```kotlin
+implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-exposed-migration-change:$liquibaseKotlinVersion")
+```
+
+changeSet example
+```kotlin
+changeSet(author = "momose", id = "100-60") {
+    // https://jetbrains.github.io/Exposed/table-definition.html#dsl-create-table
+    val createdByExposed = object : Table("created_by_exposed") {
+        val id = integer("id").autoIncrement()
+        val name = varchar("name", 256)
+        override val primaryKey = PrimaryKey(id)
+    }
+    customExposedMigrationChange(
+        execute = { db ->
+            transaction(db) {
+                SchemaUtils.create(createdByExposed)
+            }
+        },
+        rollback = { db ->
+            transaction(db) {
+                SchemaUtils.drop(createdByExposed)
+            }
+        },
+    )
+}
+```
+
+
+### Use Ktorm on customChange
+
+`liquibase-kotlin-custom-Ktorm-change` module can use [Ktorm](https://www.ktorm.org/en/quick-start.html) on customChange
+
+> [!NOTE]
+> can use both the `kotlin-script` and `kotlin-compiled`.
+
+add bellow dependencies.
+
+```kotlin
+implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-ktorm-change:$liquibaseKotlinVersion")
+```
+
+changeSet example
+```kotlin
+changeSet(author = "momose", id = "100-70") {
+    customKtormChange(
+        execute = { db ->
+            val query = """
+                 CREATE TABLE created_by_ktorm (
+                    id uuid NOT NULL,
+                    name character varying(256)
+                );
+            """.trimIndent()
+            db.useConnection { conn ->
+                conn.createStatement().execute(query)
+            }
+        },
+        rollback = { db ->
+            val query = "DROP TABLE created_by_ktorm"
+            db.useConnection { conn ->
+                conn.createStatement().execute(query)
+            }
         },
     )
 }
