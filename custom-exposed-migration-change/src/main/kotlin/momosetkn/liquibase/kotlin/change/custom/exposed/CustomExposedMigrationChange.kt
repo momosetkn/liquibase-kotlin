@@ -1,4 +1,4 @@
-package momosetkn.liquibase.kotlin.change.custom.jooq
+package momosetkn.liquibase.kotlin.change.custom.exposed
 
 import liquibase.exception.ValidationErrors
 import momosetkn.liquibase.kotlin.change.custom.core.CustomRollbackableTaskChangeDefineImpl
@@ -9,11 +9,11 @@ import momosetkn.liquibase.kotlin.change.custom.core.addCustomChange
 import momosetkn.liquibase.kotlin.change.custom.komapper.toJavaxSqlDataSource
 import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
 
-fun ChangeSetDsl.customJooqChange(
-    confirmationMessage: String = "Executed CustomJooqChange.",
-    rollback: ((org.jooq.DSLContext) -> Unit)? = null,
-    validate: (org.jooq.DSLContext) -> ValidationErrors = { ValidationErrors() },
-    execute: (org.jooq.DSLContext) -> Unit,
+fun ChangeSetDsl.customExposedMigrationChange(
+    confirmationMessage: String = "Executed CustomExposedMigrationChange.",
+    rollback: ((org.jetbrains.exposed.sql.Database) -> Unit)? = null,
+    validate: (org.jetbrains.exposed.sql.Database) -> ValidationErrors = { ValidationErrors() },
+    execute: (org.jetbrains.exposed.sql.Database) -> Unit,
 ) {
     val change = if (rollback != null) {
         val define = CustomRollbackableTaskChangeDefineImpl(
@@ -36,8 +36,8 @@ fun ChangeSetDsl.customJooqChange(
     addCustomChange(change)
 }
 
-private fun transformDatabase(liquibaseDatabase: liquibase.database.Database): org.jooq.DSLContext {
+private fun transformDatabase(liquibaseDatabase: liquibase.database.Database): org.jetbrains.exposed.sql.Database {
     val datasource = liquibaseDatabase.toJavaxSqlDataSource()
-    val database = LiquibaseJooqConfig.provideDSLContext(datasource, liquibaseDatabase.shortName)
+    val database = LiquibaseExposedMigrationConfig.provideDatabase(datasource, liquibaseDatabase.shortName)
     return database
 }

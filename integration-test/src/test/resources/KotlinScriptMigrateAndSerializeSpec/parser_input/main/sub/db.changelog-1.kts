@@ -1,3 +1,8 @@
+import momosetkn.liquibase.kotlin.change.custom.exposed.customExposedMigrationChange
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.transactions.transaction
+
 databaseChangeLog {
     // employee
     changeSet(author = "momose (generated)", id = "1715520327312-20") {
@@ -90,6 +95,26 @@ databaseChangeLog {
             rollback = { db ->
                 val query = "DROP TABLE created_by_jooq"
                 db.execute(query)
+            },
+        )
+    }
+
+    changeSet(author = "momose (generated)", id = "1715520327312-60") {
+        val createdByExposed = object : Table("created_by_exposed") {
+            val id = integer("id").autoIncrement()
+            val name = varchar("name", 256)
+            override val primaryKey = PrimaryKey(id)
+        }
+        customExposedMigrationChange(
+            execute = { db ->
+                transaction(db) {
+                    SchemaUtils.create(createdByExposed)
+                }
+            },
+            rollback = { db ->
+                transaction(db) {
+                    SchemaUtils.drop(createdByExposed)
+                }
             },
         )
     }

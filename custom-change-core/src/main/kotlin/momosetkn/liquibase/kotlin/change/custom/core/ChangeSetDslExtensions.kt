@@ -1,4 +1,4 @@
-package momosetkn.liquibase.kotlin.change.custom.komapper
+package momosetkn.liquibase.kotlin.change.custom.core
 
 import liquibase.change.custom.CustomChange
 import liquibase.change.custom.CustomChangeWrapper

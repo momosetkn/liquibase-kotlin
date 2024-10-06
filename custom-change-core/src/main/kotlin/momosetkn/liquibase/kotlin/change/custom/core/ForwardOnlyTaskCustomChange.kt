@@ -1,4 +1,4 @@
-package momosetkn.liquibase.kotlin.change.custom.komapper
+package momosetkn.liquibase.kotlin.change.custom.core
 
 import liquibase.change.custom.CustomChange
 import liquibase.change.custom.CustomTaskChange
@@ -6,8 +6,8 @@ import liquibase.database.Database
 import liquibase.exception.ValidationErrors
 import liquibase.resource.ResourceAccessor
 
-class ForwardOnlyTaskCustomKomapperJdbcChange(
-    private val define: CustomTaskChangeDefineImpl,
+class ForwardOnlyTaskCustomChange<T : Any>(
+    private val define: CustomTaskChangeDefineImpl<T>,
 ) : CustomChange, CustomTaskChange {
     private var resourceAccessor: ResourceAccessor? = null
     override fun getConfirmationMessage(): String {
@@ -21,10 +21,10 @@ class ForwardOnlyTaskCustomKomapperJdbcChange(
     }
 
     override fun validate(database: Database): ValidationErrors {
-        return define.validateBlock(database.toKomapperJdbcDatabase())
+        return define.validateBlock(define.transformDatabase(database))
     }
 
     override fun execute(database: Database) {
-        define.executeBlock(database.toKomapperJdbcDatabase())
+        define.executeBlock(define.transformDatabase(database))
     }
 }

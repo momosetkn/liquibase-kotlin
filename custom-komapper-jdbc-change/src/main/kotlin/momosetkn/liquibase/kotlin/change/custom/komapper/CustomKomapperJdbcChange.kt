@@ -1,6 +1,11 @@
 package momosetkn.liquibase.kotlin.change.custom.komapper
 
 import liquibase.exception.ValidationErrors
+import momosetkn.liquibase.kotlin.change.custom.core.CustomRollbackableTaskChangeDefineImpl
+import momosetkn.liquibase.kotlin.change.custom.core.CustomTaskChangeDefineImpl
+import momosetkn.liquibase.kotlin.change.custom.core.ForwardOnlyTaskCustomChange
+import momosetkn.liquibase.kotlin.change.custom.core.RollbackTaskCustomChange
+import momosetkn.liquibase.kotlin.change.custom.core.addCustomChange
 import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
 
 fun ChangeSetDsl.customKomapperJdbcChange(
@@ -11,19 +16,27 @@ fun ChangeSetDsl.customKomapperJdbcChange(
 ) {
     val change = if (rollback != null) {
         val define = CustomRollbackableTaskChangeDefineImpl(
-            execute,
-            validate,
-            rollback,
-            confirmationMessage,
+            executeBlock = execute,
+            validateBlock = validate,
+            rollbackBlock = rollback,
+            confirmationMessage = confirmationMessage,
+            transformDatabase = ::transformDatabase,
         )
-        RollbackTaskCustomKomapperJdbcChange(define)
+        RollbackTaskCustomChange(define)
     } else {
         val define = CustomTaskChangeDefineImpl(
-            execute,
-            validate,
-            confirmationMessage,
+            executeBlock = execute,
+            validateBlock = validate,
+            confirmationMessage = confirmationMessage,
+            transformDatabase = ::transformDatabase,
         )
-        ForwardOnlyTaskCustomKomapperJdbcChange(define)
+        ForwardOnlyTaskCustomChange(define)
     }
     addCustomChange(change)
+}
+
+private fun transformDatabase(liquibaseDatabase: liquibase.database.Database): org.komapper.jdbc.JdbcDatabase {
+    val datasource = liquibaseDatabase.toJavaxSqlDataSource()
+    val database = LiquibaseKomapperJdbcConfig.provideJdbcDatabase(datasource, liquibaseDatabase.shortName)
+    return database
 }
