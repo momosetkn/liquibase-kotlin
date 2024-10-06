@@ -42,6 +42,15 @@ class ChangeLog0 : KotlinCompiledDatabaseChangeLog({
     }
 
     changeSet(author = "**********", id = "*************-5") {
+        createTable(tableName = "CREATED_BY_KTORM") {
+            column(name = "ID", type = "UUID") {
+                constraints(nullable = false)
+            }
+            column(name = "NAME", type = "VARCHAR(256)")
+        }
+    }
+
+    changeSet(author = "**********", id = "*************-6") {
         createTable(tableName = "EMPLOYEE") {
             column(name = "ID", type = "UUID") {
                 constraints(nullable = false, primaryKey = true, primaryKeyName = "PK_EMPLOYEE")
@@ -56,13 +65,13 @@ class ChangeLog0 : KotlinCompiledDatabaseChangeLog({
         }
     }
 
-    changeSet(author = "**********", id = "*************-6") {
+    changeSet(author = "**********", id = "*************-7") {
         createIndex(associatedWith = "", indexName = "EMPLOYEE_COMPANY_ID_FKEY_INDEX_21", tableName = "EMPLOYEE") {
             column(name = "COMPANY_ID")
         }
     }
 
-    changeSet(author = "**********", id = "*************-7") {
+    changeSet(author = "**********", id = "*************-8") {
         addForeignKeyConstraint(baseColumnNames = "COMPANY_ID", baseTableName = "EMPLOYEE", constraintName = "EMPLOYEE_COMPANY_ID_FKEY", deferrable = false, initiallyDeferred = false, onDelete = "CASCADE", onUpdate = "RESTRICT", referencedColumnNames = "ID", referencedTableName = "COMPANY", validate = true)
     }
 

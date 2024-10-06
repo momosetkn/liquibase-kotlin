@@ -1,8 +1,3 @@
-import momosetkn.liquibase.kotlin.change.custom.exposed.customExposedMigrationChange
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.transactions.transaction
-
 databaseChangeLog {
     // employee
     changeSet(author = "momose (generated)", id = "1715520327312-20") {
@@ -114,6 +109,28 @@ databaseChangeLog {
             rollback = { db ->
                 transaction(db) {
                     SchemaUtils.drop(createdByExposed)
+                }
+            },
+        )
+    }
+
+    changeSet(author = "momose (generated)", id = "1715520327312-70") {
+        customKtormChange(
+            execute = { db ->
+                val query = """
+                     CREATE TABLE created_by_ktorm (
+                        id uuid NOT NULL,
+                        name character varying(256)
+                    );
+                """.trimIndent()
+                db.useConnection { conn ->
+                    conn.createStatement().execute(query)
+                }
+            },
+            rollback = { db ->
+                val query = "DROP TABLE created_by_ktorm"
+                db.useConnection { conn ->
+                    conn.createStatement().execute(query)
                 }
             },
         )

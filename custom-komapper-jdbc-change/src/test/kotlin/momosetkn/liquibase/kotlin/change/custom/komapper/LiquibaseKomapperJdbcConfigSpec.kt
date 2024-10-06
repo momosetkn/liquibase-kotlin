@@ -40,7 +40,7 @@ class LiquibaseKomapperJdbcConfigSpec : FunSpec({
     fun subject(clazz: KClass<out LiquibaseDatabase>): JdbcDatabase {
         val liquibaseDatabase = clazz.constructors.find { it.parameters.isEmpty() }!!.call()
         return LiquibaseKomapperJdbcConfig.defaultProvideJdbcDatabase(
-            javaxSqlDataSource = MockDataSource,
+            javaxSqlDataSource = StubDataSource,
             liquibaseDatabaseShortName = liquibaseDatabase.shortName
         )
     }
@@ -210,7 +210,7 @@ class LiquibaseKomapperJdbcConfigSpec : FunSpec({
     }
 })
 
-val MockDataSource = object : javax.sql.DataSource {
+val StubDataSource = object : javax.sql.DataSource {
     override fun getLogWriter(): PrintWriter {
         TODO("Not yet implemented")
     }

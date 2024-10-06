@@ -4,6 +4,7 @@ val slf4jVersion = rootProject.properties["slf4jVersion"] as String
 val komapperVersion = rootProject.properties["komapperVersion"] as String
 val jooqVersion = rootProject.properties["jooqVersion"] as String
 val exposedVersion = rootProject.properties["exposedVersion"] as String
+val ktormVersion = rootProject.properties["ktormVersion"] as String
 
 plugins {
     id("com.google.devtools.ksp") version "2.0.20-1.0.25"
@@ -21,6 +22,7 @@ dependencies {
     implementation(project(":custom-komapper-jdbc-change"))
     implementation(project(":custom-jooq-change"))
     implementation(project(":custom-exposed-migration-change"))
+    implementation(project(":custom-ktorm-change"))
 
     // log
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
@@ -44,6 +46,9 @@ dependencies {
     // exposed
     implementation("org.jetbrains.exposed:exposed-migration:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+
+    // ktorm
+    implementation("org.ktorm:ktorm-core:$ktormVersion")
 
     // test
     testImplementation(kotlin("test"))

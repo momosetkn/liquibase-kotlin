@@ -33,7 +33,7 @@ class LiquibaseJooqConfigSpec : FunSpec({
     fun subject(clazz: KClass<out LiquibaseDatabase>): DSLContext {
         val liquibaseDatabase = clazz.constructors.find { it.parameters.isEmpty() }!!.call()
         return LiquibaseJooqConfig.defaultProvideDSLContext(
-            javaxSqlDataSource = MockDataSource,
+            javaxSqlDataSource = StubDataSource,
             liquibaseDatabaseShortName = liquibaseDatabase.shortName
         )
     }
@@ -173,7 +173,7 @@ class LiquibaseJooqConfigSpec : FunSpec({
     }
 })
 
-val MockDataSource = object : javax.sql.DataSource {
+val StubDataSource = object : javax.sql.DataSource {
     override fun getLogWriter(): PrintWriter {
         TODO("Not yet implemented")
     }
