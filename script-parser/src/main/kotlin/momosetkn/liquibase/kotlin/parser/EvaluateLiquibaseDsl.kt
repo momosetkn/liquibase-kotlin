@@ -7,7 +7,6 @@ import kotlin.script.experimental.api.ResultWithDiagnostics
 import kotlin.script.experimental.api.ScriptCompilationConfiguration
 import kotlin.script.experimental.api.ScriptDiagnostic
 import kotlin.script.experimental.api.ScriptEvaluationConfiguration
-import kotlin.script.experimental.api.compilerOptions
 import kotlin.script.experimental.api.defaultImports
 import kotlin.script.experimental.api.valueOrNull
 import kotlin.script.experimental.api.valueOrThrow
@@ -22,10 +21,6 @@ class LiquibaseDslCompilationConfiguration(
         jvm {
             dependenciesFromCurrentContext(wholeClasspath = true)
         }
-        // Workaround the `Module kotlin.stdlib cannot be found in the module graph` on FatJar
-        // https://youtrack.jetbrains.com/issue/KT-57907/Scripts-Module-kotlin.stdlib-cannot-be-found-in-the-module-graph-with-fatJar
-        // https://github.com/apache/camel-quarkus/issues/5268
-        compilerOptions.append("-Xadd-modules=ALL-MODULE-PATH")
         @Suppress("SpreadOperator")
         defaultImports(*imports.toTypedArray())
     })
