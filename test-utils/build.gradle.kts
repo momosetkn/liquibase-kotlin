@@ -55,6 +55,6 @@ tasks.register<JavaExec>("startH2Server") {
     description = "Starts the H2 Database TCP server"
     classpath = sourceSets["main"].runtimeClasspath
     mainClass.set("org.h2.tools.Server")
-    val port = project.findProperty("port")?.toString()!!
+    val port = project.findProperty("port")?.toString() ?: return@register
     args = listOf("-tcp", "-tcpAllowOthers", "-tcpPort", port, "-trace", "-ifNotExists")
 }
