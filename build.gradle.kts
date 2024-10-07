@@ -69,6 +69,9 @@ val libraryProjects =
             "custom-change-core",
             "custom-exposed-migration-change",
             "custom-ktorm-change",
+            // starter
+            "starter-compiled",
+            "starter-script"
         )
     }
 configure(libraryProjects) {
