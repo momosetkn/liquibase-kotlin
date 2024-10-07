@@ -4,7 +4,7 @@
 This module provides Kotlin-DSL, Wrapper-client, ORM-integration.
 
 Liquibase-kotlin documentation page 
-- [liquibase-kotlin document](https://momosetkn.github.io/liquibase-kotlin) 
+- [liquibase-kotlin document](https://momosetkn.github.io/liquibase-kotlin-docs) 
 
 ## How to install
 
