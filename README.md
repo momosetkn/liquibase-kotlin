@@ -1,10 +1,48 @@
 # liquibase-kotlin
 
-Modules for using [Liquibase](https://www.liquibase.com/) with Kotlin
+[Liquibase-kotlin](https://momosetkn.github.io/liquibase-kotlin) was created with the aim of integrating [liquibase](https://github.com/liquibase/liquibase) with kotlin.
+This module provides Kotlin-DSL, Wrapper-client, ORM-integration.
+
+Liquibase-kotlin documentation page 
+- [liquibase-kotlin document](https://momosetkn.github.io/liquibase-kotlin) 
+
+## How to install
+
+```kotlin
+repositories {
+    // Add below to repositories. because this product is publish to jitpack.
+    maven { url = URI("https://jitpack.io") }
+}
+
+dependencies {
+    // liquibase
+    implementation("org.liquibase:liquibase-core:4.29.2")
+    val liquibaseKotlinVersion = "0.7.0"
+    // You can choose to install either kotlin-script or kotlin-compiled.
+    // for kotlin-script
+    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-dsl:$liquibaseKotlinVersion")
+    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-script-parser:$liquibaseKotlinVersion")
+    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-script-serializer:$liquibaseKotlinVersion")
+    // for kotlin-compiled
+    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-dsl:$liquibaseKotlinVersion")
+    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-compiled-parser:$liquibaseKotlinVersion")
+    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-compiled-serializer:$liquibaseKotlinVersion")
+    // If you want to use call liquibase-command by kotlin, add the following code.
+    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-client:$liquibaseKotlinVersion")
+    // If you want to use komapper on customChange, add the following code.
+    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-komapper-jdbc-change:$liquibaseKotlinVersion")
+    // If you want to use exposed on customChange, add the following code.
+    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-exposed-migration-change:$liquibaseKotlinVersion")
+    // If you want to use ktorm on customChange, add the following code.
+    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-ktorm-change:$liquibaseKotlinVersion")
+    // If you want to use jOOQ on customChange, add the following code.
+    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-jooq-change:$liquibaseKotlinVersion")
+}
+```
 
 ## Features
 
-### Kotlin DSL
+### Kotlin-DSL
 
 You can choose between KotlinScript and Kotlin (not script).
 Both have the same syntax for changeSet.
@@ -234,34 +272,6 @@ changeSet(author = "momose", id = "100-70") {
 - 4.27.0
 - 4.28.0
 - 4.29.2
-
-## How to install
-
-```kotlin
-repositories {
-    // Add below to repositories. because this product is publish to jitpack.
-    maven { url = URI("https://jitpack.io") }
-}
-
-dependencies {
-    // liquibase
-    implementation("org.liquibase:liquibase-core:4.29.2")
-    val liquibaseKotlinVersion = "0.6.0"
-    // You can choose to install either kotlin-script or kotlin-compiled.
-    // for kotlin-script
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-dsl:$liquibaseKotlinVersion")
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-script-parser:$liquibaseKotlinVersion")
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-script-serializer:$liquibaseKotlinVersion")
-    // for kotlin-compiled
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-dsl:$liquibaseKotlinVersion")
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-compiled-parser:$liquibaseKotlinVersion")
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-compiled-serializer:$liquibaseKotlinVersion")
-    // If you want to use call liquibase-command by kotlin, add the following code.
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-client:$liquibaseKotlinVersion")
-    // If you want to use komapper on customChange, add the following code.
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-komapper-jdbc-change:$liquibaseKotlinVersion")
-}
-```
 
 # example project
 https://github.com/momosetkn/liquibase-kotlin-example
