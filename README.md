@@ -17,7 +17,7 @@ repositories {
 dependencies {
     // liquibase
     implementation("org.liquibase:liquibase-core:4.29.2")
-    val liquibaseKotlinVersion = "0.7.0"
+    val liquibaseKotlinVersion = "0.7.1"
     // You can choose to install either kotlin-script or kotlin-compiled.
     // for kotlin-script
     implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-starter-script:$liquibaseKotlinVersion")
