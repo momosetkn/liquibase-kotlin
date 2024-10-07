@@ -20,13 +20,9 @@ dependencies {
     val liquibaseKotlinVersion = "0.7.0"
     // You can choose to install either kotlin-script or kotlin-compiled.
     // for kotlin-script
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-dsl:$liquibaseKotlinVersion")
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-script-parser:$liquibaseKotlinVersion")
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-script-serializer:$liquibaseKotlinVersion")
+    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-starter-script:$liquibaseKotlinVersion")
     // for kotlin-compiled
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-dsl:$liquibaseKotlinVersion")
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-compiled-parser:$liquibaseKotlinVersion")
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-compiled-serializer:$liquibaseKotlinVersion")
+    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-starter-compiled:$liquibaseKotlinVersion")
     // If you want to use call liquibase-command by kotlin, add the following code.
     implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-client:$liquibaseKotlinVersion")
     // If you want to use komapper on customChange, add the following code.

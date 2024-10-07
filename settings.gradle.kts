@@ -35,3 +35,6 @@ include("custom-komapper-jdbc-change")
 include("custom-jooq-change")
 include("custom-exposed-migration-change")
 include("custom-ktorm-change")
+// starter
+include("starter-compiled")
+include("starter-script")
