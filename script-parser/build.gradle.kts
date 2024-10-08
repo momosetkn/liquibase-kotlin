@@ -24,6 +24,10 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
 }
 
+tasks.javadoc {
+    enabled = false
+}
+
 tasks.test {
     useJUnitPlatform()
     systemProperty("kotest.framework.classpath.scanning.config.disable", "true")

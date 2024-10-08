@@ -1,4 +1,4 @@
-module momosetkn.liquibase.kotlin.serializer {
+module momosetkn.liquibase.kotlin.parser {
     requires kotlin.stdlib;
     requires kotlin.reflect;
     requires java.sql;
