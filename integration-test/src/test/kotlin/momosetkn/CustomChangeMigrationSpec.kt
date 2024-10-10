@@ -22,7 +22,7 @@ class CustomChangeMigrationSpec : FunSpec({
     context("Migrate and serialize") {
         test("can migrate") {
             val client = LiquibaseCommandClient {
-                globalArgs {
+                global {
                     general {
                         showBanner = false
                     }

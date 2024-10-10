@@ -1,5 +1,6 @@
 package momosetkn.liquibase.client
 
+@ConfigureLiquibaseDslMarker
 class ConfigureLiquibaseDsl {
     private var configuredArgs: ConfiguredArgs = ConfiguredArgs()
 
@@ -27,3 +28,6 @@ data class ConfiguredArgs(
     var globalDslBlock: LiquibaseGlobalArgsDslBlock? = null,
     var systemDslBlock: LiquibaseSystemEnvArgsDslBlock? = null,
 )
+
+@DslMarker
+annotation class ConfigureLiquibaseDslMarker
