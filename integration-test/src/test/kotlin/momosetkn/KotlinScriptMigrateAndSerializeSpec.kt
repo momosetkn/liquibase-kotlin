@@ -18,7 +18,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
         DatabaseServer.startAndClear()
     }
 
-    context("Relative path") {
+    context("Serialize output file is relative path") {
         test("can migrate and serialize") {
             val container = DatabaseServer.startedContainer
             val database = LiquibaseDatabaseFactory.create(
@@ -43,6 +43,53 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
             if (f.exists()) f.delete()
             val generateLiquibaseClient = LiquibaseClient(
                 changeLogFile = f.toString(),
+                database = database,
+            )
+            println("${this::class.simpleName} -- before generateChangeLog")
+            val baos = ByteArrayOutputStream()
+            generateLiquibaseClient.generateChangeLog(
+                outputStream = PrintStream(baos),
+            )
+            val generateResult = baos.toString()
+            println(generateResult) // empty
+
+            // check database
+            val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
+            DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
+
+            // check serializer
+            val actual = f.readText().maskingChangeSet()
+            val expect = getResourceAsString(SERIALIZER_EXPECT_CHANGELOG)
+                .maskingChangeSet()
+            actual shouldMatchWithoutLineBreaks expect
+        }
+    }
+
+    context("Serialize output file is absolute path") {
+        test("can migrate and serialize") {
+            val container = DatabaseServer.startedContainer
+            val database = LiquibaseDatabaseFactory.create(
+                driver = container.driver,
+                url = container.jdbcUrl,
+                username = container.username,
+                password = container.password,
+            )
+            val liquibaseClient = LiquibaseClient(
+                changeLogFile = PARSER_INPUT_CHANGELOG,
+                database = database,
+            )
+            println("${this::class.simpleName} -- before update")
+            liquibaseClient.update()
+            println("${this::class.simpleName} -- before rollback")
+            liquibaseClient.rollback(tagToRollBackTo = "started")
+            println("${this::class.simpleName} -- before update(2)")
+            liquibaseClient.update()
+            val actualSerializedChangeLogFile =
+                Paths.get(Constants.TEST_RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
+            val f = actualSerializedChangeLogFile.toFile()
+            if (f.exists()) f.delete()
+            val generateLiquibaseClient = LiquibaseClient(
+                changeLogFile = f.absolutePath.toString(), // absolute
                 database = database,
             )
             println("${this::class.simpleName} -- before generateChangeLog")
