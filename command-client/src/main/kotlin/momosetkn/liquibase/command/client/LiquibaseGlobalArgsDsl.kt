@@ -1,5 +1,6 @@
 package momosetkn.liquibase.command.client
 
+@ConfigureLiquibaseDslMarker
 class LiquibaseGlobalArgsDsl {
     private var info: LiquibaseInfoArgs? = null
     private var general: LiquibaseGeneralGlobalArgs? = null

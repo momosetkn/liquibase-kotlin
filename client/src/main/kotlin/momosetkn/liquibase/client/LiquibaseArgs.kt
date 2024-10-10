@@ -10,6 +10,7 @@ sealed interface LiquibaseSystemEnvArgs {
     fun serialize(): List<Pair<String, String?>>
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseGeneralGlobalArgs(
     var allowDuplicatedChangesetIdentifiers: Boolean? = null,
     var alwaysDropInsteadOfReplace: Boolean? = null,
@@ -146,6 +147,7 @@ data class LiquibaseGeneralGlobalArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseDbclhistoryArgs(
     var dbclhistoryCaptureExtensions: Boolean? = null,
     var dbclhistoryCaptureSql: Boolean? = null,
@@ -162,6 +164,7 @@ data class LiquibaseDbclhistoryArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseExecutorsArgs(
     var psqlArgs: String? = null,
     var psqlKeepTemp: Boolean? = null,
@@ -224,6 +227,7 @@ data class LiquibaseExecutorsArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseExtensionsArgs(
     var dynamodbTrackingTablesBillingMode: String? = null,
     var dynamodbTrackingTablesProvisionedThroughputReadCapacityUnits: Int? = null,
@@ -267,6 +271,7 @@ data class LiquibaseExtensionsArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseMongoDBArgs(
     var adjustTrackingTablesOnStartup: Boolean? = null,
     var retryWrites: Boolean? = null,
@@ -281,6 +286,7 @@ data class LiquibaseMongoDBArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseSystemArgs(
     var liquibaseHome: String? = null,
     var liquibaseLauncherDebug: String? = null,

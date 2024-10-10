@@ -14,6 +14,7 @@ sealed interface LiquibaseCommandArgs {
     fun serialize(): List<Pair<String, String>>
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseInfoArgs(
     var help: Boolean? = null,
     var version: Boolean? = null,
@@ -26,6 +27,7 @@ data class LiquibaseInfoArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseGeneralGlobalArgs(
     var allowDuplicatedChangesetIdentifiers: Boolean? = null,
     var alwaysDropInsteadOfReplace: Boolean? = null,
@@ -162,6 +164,7 @@ data class LiquibaseGeneralGlobalArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseDbclhistoryArgs(
     var dbclhistoryCaptureExtensions: Boolean? = null,
     var dbclhistoryCaptureSql: Boolean? = null,
@@ -178,6 +181,7 @@ data class LiquibaseDbclhistoryArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseExecutorsArgs(
     var psqlArgs: String? = null,
     var psqlKeepTemp: Boolean? = null,
@@ -240,6 +244,7 @@ data class LiquibaseExecutorsArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseCustomLoggingCommandArgs(
     var customLogDataFile: String? = null,
     var customLogDataFrequency: String? = null,
@@ -252,6 +257,7 @@ data class LiquibaseCustomLoggingCommandArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseExtensionsArgs(
     var dynamodbTrackingTablesBillingMode: String? = null,
     var dynamodbTrackingTablesProvisionedThroughputReadCapacityUnits: Int? = null,
@@ -302,6 +308,7 @@ data class LiquibaseExtensionsArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseMongoDBArgs(
     var adjustTrackingTablesOnStartup: Boolean? = null,
     var retryWrites: Boolean? = null,
@@ -316,6 +323,7 @@ data class LiquibaseMongoDBArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseConfigurationArgs(
     var liquibaseHome: String? = null,
     var liquibaseLauncherDebug: String? = null,
@@ -330,6 +338,7 @@ data class LiquibaseConfigurationArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseConnectionArgs(
     var changelogFile: String? = null,
     var driver: String? = null,
@@ -366,6 +375,7 @@ data class LiquibaseConnectionArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseInitArgs(
     var recursive: Boolean? = null,
     var source: String? = null,
@@ -406,6 +416,7 @@ data class LiquibaseInitArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseFlowFilesArgs(
     var flowFile: String? = null,
     var flowFileStrictParsing: Boolean? = null,
@@ -422,6 +433,7 @@ data class LiquibaseFlowFilesArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibasePolicyChecksArgs(
     var autoEnableNewChecks: Boolean? = null,
     var autoUpdate: String? = null,
@@ -480,6 +492,7 @@ data class LiquibasePolicyChecksArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseOperationReportsArgs(
     var driftSeverity: String? = null,
     var driftSeverityChanged: String? = null,
@@ -504,6 +517,7 @@ data class LiquibaseOperationReportsArgs(
     }
 }
 
+@ConfigureLiquibaseDslMarker
 data class LiquibaseGeneralCommandArgs(
     var addRow: Boolean? = null,
     var changeExecListenerClass: String? = null,

@@ -23,7 +23,7 @@ class ChangeSetSpec : FunSpec({
         DatabaseServer.startAndClear()
     }
     val client = LiquibaseCommandClient {
-        globalArgs {
+        global {
             general {
                 showBanner = false
             }
