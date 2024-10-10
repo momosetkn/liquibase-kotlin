@@ -25,6 +25,8 @@ import liquibase.exception.DatabaseException
 import liquibase.exception.LiquibaseException
 import liquibase.lockservice.DatabaseChangeLogLock
 import liquibase.resource.ResourceAccessor
+import liquibase.snapshot.SnapshotControl
+import liquibase.snapshot.SnapshotGeneratorFactory
 import liquibase.structure.DatabaseObject
 import momosetkn.liquibase.client.DateUtils.toJavaUtilDate
 import java.io.PrintStream
@@ -39,7 +41,17 @@ class LiquibaseClient(
     val resourceAccessor: ResourceAccessor = Scope.getCurrentScope().resourceAccessor,
     private val defaultOutputWriter: Writer = LiquibaseMultilineLogWriter(),
 ) : AutoCloseable {
-    private val liquibase: ExtendedLiquibase = ExtendedLiquibase(
+    var diffTypes = listOf(
+        "columns",
+        "foreignkeys",
+        "indexes",
+        "primarykeys",
+        "tables",
+        "uniqueconstraints",
+        "views"
+    )
+
+    val liquibase: ExtendedLiquibase = ExtendedLiquibase(
         changeLogFile = changeLogFile,
         database = database,
         resourceAccessor = resourceAccessor,
@@ -339,7 +351,19 @@ class LiquibaseClient(
 
     @Throws(LiquibaseException::class)
     fun changeLogSync(
-        tag: String,
+        tag: String? = null,
+        output: Writer? = null,
+    ) {
+        return if (output == null) {
+            this.liquibase.changeLogSync(tag, Contexts(), LabelExpression())
+        } else {
+            this.liquibase.changeLogSync(tag, Contexts(), LabelExpression(), output)
+        }
+    }
+
+    @Throws(LiquibaseException::class)
+    fun changeLogSync(
+        tag: String? = null,
         contexts: Contexts? = null,
         labelExpression: LabelExpression? = null,
         output: Writer? = null,
@@ -353,7 +377,7 @@ class LiquibaseClient(
 
     @Throws(LiquibaseException::class)
     fun changeLogSync(
-        tag: String,
+        tag: String? = null,
         contexts: String? = null,
         labelExpression: String? = null,
         output: Writer? = null,
@@ -589,7 +613,12 @@ class LiquibaseClient(
         targetDatabase: Database? = null,
         compareControl: CompareControl? = null
     ): DiffResult {
-        return this.liquibase.diff(referenceDatabase, targetDatabase, compareControl)
+        val targetDatabase = targetDatabase ?: this.liquibase.database
+        return this.liquibase.diff(
+            referenceDatabase,
+            targetDatabase,
+            compareControl ?: compareControl(targetDatabase = targetDatabase, referenceDatabase = referenceDatabase)
+        )
     }
 
     @Throws(LiquibaseException::class)
@@ -620,5 +649,29 @@ class LiquibaseClient(
     @Throws(LiquibaseException::class)
     override fun close() {
         return this.liquibase.close()
+    }
+
+    private fun compareControl(
+        targetDatabase: Database,
+        referenceDatabase: Database,
+    ): CompareControl {
+        fun buildCatalogAndSchema(database: Database): CatalogAndSchema {
+            return CatalogAndSchema(database.defaultCatalogName, database.defaultSchemaName)
+        }
+        val targetCatalogAndSchema: CatalogAndSchema = buildCatalogAndSchema(targetDatabase)
+        val referenceCatalogAndSchema: CatalogAndSchema = buildCatalogAndSchema(referenceDatabase)
+        val schemaComparisons = arrayOf(
+            CompareControl.SchemaComparison(referenceCatalogAndSchema, targetCatalogAndSchema)
+        )
+        val snapshotGeneratorFactory = SnapshotGeneratorFactory.getInstance()
+        val referenceSnapshot = snapshotGeneratorFactory.createSnapshot(
+            referenceDatabase.defaultSchema,
+            referenceDatabase,
+            SnapshotControl(
+                referenceDatabase,
+                diffTypes.joinToString(",")
+            )
+        )
+        return CompareControl(schemaComparisons, referenceSnapshot.snapshotControl.typesToInclude)
     }
 }

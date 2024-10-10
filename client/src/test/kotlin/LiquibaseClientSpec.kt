@@ -42,6 +42,8 @@ private val sortedLiquibaseClientPublicMethodsExcludes = listOf(
     "changeLogParameters",
     "changeExecListener",
     "defaultChangeExecListener",
+    "liquibase",
+    "diffTypes",
 )
 
 private val sortedLiquibasePublicMethodsExcludes = listOf(
