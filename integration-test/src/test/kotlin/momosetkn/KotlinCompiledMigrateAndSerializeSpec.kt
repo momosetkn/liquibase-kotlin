@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.FunSpec
 import momosetkn.liquibase.changelogs.CompiledDatabaseChangelogAll
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.client.LiquibaseDatabaseFactory
-import momosetkn.liquibase.client.configureLiquibase
 import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
 import momosetkn.utils.DDLUtils.sql
@@ -18,22 +17,14 @@ import java.nio.file.Paths
 
 class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
     beforeSpec {
-        DatabaseServer.start()
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.TEST_RESOURCE_DIR)
-        configureLiquibase {
-            global {
-                general {
-                    showBanner = false
-                }
-            }
-        }
     }
-    afterSpec {
-        DatabaseServer.clear()
+    beforeEach {
+        DatabaseServer.startAndClear()
     }
 
-    context("Migrate and serialize") {
-        test("can migrate") {
+    context("Relative path") {
+        test("can migrate and serialize") {
             val container = DatabaseServer.startedContainer
             val database = LiquibaseDatabaseFactory.create(
                 driver = container.driver,

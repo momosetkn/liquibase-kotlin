@@ -22,10 +22,7 @@ import java.util.UUID
 
 class CustomJooqChangeSetSpec : FunSpec({
     beforeEach {
-        DatabaseServer.start()
-    }
-    afterEach {
-        DatabaseServer.clear()
+        DatabaseServer.startAndClear()
     }
     val client = LiquibaseCommandClient {
         globalArgs {

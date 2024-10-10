@@ -3,7 +3,6 @@ package momosetkn
 import io.kotest.core.spec.style.FunSpec
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.client.LiquibaseDatabaseFactory
-import momosetkn.liquibase.client.configureLiquibase
 import momosetkn.utils.Constants
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
@@ -15,22 +14,12 @@ import java.io.PrintStream
 import java.nio.file.Paths
 
 class KotlinScriptMigrateAndSerializeSpec : FunSpec({
-    beforeSpec {
-        DatabaseServer.start()
-        configureLiquibase {
-            global {
-                general {
-                    showBanner = false
-                }
-            }
-        }
-    }
-    afterSpec {
-        DatabaseServer.clear()
+    beforeEach {
+        DatabaseServer.startAndClear()
     }
 
-    context("Migrate and serialize") {
-        test("can migrate") {
+    context("Relative path") {
+        test("can migrate and serialize") {
             val container = DatabaseServer.startedContainer
             val database = LiquibaseDatabaseFactory.create(
                 driver = container.driver,
