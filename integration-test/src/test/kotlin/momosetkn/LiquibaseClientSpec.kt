@@ -9,7 +9,6 @@ import liquibase.Scope
 import liquibase.changelog.ChangeLogParameters
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.client.LiquibaseDatabaseFactory
-import momosetkn.liquibase.client.configureLiquibase
 import momosetkn.liquibase.kotlin.parser.KotlinCompiledLiquibaseChangeLogParser
 import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
@@ -32,17 +31,7 @@ class LiquibaseClientSpec : FunSpec({
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.TEST_RESOURCE_DIR)
     }
     beforeEach {
-        DatabaseServer.start()
-        configureLiquibase {
-            global {
-                general {
-                    showBanner = false
-                }
-            }
-        }
-    }
-    afterEach {
-        DatabaseServer.clear()
+        DatabaseServer.startAndClear()
     }
 
     fun liquibaseClient(changeLogFile: String? = null): LiquibaseClient {

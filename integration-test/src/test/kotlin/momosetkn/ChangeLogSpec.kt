@@ -15,10 +15,7 @@ import org.komapper.core.dsl.query.single
 
 class ChangeLogSpec : FunSpec({
     beforeEach {
-        DatabaseServer.start()
-    }
-    afterEach {
-        DatabaseServer.clear()
+        DatabaseServer.startAndClear()
     }
     val client = LiquibaseCommandClient {
         globalArgs {

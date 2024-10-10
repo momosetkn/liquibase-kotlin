@@ -49,9 +49,10 @@ class KotlinCompiledChangeLogSerializer : ChangeLogSerializer {
         val filePath = (changeSets[0] as? ChangeSet)?.filePath
             ?: return ""
         // \a\b\c\Clazz.kt -> a.b.c
+        // /user/home/b/c/Clazz.kt -> a.b.c
         return filePath
             .toUnixFileSeparator()
-            .removePrefix(sourceRootPath.toString().toUnixFileSeparator())
+            .split(sourceRootPath.toString().toUnixFileSeparator()).last()
             .removePrefix("/")
             .substringBeforeLast("/")
             .replace("/", ".")
