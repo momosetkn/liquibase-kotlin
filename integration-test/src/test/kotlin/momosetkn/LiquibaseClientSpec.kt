@@ -13,7 +13,6 @@ import momosetkn.liquibase.kotlin.parser.KotlinCompiledLiquibaseChangeLogParser
 import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
-import momosetkn.utils.DatabaseServer
 import momosetkn.utils.InterchangeableChangeLog
 import momosetkn.utils.set
 import momosetkn.utils.toVersion
@@ -31,11 +30,11 @@ class LiquibaseClientSpec : FunSpec({
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.TEST_RESOURCE_DIR)
     }
     beforeEach {
-        DatabaseServer.startAndClear()
+        SharedResources.targetDatabaseServer.startAndClear()
     }
 
     fun liquibaseClient(changeLogFile: String? = null): LiquibaseClient {
-        val container = DatabaseServer.startedContainer
+        val container = SharedResources.targetDatabaseServer.startedContainer
         val database = LiquibaseDatabaseFactory.create(
             driver = container.driver,
             url = container.jdbcUrl,
@@ -65,7 +64,7 @@ class LiquibaseClientSpec : FunSpec({
         test("can migrate") {
             liquibaseClient().update(tag = "finish",)
 
-            val db = DatabaseServer.komapperDb()
+            val db = SharedResources.targetDatabaseServer.komapperDb()
             val d = Meta.databasechangelog
             val result = db.runQuery {
                 QueryDsl.from(d)
@@ -158,7 +157,7 @@ class LiquibaseClientSpec : FunSpec({
             liquibaseClient().use {
                 it.updateToTagSql("finish", output = sw)
             }
-            DatabaseServer.generateDdl()
+            SharedResources.targetDatabaseServer.generateDdl()
             println(sw.toString())
             sw.toString() shouldStartWith "-- Create Database Lock Table"
         }

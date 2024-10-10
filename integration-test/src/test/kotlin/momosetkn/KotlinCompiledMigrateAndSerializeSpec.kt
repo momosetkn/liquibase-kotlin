@@ -8,7 +8,6 @@ import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
-import momosetkn.utils.DatabaseServer
 import momosetkn.utils.ResourceUtils.getResourceAsString
 import momosetkn.utils.shouldMatchWithoutLineBreaks
 import java.io.ByteArrayOutputStream
@@ -20,12 +19,12 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.TEST_RESOURCE_DIR)
     }
     beforeEach {
-        DatabaseServer.startAndClear()
+        SharedResources.targetDatabaseServer.startAndClear()
     }
 
     context("Serialize output file is relative path") {
         test("can migrate and serialize") {
-            val container = DatabaseServer.startedContainer
+            val container = SharedResources.targetDatabaseServer.startedContainer
             val database = LiquibaseDatabaseFactory.create(
                 driver = container.driver,
                 url = container.jdbcUrl,
@@ -60,7 +59,7 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
 
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
-            DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
+            SharedResources.targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
             val actual = f.readText().maskingChangeSet()
@@ -72,7 +71,7 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
 
     context("Serialize output file is absolute path") {
         test("can migrate and serialize") {
-            val container = DatabaseServer.startedContainer
+            val container = SharedResources.targetDatabaseServer.startedContainer
             val database = LiquibaseDatabaseFactory.create(
                 driver = container.driver,
                 url = container.jdbcUrl,
@@ -107,7 +106,7 @@ class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
 
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
-            DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
+            SharedResources.targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
             val actual = f.readText().maskingChangeSet()

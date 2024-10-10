@@ -6,7 +6,6 @@ import momosetkn.liquibase.client.LiquibaseDatabaseFactory
 import momosetkn.utils.Constants
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
-import momosetkn.utils.DatabaseServer
 import momosetkn.utils.ResourceUtils.getResourceAsString
 import momosetkn.utils.shouldMatchWithoutLineBreaks
 import java.io.ByteArrayOutputStream
@@ -15,12 +14,12 @@ import java.nio.file.Paths
 
 class KotlinScriptMigrateAndSerializeSpec : FunSpec({
     beforeEach {
-        DatabaseServer.startAndClear()
+        SharedResources.targetDatabaseServer.startAndClear()
     }
 
     context("Serialize output file is relative path") {
         test("can migrate and serialize") {
-            val container = DatabaseServer.startedContainer
+            val container = SharedResources.targetDatabaseServer.startedContainer
             val database = LiquibaseDatabaseFactory.create(
                 driver = container.driver,
                 url = container.jdbcUrl,
@@ -55,7 +54,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
 
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
-            DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
+            SharedResources.targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
             val actual = f.readText().maskingChangeSet()
@@ -67,7 +66,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
 
     context("Serialize output file is absolute path") {
         test("can migrate and serialize") {
-            val container = DatabaseServer.startedContainer
+            val container = SharedResources.targetDatabaseServer.startedContainer
             val database = LiquibaseDatabaseFactory.create(
                 driver = container.driver,
                 url = container.jdbcUrl,
@@ -102,7 +101,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
 
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
-            DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
+            SharedResources.targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
             val actual = f.readText().maskingChangeSet()

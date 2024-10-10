@@ -7,7 +7,6 @@ import momosetkn.liquibase.command.client.LiquibaseCommandClient
 import momosetkn.liquibase.kotlin.parser.KotlinCompiledDatabaseChangeLog
 import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
-import momosetkn.utils.DatabaseServer
 import java.nio.file.Paths
 
 class CustomChangeMigrationSpec : FunSpec({
@@ -15,7 +14,7 @@ class CustomChangeMigrationSpec : FunSpec({
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.TEST_RESOURCE_DIR)
     }
     beforeEach {
-        DatabaseServer.startAndClear()
+        SharedResources.targetDatabaseServer.startAndClear()
     }
 
     context("Migrate and serialize") {
@@ -27,7 +26,7 @@ class CustomChangeMigrationSpec : FunSpec({
                     }
                 }
             }
-            val container = DatabaseServer.startedContainer
+            val container = SharedResources.targetDatabaseServer.startedContainer
             client.update(
                 driver = container.driver,
                 url = container.jdbcUrl,
