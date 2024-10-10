@@ -20,12 +20,12 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
 
     context("Serialize output file is relative path") {
         test("can migrate and serialize") {
-            val container = SharedResources.targetDatabaseServer.startedContainer
+            val server = SharedResources.targetDatabaseServer.startedServer
             val database = LiquibaseDatabaseFactory.create(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
+                driver = server.driver,
+                url = server.jdbcUrl,
+                username = server.username,
+                password = server.password,
             )
             val liquibaseClient = LiquibaseClient(
                 changeLogFile = PARSER_INPUT_CHANGELOG,
@@ -67,12 +67,12 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
 
     context("Serialize output file is absolute path") {
         test("can migrate and serialize") {
-            val container = SharedResources.targetDatabaseServer.startedContainer
+            val server = SharedResources.targetDatabaseServer.startedServer
             val database = LiquibaseDatabaseFactory.create(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
+                driver = server.driver,
+                url = server.jdbcUrl,
+                username = server.username,
+                password = server.password,
             )
             val liquibaseClient = LiquibaseClient(
                 changeLogFile = PARSER_INPUT_CHANGELOG,

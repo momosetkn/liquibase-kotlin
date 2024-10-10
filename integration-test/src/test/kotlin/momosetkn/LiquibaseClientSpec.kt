@@ -36,7 +36,7 @@ class LiquibaseClientSpec : FunSpec({
     }
 
     fun liquibaseClient(
-        databaseConfig: DatabaseConfig = SharedResources.targetDatabaseServer.startedContainer,
+        databaseConfig: DatabaseConfig = SharedResources.targetDatabaseServer.startedServer,
         changeLogFile: String? = null
     ): LiquibaseClient {
         val database = LiquibaseDatabaseFactory.create(
@@ -152,7 +152,7 @@ class LiquibaseClientSpec : FunSpec({
                 }
             }
             liquibaseClient(
-                databaseConfig = SharedResources.targetDatabaseServer.startedContainer,
+                databaseConfig = SharedResources.targetDatabaseServer.startedServer,
             ).update()
             InterchangeableChangeLog.set {
                 changeSet(author = "user", id = "100") {
@@ -178,14 +178,14 @@ class LiquibaseClientSpec : FunSpec({
                 }
             }
             liquibaseClient(
-                databaseConfig = SharedResources.referenceDatabaseServer.startedContainer,
+                databaseConfig = SharedResources.referenceDatabaseServer.startedServer,
             ).update()
             if (outputFile.exists()) {
                 outputFile.delete()
             }
         }
         test("can generated diff changeLog") {
-            val referenceDatabaseConfig = SharedResources.referenceDatabaseServer.startedContainer
+            val referenceDatabaseConfig = SharedResources.referenceDatabaseServer.startedServer
             val referenceDatabase = LiquibaseDatabaseFactory.create(
                 driver = referenceDatabaseConfig.driver,
                 url = referenceDatabaseConfig.jdbcUrl,
@@ -294,7 +294,7 @@ class LiquibaseClientSpec : FunSpec({
                     }
                 }
                 liquibaseClient(
-                    databaseConfig = SharedResources.targetDatabaseServer.startedContainer,
+                    databaseConfig = SharedResources.targetDatabaseServer.startedServer,
                 ).update()
                 InterchangeableChangeLog.set {
                     changeSet(author = "user", id = "100") {
@@ -315,16 +315,16 @@ class LiquibaseClientSpec : FunSpec({
                     }
                 }
                 liquibaseClient(
-                    databaseConfig = SharedResources.referenceDatabaseServer.startedContainer,
+                    databaseConfig = SharedResources.referenceDatabaseServer.startedServer,
                 ).update()
             }
             test("can output diffResult") {
-                val container = SharedResources.referenceDatabaseServer.startedContainer
+                val server = SharedResources.referenceDatabaseServer.startedServer
                 val referenceDatabase = LiquibaseDatabaseFactory.create(
-                    driver = container.driver,
-                    url = container.jdbcUrl,
-                    username = container.username,
-                    password = container.password,
+                    driver = server.driver,
+                    url = server.jdbcUrl,
+                    username = server.username,
+                    password = server.password,
                 )
                 val diffResult = liquibaseClient().use {
                     it.diff(
@@ -355,7 +355,7 @@ class LiquibaseClientSpec : FunSpec({
                     }
                 }
                 liquibaseClient(
-                    databaseConfig = SharedResources.targetDatabaseServer.startedContainer,
+                    databaseConfig = SharedResources.targetDatabaseServer.startedServer,
                 ).update()
                 InterchangeableChangeLog.set {
                     changeSet(author = "user", id = "100") {
@@ -376,18 +376,18 @@ class LiquibaseClientSpec : FunSpec({
                     }
                 }
                 liquibaseClient(
-                    databaseConfig = SharedResources.referenceDatabaseServer.startedContainer,
+                    databaseConfig = SharedResources.referenceDatabaseServer.startedServer,
                 ).update()
             }
             test("can output diffResult") {
-                val targetDatabaseConfig = SharedResources.targetDatabaseServer.startedContainer
+                val targetDatabaseConfig = SharedResources.targetDatabaseServer.startedServer
                 val targetDatabase = LiquibaseDatabaseFactory.create(
                     driver = targetDatabaseConfig.driver,
                     url = targetDatabaseConfig.jdbcUrl,
                     username = targetDatabaseConfig.username,
                     password = targetDatabaseConfig.password,
                 )
-                val referenceDatabaseConfig = SharedResources.referenceDatabaseServer.startedContainer
+                val referenceDatabaseConfig = SharedResources.referenceDatabaseServer.startedServer
                 val referenceDatabase = LiquibaseDatabaseFactory.create(
                     driver = referenceDatabaseConfig.driver,
                     url = referenceDatabaseConfig.jdbcUrl,

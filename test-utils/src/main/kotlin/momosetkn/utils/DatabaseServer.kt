@@ -21,7 +21,7 @@ class DatabaseServer {
     // For a clean run every time,
     private val databaseName = "liquibase_kotlin_test_$port"
 
-    val startedContainer
+    val startedServer
         get() =
             requireNotNull(config) {
                 "${DatabaseServer::class.qualifiedName} is not started"
@@ -32,7 +32,7 @@ class DatabaseServer {
         if (this.config == null) {
             this.config = createServer()
         }
-        getConnection(startedContainer).use {
+        getConnection(startedServer).use {
             checkDb(it)
             dropDb(it)
         }
@@ -58,8 +58,8 @@ class DatabaseServer {
 
     @Synchronized
     fun clear() {
-        this.config?.also { container ->
-            getConnection(container).use {
+        this.config?.also { server ->
+            getConnection(server).use {
                 dropDb(it)
             }
         }
@@ -79,7 +79,7 @@ class DatabaseServer {
     }
 
     fun generateDdl(): String {
-        return getConnection(startedContainer).use {
+        return getConnection(startedServer).use {
             val stmt = it.createStatement()
             val rs = stmt.executeQuery("SCRIPT NODATA")
 
@@ -93,8 +93,8 @@ class DatabaseServer {
         }
     }
 
-    fun getConnection(container: DatabaseConfig) =
-        DriverManager.getConnection(container.jdbcUrl, container.username, container.password)
+    fun getConnection(config: DatabaseConfig) =
+        DriverManager.getConnection(config.jdbcUrl, config.username, config.password)
 
     private fun databaseDirectory() =
         Path.of(System.getProperty("user.dir")).resolveSibling("build/tmp/test")

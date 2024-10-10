@@ -26,12 +26,12 @@ class CustomChangeMigrationSpec : FunSpec({
                     }
                 }
             }
-            val container = SharedResources.targetDatabaseServer.startedContainer
+            val server = SharedResources.targetDatabaseServer.startedServer
             client.update(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
+                driver = server.driver,
+                url = server.jdbcUrl,
+                username = server.username,
+                password = server.password,
                 changelogFile = CustomChangeMigrationSpecChangelog1::class.qualifiedName!!,
             )
 

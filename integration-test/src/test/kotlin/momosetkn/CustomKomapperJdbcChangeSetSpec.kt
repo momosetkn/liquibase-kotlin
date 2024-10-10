@@ -33,12 +33,12 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
 
     context("forwardOnly") {
         fun subject() {
-            val container = SharedResources.targetDatabaseServer.startedContainer
+            val server = SharedResources.targetDatabaseServer.startedServer
             client.update(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
+                driver = server.driver,
+                url = server.jdbcUrl,
+                username = server.username,
+                password = server.password,
                 changelogFile = InterchangeableChangeLog::class.qualifiedName!!,
             )
         }
@@ -98,19 +98,19 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
     context("forward and rollback") {
         val startedTag = "started"
         fun subject() {
-            val container = SharedResources.targetDatabaseServer.startedContainer
+            val server = SharedResources.targetDatabaseServer.startedServer
             client.update(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
+                driver = server.driver,
+                url = server.jdbcUrl,
+                username = server.username,
+                password = server.password,
                 changelogFile = InterchangeableChangeLog::class.qualifiedName!!,
             )
             client.rollback(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
+                driver = server.driver,
+                url = server.jdbcUrl,
+                username = server.username,
+                password = server.password,
                 changelogFile = InterchangeableChangeLog::class.qualifiedName!!,
                 tag = startedTag,
             )
