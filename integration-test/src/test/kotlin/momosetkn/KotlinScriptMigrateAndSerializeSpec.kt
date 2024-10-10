@@ -7,6 +7,7 @@ import momosetkn.utils.Constants
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
 import momosetkn.utils.ResourceUtils.getResourceAsString
+import momosetkn.utils.maskChangeSetParams
 import momosetkn.utils.shouldMatchWithoutLineBreaks
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
@@ -57,9 +58,9 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
             SharedResources.targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
-            val actual = f.readText().maskingChangeSet()
+            val actual = f.readText().maskChangeSetParams()
             val expect = getResourceAsString(SERIALIZER_EXPECT_CHANGELOG)
-                .maskingChangeSet()
+                .maskChangeSetParams()
             actual shouldMatchWithoutLineBreaks expect
         }
     }
@@ -104,19 +105,14 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
             SharedResources.targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
-            val actual = f.readText().maskingChangeSet()
+            val actual = f.readText().maskChangeSetParams()
             val expect = getResourceAsString(SERIALIZER_EXPECT_CHANGELOG)
-                .maskingChangeSet()
+                .maskChangeSetParams()
             actual shouldMatchWithoutLineBreaks expect
         }
     }
 }) {
     companion object {
-        private val changeSetRegex = Regex("""changeSet\(author = "(.+)", id = "(\d+)-(\d)"\) \{""")
-
-        private fun String.maskingChangeSet() =
-            this.replace(changeSetRegex, "changeSet(author = \"**********\", id = \"*************-\$3\") {")
-
         private const val PARSER_INPUT_CHANGELOG =
             "KotlinScriptMigrateAndSerializeSpec/parser_input/db.changelog-all.kts"
 

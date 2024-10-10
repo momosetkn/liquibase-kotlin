@@ -16,9 +16,15 @@ import liquibase.changelog.DatabaseChangeLog
 import liquibase.changelog.RanChangeSet
 import liquibase.changelog.visitor.ChangeExecListener
 import liquibase.changelog.visitor.DefaultChangeExecListener
+import liquibase.command.CommandScope
+import liquibase.command.core.GenerateChangelogCommandStep
+import liquibase.command.core.helpers.DbUrlConnectionArgumentsCommandStep
+import liquibase.command.core.helpers.PreCompareCommandStep
+import liquibase.command.core.helpers.ReferenceDbUrlConnectionCommandStep
 import liquibase.database.Database
 import liquibase.diff.DiffResult
 import liquibase.diff.compare.CompareControl
+import liquibase.diff.compare.CompareControl.SchemaComparison
 import liquibase.diff.output.changelog.DiffToChangeLog
 import liquibase.exception.CommandExecutionException
 import liquibase.exception.DatabaseException
@@ -32,6 +38,7 @@ import momosetkn.liquibase.client.DateUtils.toJavaUtilDate
 import java.io.PrintStream
 import java.io.Writer
 import java.time.LocalDateTime
+import java.util.Arrays
 import kotlin.reflect.KClass
 
 @Suppress("TooManyFunctions", "LargeClass")
@@ -646,6 +653,38 @@ class LiquibaseClient(
         )
     }
 
+    @SafeVarargs
+    @Throws(DatabaseException::class, CommandExecutionException::class)
+    fun diffChangeLog(
+        referenceDatabase: Database,
+        outputStream: PrintStream? = null,
+        vararg snapshotTypes: Class<out DatabaseObject?>?
+    ) {
+        var finalCompareTypes: Set<Class<out DatabaseObject?>>? = null
+        if ((snapshotTypes != null) && (snapshotTypes.size > 0)) {
+            finalCompareTypes = HashSet(Arrays.asList(*snapshotTypes))
+        }
+        val compareControl = CompareControl(
+            arrayOf(
+                SchemaComparison(
+                    buildCatalogAndSchema(this.liquibase.database),
+                    buildCatalogAndSchema(referenceDatabase)
+                )
+            ),
+            finalCompareTypes
+        )
+
+        // Reference liquibase.command.core.DiffToChangeLogCommand.run
+        CommandScope("diffChangelog")
+            .addArgumentValue(GenerateChangelogCommandStep.CHANGELOG_FILE_ARG, changeLogFile)
+            .addArgumentValue(PreCompareCommandStep.COMPARE_CONTROL_ARG, compareControl)
+            .addArgumentValue(DbUrlConnectionArgumentsCommandStep.DATABASE_ARG, this.liquibase.database)
+            .addArgumentValue(ReferenceDbUrlConnectionCommandStep.REFERENCE_DATABASE_ARG, referenceDatabase)
+            .addArgumentValue(PreCompareCommandStep.SNAPSHOT_TYPES_ARG, snapshotTypes)
+            .setOutput(outputStream)
+            .execute()
+    }
+
     @Throws(LiquibaseException::class)
     override fun close() {
         return this.liquibase.close()
@@ -655,9 +694,6 @@ class LiquibaseClient(
         targetDatabase: Database,
         referenceDatabase: Database,
     ): CompareControl {
-        fun buildCatalogAndSchema(database: Database): CatalogAndSchema {
-            return CatalogAndSchema(database.defaultCatalogName, database.defaultSchemaName)
-        }
         val targetCatalogAndSchema: CatalogAndSchema = buildCatalogAndSchema(targetDatabase)
         val referenceCatalogAndSchema: CatalogAndSchema = buildCatalogAndSchema(referenceDatabase)
         val schemaComparisons = arrayOf(
@@ -673,5 +709,9 @@ class LiquibaseClient(
             )
         )
         return CompareControl(schemaComparisons, referenceSnapshot.snapshotControl.typesToInclude)
+    }
+
+    private fun buildCatalogAndSchema(database: Database): CatalogAndSchema {
+        return CatalogAndSchema(database.defaultCatalogName, database.defaultSchemaName)
     }
 }
