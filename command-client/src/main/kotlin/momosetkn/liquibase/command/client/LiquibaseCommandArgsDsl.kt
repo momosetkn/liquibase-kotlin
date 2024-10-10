@@ -1,5 +1,6 @@
 package momosetkn.liquibase.command.client
 
+@ConfigureLiquibaseDslMarker
 class LiquibaseCommandArgsDsl {
     private var customLogging: LiquibaseCustomLoggingCommandArgs? = null
     private var connection: LiquibaseConnectionArgs? = null

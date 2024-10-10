@@ -1,5 +1,6 @@
 package momosetkn.liquibase.command.client
 
+@ConfigureLiquibaseDslMarker
 class ConfigureLiquibaseDsl {
     private var configuredArgs: ConfiguredArgs = ConfiguredArgs()
 
@@ -10,19 +11,19 @@ class ConfigureLiquibaseDsl {
         return configuredArgs
     }
 
-    fun globalArgs(block: LiquibaseGlobalArgsDslBlock) {
+    fun global(block: LiquibaseGlobalArgsDslBlock) {
         configuredArgs = configuredArgs.copy(
             globalArgsDslBlock = block,
         )
     }
 
-    fun commandArgs(block: LiquibaseCommandArgsDslBlock) {
+    fun command(block: LiquibaseCommandArgsDslBlock) {
         configuredArgs = configuredArgs.copy(
             commandArgsDslBlock = block,
         )
     }
 
-    fun systemEnvArg(block: LiquibaseSystemEnvArgsDslBlock) {
+    fun systemEnv(block: LiquibaseSystemEnvArgsDslBlock) {
         configuredArgs = configuredArgs.copy(
             systemEnvArgsDslBlock = block,
         )
@@ -34,3 +35,6 @@ data class ConfiguredArgs(
     var commandArgsDslBlock: LiquibaseCommandArgsDslBlock? = null,
     var systemEnvArgsDslBlock: LiquibaseSystemEnvArgsDslBlock? = null,
 )
+
+@DslMarker
+annotation class ConfigureLiquibaseDslMarker

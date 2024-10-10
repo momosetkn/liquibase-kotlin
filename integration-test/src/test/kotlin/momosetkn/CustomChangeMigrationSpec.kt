@@ -12,17 +12,16 @@ import java.nio.file.Paths
 
 class CustomChangeMigrationSpec : FunSpec({
     beforeSpec {
-        DatabaseServer.start()
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.TEST_RESOURCE_DIR)
     }
-    afterSpec {
-        DatabaseServer.clear()
+    beforeEach {
+        DatabaseServer.startAndClear()
     }
 
     context("Migrate and serialize") {
         test("can migrate") {
             val client = LiquibaseCommandClient {
-                globalArgs {
+                global {
                     general {
                         showBanner = false
                     }

@@ -30,7 +30,7 @@ object DatabaseServer {
             }
 
     @Synchronized
-    fun start() {
+    fun startAndClear() {
         if (this.container == null) {
             this.container = createServer()
         }

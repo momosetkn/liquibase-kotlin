@@ -22,13 +22,10 @@ import java.util.UUID
 
 class CustomKomapperJdbcChangeSetSpec : FunSpec({
     beforeEach {
-        DatabaseServer.start()
-    }
-    afterEach {
-        DatabaseServer.clear()
+        DatabaseServer.startAndClear()
     }
     val client = LiquibaseCommandClient {
-        globalArgs {
+        global {
             general {
                 showBanner = false
             }
