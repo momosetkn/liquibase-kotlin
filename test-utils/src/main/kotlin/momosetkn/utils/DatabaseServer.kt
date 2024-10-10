@@ -10,7 +10,7 @@ import kotlin.system.measureTimeMillis
 class DatabaseServer {
     private val log = LoggerFactory.getLogger(this.javaClass.name)
 
-    private var container: DatabaseConfig? = null
+    private var config: DatabaseConfig? = null
     private val gradlewUtils = GradlewUtils()
 
     // Automatically find a free port
@@ -23,14 +23,14 @@ class DatabaseServer {
 
     val startedContainer
         get() =
-            requireNotNull(container) {
+            requireNotNull(config) {
                 "${DatabaseServer::class.qualifiedName} is not started"
             }
 
     @Synchronized
     fun startAndClear() {
-        if (this.container == null) {
-            this.container = createServer()
+        if (this.config == null) {
+            this.config = createServer()
         }
         getConnection(startedContainer).use {
             checkDb(it)
@@ -58,7 +58,7 @@ class DatabaseServer {
 
     @Synchronized
     fun clear() {
-        this.container?.also { container ->
+        this.config?.also { container ->
             getConnection(container).use {
                 dropDb(it)
             }
