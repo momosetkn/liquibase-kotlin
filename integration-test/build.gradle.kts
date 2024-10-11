@@ -7,7 +7,7 @@ val exposedVersion = rootProject.properties["exposedVersion"] as String
 val ktormVersion = rootProject.properties["ktormVersion"] as String
 
 plugins {
-    id("com.google.devtools.ksp") version "2.0.20-1.0.25"
+    id("com.google.devtools.ksp") version "2.0.21-1.0.25"
     id("org.komapper.gradle") version "3.1.0"
 }
 
