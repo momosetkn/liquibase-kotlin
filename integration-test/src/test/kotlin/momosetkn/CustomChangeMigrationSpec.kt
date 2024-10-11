@@ -10,11 +10,12 @@ import momosetkn.utils.Constants
 import java.nio.file.Paths
 
 class CustomChangeMigrationSpec : FunSpec({
+    val targetDatabaseServer = SharedResources.getTargetDatabaseServer()
     beforeSpec {
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.TEST_RESOURCE_DIR)
     }
     beforeEach {
-        SharedResources.targetDatabaseServer.startAndClear()
+        targetDatabaseServer.startAndClear()
     }
 
     context("Migrate and serialize") {
@@ -26,7 +27,7 @@ class CustomChangeMigrationSpec : FunSpec({
                     }
                 }
             }
-            val server = SharedResources.targetDatabaseServer.startedServer
+            val server = targetDatabaseServer.startedServer
             client.update(
                 driver = server.driver,
                 url = server.jdbcUrl,

@@ -20,8 +20,9 @@ import org.komapper.core.dsl.query.single
 import java.util.UUID
 
 class CustomKomapperJdbcChangeSetSpec : FunSpec({
+    val targetDatabaseServer = SharedResources.getTargetDatabaseServer()
     beforeEach {
-        SharedResources.targetDatabaseServer.startAndClear()
+        targetDatabaseServer.startAndClear()
     }
     val client = LiquibaseCommandClient {
         global {
@@ -33,7 +34,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
 
     context("forwardOnly") {
         fun subject() {
-            val server = SharedResources.targetDatabaseServer.startedServer
+            val server = targetDatabaseServer.startedServer
             client.update(
                 driver = server.driver,
                 url = server.jdbcUrl,
@@ -79,7 +80,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
         }
         test("can migrate") {
             subject()
-            SharedResources.targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
+            targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
                     CREATE CACHED TABLE "PUBLIC"."COMPANY2"(
                         "ID" UUID NOT NULL,
@@ -88,7 +89,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
                     ALTER TABLE "PUBLIC"."COMPANY2" ADD CONSTRAINT "PUBLIC"."CONSTRAINT_A" PRIMARY KEY("ID");
                 """.trimIndent()
             )
-            val db = SharedResources.targetDatabaseServer.komapperDb()
+            val db = targetDatabaseServer.komapperDb()
             val query = QueryDsl.from(c).single()
             val item = db.runQuery(query)
             item.name shouldBe "CreatedByKomapper_name"
@@ -98,7 +99,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
     context("forward and rollback") {
         val startedTag = "started"
         fun subject() {
-            val server = SharedResources.targetDatabaseServer.startedServer
+            val server = targetDatabaseServer.startedServer
             client.update(
                 driver = server.driver,
                 url = server.jdbcUrl,
@@ -160,7 +161,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
             }
             test("can rollback") {
                 subject()
-                SharedResources.targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql("")
+                targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql("")
             }
         }
         context("rollback arg is none") {

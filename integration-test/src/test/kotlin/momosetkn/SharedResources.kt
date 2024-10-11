@@ -3,6 +3,9 @@ package momosetkn
 import momosetkn.utils.DatabaseServer
 
 object SharedResources {
-    val targetDatabaseServer = DatabaseServer()
-    val referenceDatabaseServer = DatabaseServer()
+    private val targetDatabaseServerInstance = DatabaseServer()
+    fun getTargetDatabaseServer() = targetDatabaseServerInstance
+
+    private val referenceDatabaseServerInstance = DatabaseServer()
+    fun getReferenceDatabaseServer() = referenceDatabaseServerInstance
 }

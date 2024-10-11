@@ -13,8 +13,9 @@ import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.query.single
 
 class ChangeLogSpec : FunSpec({
+    val targetDatabaseServer = SharedResources.getTargetDatabaseServer()
     beforeEach {
-        SharedResources.targetDatabaseServer.startAndClear()
+        targetDatabaseServer.startAndClear()
     }
     val client = LiquibaseCommandClient {
         global {
@@ -25,7 +26,7 @@ class ChangeLogSpec : FunSpec({
     }
 
     fun subject() {
-        val server = SharedResources.targetDatabaseServer.startedServer
+        val server = targetDatabaseServer.startedServer
         client.update(
             driver = server.driver,
             url = server.jdbcUrl,
@@ -46,7 +47,7 @@ class ChangeLogSpec : FunSpec({
         }
         test("can use property") {
             subject()
-            val db = SharedResources.targetDatabaseServer.komapperDb()
+            val db = targetDatabaseServer.komapperDb()
             val d = Meta.databasechangelog
             val result = db.runQuery {
                 QueryDsl.from(d).single()
@@ -83,7 +84,7 @@ class ChangeLogSpec : FunSpec({
             // https://github.com/liquibase/liquibase/issues/5290
             xtest("NAME column be last") {
                 subject()
-                SharedResources.targetDatabaseServer.generateDdl() shouldContain """
+                targetDatabaseServer.generateDdl() shouldContain """
                 CREATE CACHED TABLE "PUBLIC"."COMPANY"(
                     "ID" UUID,
                     "DESCRIPTION" CHARACTER VARYING(512),

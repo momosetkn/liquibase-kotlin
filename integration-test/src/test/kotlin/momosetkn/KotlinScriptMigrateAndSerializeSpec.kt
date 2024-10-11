@@ -14,13 +14,14 @@ import java.io.PrintStream
 import java.nio.file.Paths
 
 class KotlinScriptMigrateAndSerializeSpec : FunSpec({
+    val targetDatabaseServer = SharedResources.getTargetDatabaseServer()
     beforeEach {
-        SharedResources.targetDatabaseServer.startAndClear()
+        targetDatabaseServer.startAndClear()
     }
 
     context("Serialize output file is relative path") {
         test("can migrate and serialize") {
-            val server = SharedResources.targetDatabaseServer.startedServer
+            val server = targetDatabaseServer.startedServer
             val database = LiquibaseDatabaseFactory.create(
                 driver = server.driver,
                 url = server.jdbcUrl,
@@ -55,7 +56,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
 
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
-            SharedResources.targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
+            targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
             val actual = f.readText().maskChangeSetParams()
@@ -67,7 +68,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
 
     context("Serialize output file is absolute path") {
         test("can migrate and serialize") {
-            val server = SharedResources.targetDatabaseServer.startedServer
+            val server = targetDatabaseServer.startedServer
             val database = LiquibaseDatabaseFactory.create(
                 driver = server.driver,
                 url = server.jdbcUrl,
@@ -102,7 +103,7 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
 
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
-            SharedResources.targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
+            targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
             val actual = f.readText().maskChangeSetParams()

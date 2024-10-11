@@ -19,7 +19,7 @@ class DatabaseServer {
     }
 
     // For a clean run every time,
-    private val databaseName = "liquibase_kotlin_test_$port"
+    private val databaseName = "lk_test_${port}_${System.currentTimeMillis()}"
 
     val startedServer
         get() =
