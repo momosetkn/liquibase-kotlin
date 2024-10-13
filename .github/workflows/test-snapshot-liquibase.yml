@@ -1,0 +1,52 @@
+name: test snapshot-version Liquibase
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  '0 0 * * *'
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: setup gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Fetch latest SNAPSHOT version from GitHub Packages
+        id: liquibase-core-latest-snapshot-version
+        run: |
+          LATEST_VERSION=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/orgs/liquibase/packages/maven/org.liquibase.liquibase-core/versions | \
+          jq -r '.[0].name')
+          echo "Latest version is $LATEST_VERSION"
+          echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Configure Gradle for GitHub Packages
+        run: |
+          echo "gpr.user=${{ github.actor }}" >> ~/.gradle/gradle.properties
+          echo "gpr.token=${{ secrets.GITHUB_TOKEN }}" >> ~/.gradle/gradle.properties
+
+      - name: Test with latest liquibase SNAPSHOT version
+        run: |
+          ./gradlew test -PliquibaseVersion=${{ steps.liquibase-core-latest-snapshot-version.outputs.version }}
+
+      - name: Upload reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'reports-${{ matrix.os }}'
+          path: ./**/build/reports
