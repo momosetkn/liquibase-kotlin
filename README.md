@@ -1,4 +1,5 @@
 # liquibase-kotlin
+[![](https://jitpack.io/v/momosetkn/liquibase-kotlin.svg)](https://jitpack.io/#momosetkn/liquibase-kotlin)
 
 [Liquibase-kotlin](https://momosetkn.github.io/liquibase-kotlin) was created with the aim of integrating [liquibase](https://github.com/liquibase/liquibase) with kotlin.
 This module provides Kotlin-DSL, Wrapper-client, ORM-integration.
