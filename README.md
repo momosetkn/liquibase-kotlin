@@ -12,7 +12,7 @@ Liquibase-kotlin documentation page
 ```kotlin
 repositories {
     // Add below to repositories. because this product is publish to jitpack.
-    maven { url = URI("https://jitpack.io") }
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
