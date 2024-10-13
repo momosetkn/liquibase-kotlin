@@ -1,7 +1,6 @@
 name: test snapshot-version Liquibase
 
 on:
-  push: # FIXME: remove push event
   schedule:
     - cron:  '0 0 * * *'
 
