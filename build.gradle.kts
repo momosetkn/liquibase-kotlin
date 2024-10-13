@@ -55,6 +55,7 @@ val libraryProjects =
             "dsl",
             // parser
             "script-parser",
+            "script-parser-exterior",
             "compiled-parser",
             // serializer
             "serializer-core",

@@ -21,6 +21,7 @@ include("liquibase-kotlin.custom-komapper-jdbc-change-unit-test")
 include("dsl")
 // parser
 include("script-parser")
+include("script-parser-exterior")
 include("compiled-parser")
 // serializer
 include("serializer-core")
