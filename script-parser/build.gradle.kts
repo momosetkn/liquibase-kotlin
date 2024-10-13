@@ -7,6 +7,7 @@ val slf4jVersion = rootProject.properties["slf4jVersion"] as String
 dependencies {
     // liquibase-kotlin
     api(project(":dsl"))
+    api(project(":script-parser-exterior"))
     // liquibase
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
     // kotlin-script

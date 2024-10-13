@@ -8,6 +8,7 @@ import kotlin.script.experimental.api.ScriptCompilationConfiguration
 import kotlin.script.experimental.api.ScriptDiagnostic
 import kotlin.script.experimental.api.ScriptEvaluationConfiguration
 import kotlin.script.experimental.api.defaultImports
+import kotlin.script.experimental.api.implicitReceivers
 import kotlin.script.experimental.api.valueOrNull
 import kotlin.script.experimental.api.valueOrThrow
 import kotlin.script.experimental.host.toScriptSource
@@ -18,6 +19,7 @@ import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
 class LiquibaseDslCompilationConfiguration(
     private val imports: List<String> = emptyList()
 ) : ScriptCompilationConfiguration({
+        implicitReceivers(momosetkn.liquibase.kotlin.dsl.ChangeLogBuilderDsl::class)
         jvm {
             dependenciesFromCurrentContext(wholeClasspath = true)
         }
@@ -32,11 +34,13 @@ object EvaluateLiquibaseDsl {
         filePath: String,
         changeLogScript: String,
         imports: List<String>,
+        changeLogBuilderDsl: momosetkn.liquibase.kotlin.dsl.ChangeLogBuilderDsl,
     ) {
         val result = evaluateWithConfiguration(
             filePath = filePath,
             script = changeLogScript,
-            imports = imports
+            imports = imports,
+            context = changeLogBuilderDsl,
         )
         logResult(filePath = filePath, result = result)
     }
@@ -45,10 +49,14 @@ object EvaluateLiquibaseDsl {
         filePath: String,
         script: String,
         imports: List<String>,
+        context: momosetkn.liquibase.kotlin.dsl.ChangeLogBuilderDsl,
     ): ResultWithDiagnostics<EvaluationResult> {
         val scriptSource = script.toScriptSource(filePath)
         val compilationConfiguration = LiquibaseDslCompilationConfiguration(imports)
-        val evaluationConfiguration = ScriptEvaluationConfiguration()
+        val evaluationConfiguration =
+            ScriptEvaluationConfiguration {
+                implicitReceivers(context)
+            }
 
         val host = BasicJvmScriptingHost()
 

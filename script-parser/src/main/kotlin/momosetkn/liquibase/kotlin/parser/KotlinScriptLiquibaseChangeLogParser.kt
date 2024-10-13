@@ -6,7 +6,6 @@ import liquibase.changelog.DatabaseChangeLog
 import liquibase.exception.ChangeLogParseException
 import liquibase.parser.ChangeLogParser
 import liquibase.resource.ResourceAccessor
-import momosetkn.liquibase.kotlin.dsl.ChangeLogDsl
 import java.io.InputStreamReader
 import java.util.ServiceLoader
 
@@ -55,20 +54,18 @@ class KotlinScriptLiquibaseChangeLogParser : ChangeLogParser {
     ) {
         databaseChangeLog.changeLogParameters = changeLogParameters
 
-        ChangeLogDslBlocks.items.clear()
+        val changeLogBuilderDsl =
+            momosetkn.liquibase.kotlin.dsl.ChangeLogBuilderDsl(
+                databaseChangeLog,
+                resourceAccessor,
+            )
+
         EvaluateLiquibaseDsl.evaluate(
             filePath = filePath,
             changeLogScript = changeLogScript,
             imports = imports,
+            changeLogBuilderDsl = changeLogBuilderDsl,
         )
-        ChangeLogDslBlocks.items.forEach { block ->
-            val dsl =
-                ChangeLogDsl(
-                    changeLog = databaseChangeLog,
-                    resourceAccessor = resourceAccessor,
-                )
-            block(dsl)
-        }
     }
 
     private fun getChangeLogKotlinScriptCode(
