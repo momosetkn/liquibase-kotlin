@@ -1,18 +1,43 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 val kotestVersion: String by project
 val kotlinVersion: String by project
 val liquibaseVersion: String by project
 val artifactIdPrefix: String by project
 val liquibaseKotlinVersion: String by project
+val myGroup: String by project
 
 plugins {
     kotlin("jvm")
     id("io.gitlab.arturbosch.detekt") version "1.23.7"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
     `maven-publish`
+    id("io.deepmedia.tools.deployer") version "0.14.0"
+    id("org.jetbrains.dokka") version "1.9.20"
 }
 
-group = "momosetkn"
-version = "1.0-SNAPSHOT"
+group = myGroup
+version = liquibaseKotlinVersion
+description = "Liquibase kotlin(DSL, Wrapper client, ORM integration)"
+
+typealias Base64 = java.util.Base64
+fun decodeBase64(s: String): String {
+    return Base64.getDecoder().decode(s).let { String(it) }
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+    withSourcesJar()
+    withJavadocJar()
+}
+tasks.withType<KotlinCompile> {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
+}
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -85,24 +110,53 @@ val libraryProjects =
 configure(libraryProjects) {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "maven-publish")
+    apply(plugin = "io.deepmedia.tools.deployer")
+    apply(plugin = "org.jetbrains.dokka")
+
+    version = rootProject.version
 
     val sourcesJar by tasks.creating(Jar::class) {
         archiveClassifier.set("sources")
         from(sourceSets["main"].allSource)
     }
+    val javadocs = tasks.register<Jar>("dokkaJavadocJar") {
+        dependsOn(tasks.dokkaJavadoc)
+        from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
+        archiveClassifier.set("javadoc")
+    }
 
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                from(components["java"])
-                artifact(sourcesJar)
-                groupId = "com.github.momosetkn.$artifactIdPrefix"
-                artifactId = "$artifactIdPrefix-${project.name}"
-                version = liquibaseKotlinVersion
+    deployer {
+        projectInfo {
+            val projectUrl: String by project
+            val githubUrl: String by project
+
+            name = rootProject.name
+            description = rootProject.description
+            url = projectUrl
+            groupId = myGroup
+            artifactId = "$artifactIdPrefix-${project.name}"
+            scm {
+                connection = "scm:git:$githubUrl"
+                developerConnection = "scm:git:$githubUrl"
+                url = projectUrl
             }
+            license(apache2)
+            developer("momosetkn", "hyakkun@gmail.com")
         }
-        repositories {
-            maven { url = uri("https://jitpack.io") }
+        release {
+            val liquibaseKotlinVersion: String by project
+            release.version = liquibaseKotlinVersion
+            release.tag.set("v${liquibaseKotlinVersion}")
+            release.description.set("$artifactIdPrefix ${project.name} ${release.tag}")
+        }
+
+        centralPortalSpec {
+            auth.user.set(secret("CENTRAL_PORTAL_USER"))
+            auth.password.set(secret("CENTRAL_PORTAL_PASSWORD"))
+        }
+        signing {
+            key.set(secret("SIGNING_KEY"))
+            password.set(secret("SIGNING_PASSWORD"))
         }
     }
 }
