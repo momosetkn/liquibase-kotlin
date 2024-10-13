@@ -28,12 +28,11 @@ jobs:
 
       - name: Fetch latest SNAPSHOT version from GitHub Packages
         id: liquibase-core-latest-snapshot-version
-        run: |
-          LATEST_VERSION=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-          https://api.github.com/orgs/liquibase/packages/maven/org.liquibase.liquibase-core/versions | \
-          jq -r '.[0].name')
-          echo "Latest version is $LATEST_VERSION"
-          echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+        uses: momosetkn/fetch-gh-package-latest-snapshot-version@main
+        with:
+          org: liquibase
+          packageName: maven
+          packageType: org.liquibase.liquibase-core
 
       - name: Configure Gradle for GitHub Packages
         run: |
