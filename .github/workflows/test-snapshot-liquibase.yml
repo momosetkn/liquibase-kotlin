@@ -31,8 +31,8 @@ jobs:
         uses: momosetkn/fetch-gh-package-latest-snapshot-version@main
         with:
           org: liquibase
-          packageName: maven
-          packageType: org.liquibase.liquibase-core
+          packageType: maven
+          packageName: org.liquibase.liquibase-core
           githubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Gradle for GitHub Packages
