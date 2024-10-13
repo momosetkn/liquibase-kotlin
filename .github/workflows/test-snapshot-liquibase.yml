@@ -33,6 +33,7 @@ jobs:
           org: liquibase
           packageName: maven
           packageType: org.liquibase.liquibase-core
+          ghToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Gradle for GitHub Packages
         run: |
