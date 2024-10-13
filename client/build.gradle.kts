@@ -1,5 +1,4 @@
 import java.util.Properties
-import kotlin.io.path.Path
 
 val kotestVersion = rootProject.properties["kotestVersion"] as String
 val slf4jVersion = rootProject.properties["slf4jVersion"] as String
@@ -9,7 +8,7 @@ val liquibaseVersion = getSnapshotOrDefaultVersion("liquibaseVersion")
 
 fun loadDefaultProperty(propertyName: String): String {
     val gradleProps = Properties()
-    val gradlePropertiesFile = Path(rootProject.path).resolveSibling("gradle.properties").toFile()
+    val gradlePropertiesFile = rootProject.projectDir.resolve("gradle.properties")
     gradlePropertiesFile.inputStream().use { gradleProps.load(it) }
     return gradleProps.getProperty(propertyName)
 }
