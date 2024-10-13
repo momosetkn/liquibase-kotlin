@@ -1,6 +1,7 @@
 name: test snapshot-version Liquibase
 
 on:
+  workflow_dispatch:
   schedule:
     - cron:  '0 0 * * *'
 
