@@ -13,4 +13,7 @@ class KotestProjectConfig : AbstractProjectConfig() {
             }
         }
     }
+
+    // TODO: off parallelism. because liquibase generateChangeLog is not threadSafe.
+//    override val parallelism = 4
 }

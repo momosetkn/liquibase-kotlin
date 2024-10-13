@@ -14,9 +14,9 @@ import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
 import momosetkn.utils.DatabaseConfig
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
-import momosetkn.utils.InterchangeableChangeLog
+import momosetkn.utils.DatabaseServer
+import momosetkn.utils.MutableChangeLog
 import momosetkn.utils.maskChangeSetParams
-import momosetkn.utils.set
 import momosetkn.utils.toVersion
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
@@ -28,8 +28,12 @@ import java.nio.file.Paths
 
 @OptIn(ExperimentalKotest::class)
 class LiquibaseClientSpec : FunSpec({
-    val targetDatabaseServer = SharedResources.getTargetDatabaseServer()
-    val referenceDatabaseServer = SharedResources.getReferenceDatabaseServer()
+    lateinit var targetDatabaseServer: DatabaseServer
+    lateinit var referenceDatabaseServer: DatabaseServer
+    beforeEach {
+        targetDatabaseServer = SharedResources.getTargetDatabaseServer()
+        referenceDatabaseServer = SharedResources.getReferenceDatabaseServer()
+    }
     beforeSpec {
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.TEST_RESOURCE_DIR)
     }
@@ -48,13 +52,13 @@ class LiquibaseClientSpec : FunSpec({
             password = databaseConfig.password,
         )
         return LiquibaseClient(
-            changeLogFile = changeLogFile ?: InterchangeableChangeLog::class.qualifiedName!!,
+            changeLogFile = changeLogFile ?: MutableChangeLog::class.qualifiedName!!,
             database = database,
         )
     }
 
     context("update(tag)") {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 createTable(tableName = "company") {
                     column(name = "id", type = "UUID") {
@@ -81,7 +85,7 @@ class LiquibaseClientSpec : FunSpec({
 
     context("generateChangeLog") {
         val outputFile = File("build/tmp/test/${LiquibaseClientSpec::class.simpleName}_generateChangeLog.kt")
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 createTable(tableName = "company") {
                     column(name = "id", type = "UUID") {
@@ -101,7 +105,7 @@ class LiquibaseClientSpec : FunSpec({
         }
         test("can generated") {
             val databaseChangeLog = KotlinCompiledLiquibaseChangeLogParser().parse(
-                physicalChangeLogLocation = InterchangeableChangeLog::class.qualifiedName!!,
+                physicalChangeLogLocation = MutableChangeLog::class.qualifiedName!!,
                 changeLogParameters = ChangeLogParameters(),
                 resourceAccessor = Scope.getCurrentScope().resourceAccessor,
             )
@@ -143,7 +147,7 @@ class LiquibaseClientSpec : FunSpec({
         val outputFile = File("build/tmp/test/${LiquibaseClientSpec::class.simpleName}_diffChangeLog.kt")
         beforeEach {
             referenceDatabaseServer.startAndClear()
-            InterchangeableChangeLog.set {
+            MutableChangeLog.set {
                 changeSet(author = "user", id = "100") {
                     createTable(tableName = "company") {
                         column(name = "id", type = "UUID") {
@@ -156,7 +160,7 @@ class LiquibaseClientSpec : FunSpec({
             liquibaseClient(
                 databaseConfig = targetDatabaseServer.startedServer,
             ).update()
-            InterchangeableChangeLog.set {
+            MutableChangeLog.set {
                 changeSet(author = "user", id = "100") {
                     createTable(tableName = "company") {
                         column(name = "id", type = "UUID") {
@@ -236,7 +240,7 @@ class LiquibaseClientSpec : FunSpec({
     context("updateCountSql").config(
         enabled = System.getProperty("liquibaseVersion", "999.9.9").toVersion() >= "4.29.2".toVersion()
     ) {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 createTable(tableName = "company") {
                     column(name = "id", type = "UUID") {
@@ -257,7 +261,7 @@ class LiquibaseClientSpec : FunSpec({
     context("updateToTagSql").config(
         enabled = System.getProperty("liquibaseVersion", "999.9.9").toVersion() >= "4.29.2".toVersion()
     ) {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 createTable(tableName = "company") {
                     column(name = "id", type = "UUID") {
@@ -285,7 +289,7 @@ class LiquibaseClientSpec : FunSpec({
         context("not specify targetDatabase") {
             beforeEach {
                 referenceDatabaseServer.startAndClear()
-                InterchangeableChangeLog.set {
+                MutableChangeLog.set {
                     changeSet(author = "user", id = "100") {
                         createTable(tableName = "company") {
                             column(name = "id", type = "UUID") {
@@ -298,7 +302,7 @@ class LiquibaseClientSpec : FunSpec({
                 liquibaseClient(
                     databaseConfig = targetDatabaseServer.startedServer,
                 ).update()
-                InterchangeableChangeLog.set {
+                MutableChangeLog.set {
                     changeSet(author = "user", id = "100") {
                         createTable(tableName = "company") {
                             column(name = "id", type = "UUID") {
@@ -346,7 +350,7 @@ class LiquibaseClientSpec : FunSpec({
         context("specify targetDatabase") {
             beforeEach {
                 referenceDatabaseServer.startAndClear()
-                InterchangeableChangeLog.set {
+                MutableChangeLog.set {
                     changeSet(author = "user", id = "100") {
                         createTable(tableName = "company") {
                             column(name = "id", type = "UUID") {
@@ -359,7 +363,7 @@ class LiquibaseClientSpec : FunSpec({
                 liquibaseClient(
                     databaseConfig = targetDatabaseServer.startedServer,
                 ).update()
-                InterchangeableChangeLog.set {
+                MutableChangeLog.set {
                     changeSet(author = "user", id = "100") {
                         createTable(tableName = "company") {
                             column(name = "id", type = "UUID") {

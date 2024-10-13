@@ -7,10 +7,14 @@ import momosetkn.liquibase.command.client.LiquibaseCommandClient
 import momosetkn.liquibase.kotlin.parser.KotlinCompiledDatabaseChangeLog
 import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
+import momosetkn.utils.DatabaseServer
 import java.nio.file.Paths
 
 class CustomChangeMigrationSpec : FunSpec({
-    val targetDatabaseServer = SharedResources.getTargetDatabaseServer()
+    lateinit var targetDatabaseServer: DatabaseServer
+    beforeSpec {
+        targetDatabaseServer = SharedResources.getTargetDatabaseServer()
+    }
     beforeSpec {
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.TEST_RESOURCE_DIR)
     }

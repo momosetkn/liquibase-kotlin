@@ -11,7 +11,7 @@ class DatabaseServer {
     private val log = LoggerFactory.getLogger(this.javaClass.name)
 
     private var config: DatabaseConfig? = null
-    private val gradlewUtils = GradlewUtils()
+    private val h2DatabaseServerLauncher = H2DatabaseServerLauncher()
 
     // Automatically find a free port
     private val port = ServerSocket(0).use { socket ->
@@ -49,7 +49,7 @@ class DatabaseServer {
         Class.forName(databaseConfig.driver)
         val launchTime =
             measureTimeMillis {
-                lunchH2Server(port)
+                h2DatabaseServerLauncher.launch(port)
                 recursiveCheckDbLoop(databaseConfig)
             }
         log.info("database started in $launchTime ms")
@@ -63,19 +63,6 @@ class DatabaseServer {
                 dropDb(it)
             }
         }
-    }
-
-    private fun lunchH2Server(port: Int): () -> Unit {
-        val command = listOfNotNull(
-            gradlewUtils.getDefaultShell(),
-            "./gradlew",
-            "test-utils:startH2Server",
-            "-Pport=$port"
-        )
-        val destroy = gradlewUtils.executeCommand(command)
-        Thread.sleep(LAUNCH_INITIAL_WAIT)
-
-        return destroy
     }
 
     fun generateDdl(): String {
@@ -128,8 +115,52 @@ class DatabaseServer {
     }
 
     companion object {
-        private const val LAUNCH_INITIAL_WAIT = 200L
         private const val CONFIRM_ESTABLISHED_INTERVAL = 50L
+    }
+}
+
+private class H2DatabaseServerLauncher(
+    val sameProcess: Boolean = true
+) {
+    private val log = LoggerFactory.getLogger(this.javaClass.name)
+
+    private val gradlewUtils = GradlewUtils()
+
+    fun launch(port: Int): () -> Unit {
+        return if (sameProcess) {
+            launchSameProcess(port)
+        } else {
+            launchOtherProcess(port)
+        }
+    }
+
+    private fun launchOtherProcess(port: Int): () -> Unit {
+        val command = listOfNotNull(
+            gradlewUtils.getDefaultShell(),
+            "./gradlew",
+            "test-utils:startH2Server",
+            "-Pport=$port"
+        )
+        val destroy = gradlewUtils.executeCommand(command)
+        Thread.sleep(LAUNCH_INITIAL_WAIT)
+
+        return destroy
+    }
+
+    private fun launchSameProcess(port: Int): () -> Unit {
+        val args = listOf("-tcp", "-tcpAllowOthers", "-tcpDaemon", "-tcpPort", "$port", "-trace", "-ifNotExists")
+
+        @Suppress("SpreadOperator")
+        val server = org.h2.tools.Server.createTcpServer(*args.toTypedArray())
+        server.start()
+        log.info(server.getStatus())
+        return {
+            server.stop()
+        }
+    }
+
+    companion object {
+        private const val LAUNCH_INITIAL_WAIT = 200L
     }
 }
 

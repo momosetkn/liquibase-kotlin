@@ -10,15 +10,18 @@ import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
-import momosetkn.utils.InterchangeableChangeLog
-import momosetkn.utils.set
+import momosetkn.utils.DatabaseServer
+import momosetkn.utils.MutableChangeLog
 import momosetkn.utils.shouldMatchWithoutLineBreaks
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.query.single
 
 class ChangeSetSpec : FunSpec({
-    val targetDatabaseServer = SharedResources.getTargetDatabaseServer()
+    lateinit var targetDatabaseServer: DatabaseServer
+    beforeSpec {
+        targetDatabaseServer = SharedResources.getTargetDatabaseServer()
+    }
     beforeEach {
         targetDatabaseServer.startAndClear()
     }
@@ -29,6 +32,7 @@ class ChangeSetSpec : FunSpec({
             }
         }
     }
+
     fun subject() {
         val server = targetDatabaseServer.startedServer
         client.update(
@@ -36,12 +40,12 @@ class ChangeSetSpec : FunSpec({
             url = server.jdbcUrl,
             username = server.username,
             password = server.password,
-            changelogFile = InterchangeableChangeLog::class.qualifiedName!!,
+            changelogFile = MutableChangeLog::class.qualifiedName!!,
         )
     }
 
     context("comment") {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 comment("comment_123") // precedence this
                 comment("comment_456")
@@ -60,7 +64,7 @@ class ChangeSetSpec : FunSpec({
     context("preConditions") {
         fun databaseUsername() = targetDatabaseServer.startedServer.username
         context("postgresql and <currentUser>") {
-            InterchangeableChangeLog.set {
+            MutableChangeLog.set {
                 changeSet(author = "user", id = "100") {
                     preConditions(
                         onFail = "MARK_RAN",
@@ -91,7 +95,7 @@ class ChangeSetSpec : FunSpec({
             }
         }
         context("mysql and root") {
-            InterchangeableChangeLog.set {
+            MutableChangeLog.set {
                 changeSet(author = "user", id = "100") {
                     preConditions(
                         onFail = "MARK_RAN",
@@ -114,7 +118,7 @@ class ChangeSetSpec : FunSpec({
             }
         }
         context("(mysql and root) or (postgresql and currentUser)") {
-            InterchangeableChangeLog.set {
+            MutableChangeLog.set {
                 changeSet(author = "user", id = "100") {
                     preConditions(
                         onFail = "MARK_RAN",
@@ -155,7 +159,7 @@ class ChangeSetSpec : FunSpec({
     }
 
     context("executeCommand") {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 executeCommand(
                     executable = "java",
@@ -171,7 +175,7 @@ class ChangeSetSpec : FunSpec({
         }
     }
     context("output") {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 output(
                     message = "output_message",
@@ -185,7 +189,7 @@ class ChangeSetSpec : FunSpec({
     }
 
     context("sql") {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 sql(
                     """
@@ -211,7 +215,7 @@ class ChangeSetSpec : FunSpec({
         }
     }
     context("sql(original)") {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 sql {
                     """
@@ -237,7 +241,7 @@ class ChangeSetSpec : FunSpec({
         }
     }
     context("sqlFile") {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 sqlFile(
                     path = "ChangeSetSpec/sqlFile.sql",
@@ -259,7 +263,7 @@ class ChangeSetSpec : FunSpec({
         }
     }
     context("stop") {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 createTable(tableName = "company") {
                     column(name = "id", type = "UUID") {
@@ -297,7 +301,7 @@ class ChangeSetSpec : FunSpec({
         }
     }
     context("tagDatabase") {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 tagDatabase("example_tag1")
             }

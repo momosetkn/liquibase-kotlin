@@ -8,6 +8,7 @@ import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
+import momosetkn.utils.DatabaseServer
 import momosetkn.utils.ResourceUtils.getResourceAsString
 import momosetkn.utils.maskChangeSetParams
 import momosetkn.utils.shouldMatchWithoutLineBreaks
@@ -16,7 +17,10 @@ import java.io.PrintStream
 import java.nio.file.Paths
 
 class KotlinCompiledMigrateAndSerializeSpec : FunSpec({
-    val targetDatabaseServer = SharedResources.getTargetDatabaseServer()
+    lateinit var targetDatabaseServer: DatabaseServer
+    beforeSpec {
+        targetDatabaseServer = SharedResources.getTargetDatabaseServer()
+    }
     beforeSpec {
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.TEST_RESOURCE_DIR)
     }

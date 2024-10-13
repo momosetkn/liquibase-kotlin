@@ -6,15 +6,18 @@ import io.kotest.matchers.string.shouldContain
 import komapper.databasechangelog
 import momosetkn.liquibase.command.client.LiquibaseCommandClient
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
-import momosetkn.utils.InterchangeableChangeLog
-import momosetkn.utils.set
+import momosetkn.utils.DatabaseServer
+import momosetkn.utils.MutableChangeLog
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.query.single
 
 class ChangeLogSpec : FunSpec({
-    val targetDatabaseServer = SharedResources.getTargetDatabaseServer()
-    beforeEach {
+    lateinit var targetDatabaseServer: DatabaseServer
+    beforeSpec {
+        targetDatabaseServer = SharedResources.getTargetDatabaseServer()
+    }
+    beforeSpec {
         targetDatabaseServer.startAndClear()
     }
     val client = LiquibaseCommandClient {
@@ -32,12 +35,12 @@ class ChangeLogSpec : FunSpec({
             url = server.jdbcUrl,
             username = server.username,
             password = server.password,
-            changelogFile = InterchangeableChangeLog::class.qualifiedName!!,
+            changelogFile = MutableChangeLog::class.qualifiedName!!,
         )
     }
 
     context("property") {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             property(name = "key1", value = "value1")
             property(name = "key2", value = "value2")
             property(file = "ChangeLogSpec/prop.txt")
@@ -58,7 +61,7 @@ class ChangeLogSpec : FunSpec({
 
     context("removeChangeSetProperty") {
         context("dbms = all, remove = afterColumn") {
-            InterchangeableChangeLog.set {
+            MutableChangeLog.set {
                 removeChangeSetProperty(
                     change = "addColumn",
                     dbms = "all",
