@@ -151,6 +151,9 @@ configure(libraryProjects) {
             license(apache2)
             developer(autherName, autherEmail)
         }
+        content {
+            kotlinComponents {}
+        }
         release {
             release.version = artifactVersion
             release.tag = artifactVersion
