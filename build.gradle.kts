@@ -88,6 +88,7 @@ allprojects {
 
 val libraryProjects =
     subprojects.filter {
+        // To prevent accidental publishing, use a allowlist.
         it.name in listOf(
             // dsl
             "dsl",
@@ -152,7 +153,11 @@ configure(libraryProjects) {
             developer(autherName, autherEmail)
         }
         content {
-            kotlinComponents {}
+            component {
+                sources(sourcesJar)
+                docs(javadocs)
+                fromJava()
+            }
         }
         release {
             release.version = artifactVersion
@@ -165,6 +170,7 @@ configure(libraryProjects) {
             signing.key = secret("SIGNING_KEY")
             signing.password = secret("SIGNING_PASSWORD")
 
+            // Publish manually from this link https://central.sonatype.com/publishing
             allowMavenCentralSync = false
         }
     }
