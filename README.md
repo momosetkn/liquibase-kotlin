@@ -1,5 +1,5 @@
 # liquibase-kotlin
-[![](https://jitpack.io/v/momosetkn/liquibase-kotlin.svg)](https://jitpack.io/#momosetkn/liquibase-kotlin)
+[![Maven Central](https://img.shields.io/maven-central/v/momosetkn/liquibase-kotlin-dsl)](https://search.maven.org/artifact/momosetkn/liquibase-kotlin-dsl)
 
 [Liquibase-kotlin](https://momosetkn.github.io/liquibase-kotlin) was created with the aim of integrating [liquibase](https://github.com/liquibase/liquibase) with kotlin.
 This module provides Kotlin-DSL, Wrapper-client, ORM-integration.
@@ -10,30 +10,25 @@ Liquibase-kotlin documentation page
 ## How to install
 
 ```kotlin
-repositories {
-    // Add below to repositories. because this product is publish to jitpack.
-    maven { url = uri("https://jitpack.io") }
-}
-
 dependencies {
     // liquibase
     implementation("org.liquibase:liquibase-core:4.29.2")
-    val liquibaseKotlinVersion = "0.7.1"
+    val liquibaseKotlinVersion = "4.29.2-0.8.0"
     // You can choose to install either kotlin-script or kotlin-compiled.
     // for kotlin-script
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-starter-script:$liquibaseKotlinVersion")
+    implementation("io.github.momosetkn:liquibase-kotlin-starter-script:$liquibaseKotlinVersion")
     // for kotlin-compiled
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-starter-compiled:$liquibaseKotlinVersion")
+    implementation("io.github.momosetkn:liquibase-kotlin-starter-compiled:$liquibaseKotlinVersion")
     // If you want to use call liquibase-command by kotlin, add the following code.
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-client:$liquibaseKotlinVersion")
+    implementation("io.github.momosetkn:liquibase-kotlin-client:$liquibaseKotlinVersion")
     // If you want to use komapper on customChange, add the following code.
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-komapper-jdbc-change:$liquibaseKotlinVersion")
+    implementation("io.github.momosetkn:liquibase-kotlin-custom-komapper-jdbc-change:$liquibaseKotlinVersion")
     // If you want to use exposed on customChange, add the following code.
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-exposed-migration-change:$liquibaseKotlinVersion")
+    implementation("io.github.momosetkn:liquibase-kotlin-custom-exposed-migration-change:$liquibaseKotlinVersion")
     // If you want to use ktorm on customChange, add the following code.
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-ktorm-change:$liquibaseKotlinVersion")
+    implementation("io.github.momosetkn:liquibase-kotlin-custom-ktorm-change:$liquibaseKotlinVersion")
     // If you want to use jOOQ on customChange, add the following code.
-    implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-jooq-change:$liquibaseKotlinVersion")
+    implementation("io.github.momosetkn:liquibase-kotlin-custom-jooq-change:$liquibaseKotlinVersion")
 }
 ```
 
@@ -123,7 +118,7 @@ liquibaseClient.update()
 add bellow dependencies.
 
 ```kotlin
-implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-komapper-jdbc-change:$liquibaseKotlinVersion")
+implementation("io.github.momosetkn:liquibase-kotlin-custom-komapper-jdbc-change:$liquibaseKotlinVersion")
 ```
 
 changeSet example
@@ -159,7 +154,7 @@ changeSet(author = "momose", id = "100-40") {
 add bellow dependencies.
 
 ```kotlin
-implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-jooq-change:$liquibaseKotlinVersion")
+implementation("io.github.momosetkn:liquibase-kotlin-custom-jooq-change:$liquibaseKotlinVersion")
 ```
 
 changeSet example
@@ -194,7 +189,7 @@ changeSet(author = "momose", id = "100-40") {
 add bellow dependencies.
 
 ```kotlin
-implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-exposed-migration-change:$liquibaseKotlinVersion")
+implementation("io.github.momosetkn:liquibase-kotlin-custom-exposed-migration-change:$liquibaseKotlinVersion")
 ```
 
 changeSet example
@@ -232,7 +227,7 @@ changeSet(author = "momose", id = "100-60") {
 add bellow dependencies.
 
 ```kotlin
-implementation("com.github.momosetkn.liquibase-kotlin:liquibase-kotlin-custom-ktorm-change:$liquibaseKotlinVersion")
+implementation("io.github.momosetkn:liquibase-kotlin-custom-ktorm-change:$liquibaseKotlinVersion")
 ```
 
 changeSet example
