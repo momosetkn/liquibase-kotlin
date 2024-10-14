@@ -137,6 +137,9 @@ configure(libraryProjects) {
         val artifactVersion: String by project
         val autherName: String by project
         val autherEmail: String by project
+
+        verbose = true
+
         projectInfo {
             name = rootProject.name
             description = rootProject.description
