@@ -1,12 +1,9 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 val kotestVersion: String by project
 val kotlinVersion: String by project
 val liquibaseVersion: String by project
 val artifactIdPrefix: String by project
-val liquibaseKotlinVersion: String by project
-val myGroup: String by project
+val artifactVersion: String by project
+val artifactGroup: String by project
 
 plugins {
     kotlin("jvm")
@@ -17,13 +14,21 @@ plugins {
     id("org.jetbrains.dokka") version "1.9.20"
 }
 
-group = myGroup
-version = liquibaseKotlinVersion
+group = artifactGroup
+version = artifactVersion
 description = "Liquibase kotlin(DSL, Wrapper client, ORM integration)"
 
-typealias Base64 = java.util.Base64
-fun decodeBase64(s: String): String {
-    return Base64.getDecoder().decode(s).let { String(it) }
+fun validateArtifactVersion(artifactVersion: String) {
+    val (artifactVersionLiquibase, artifactVersionLiquibaseKotlin) = artifactVersion.split("-")
+    require(artifactVersionLiquibase == liquibaseVersion) {
+        "artifactVersion is not matched `liquibaseVersion`"
+    }
+    require(artifactVersionLiquibaseKotlin.isNotEmpty()) {
+        "specify the version after the `-` character of `artifactVersion`"
+    }
+}
+if (artifactVersion.isNotEmpty()) {
+    validateArtifactVersion(artifactVersion)
 }
 
 java {
@@ -33,9 +38,9 @@ java {
     withSourcesJar()
     withJavadocJar()
 }
-tasks.withType<KotlinCompile> {
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 
@@ -46,6 +51,7 @@ allprojects {
 
     repositories {
         mavenCentral()
+        // for snapshot version
         maven {
             url = uri("https://maven.pkg.github.com/liquibase/liquibase")
             credentials {
@@ -126,14 +132,16 @@ configure(libraryProjects) {
     }
 
     deployer {
+        val projectUrl: String by project
+        val githubUrl: String by project
+        val artifactVersion: String by project
+        val autherName: String by project
+        val autherEmail: String by project
         projectInfo {
-            val projectUrl: String by project
-            val githubUrl: String by project
-
             name = rootProject.name
             description = rootProject.description
             url = projectUrl
-            groupId = myGroup
+            groupId = artifactGroup
             artifactId = "$artifactIdPrefix-${project.name}"
             scm {
                 connection = "scm:git:$githubUrl"
@@ -141,22 +149,20 @@ configure(libraryProjects) {
                 url = projectUrl
             }
             license(apache2)
-            developer("momosetkn", "hyakkun@gmail.com")
+            developer(autherName, autherEmail)
         }
         release {
-            val liquibaseKotlinVersion: String by project
-            release.version = liquibaseKotlinVersion
-            release.tag.set("v${liquibaseKotlinVersion}")
-            release.description.set("$artifactIdPrefix ${project.name} ${release.tag}")
+            release.version = artifactVersion
+            release.tag = artifactVersion
+            release.description = project.description
         }
-
         centralPortalSpec {
-            auth.user.set(secret("CENTRAL_PORTAL_USER"))
-            auth.password.set(secret("CENTRAL_PORTAL_PASSWORD"))
+            auth.user = secret("CENTRAL_PORTAL_USER")
+            auth.password = secret("CENTRAL_PORTAL_PASSWORD")
         }
         signing {
-            key.set(secret("SIGNING_KEY"))
-            password.set(secret("SIGNING_PASSWORD"))
+            key = secret("SIGNING_KEY")
+            password = secret("SIGNING_PASSWORD")
         }
     }
 }
