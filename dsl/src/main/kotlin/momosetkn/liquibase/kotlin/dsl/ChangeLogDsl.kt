@@ -142,12 +142,14 @@ class ChangeLogDsl(
         errorIfMissing: Boolean = true,
         ignore: Boolean = false,
         labels: String? = null,
+        logicalFilePath: String? = null,
         relativeToChangelogFile: Boolean = false,
     ) {
         val fileName = file.evalExpressions(changeLog)
         val contextFilterOrContext = contextFilter ?: context
         val includeContexts = ContextExpression(contextFilterOrContext?.evalExpressions(changeLog))
         val typedLabels = labels?.let { Labels(it.evalExpressions(changeLog)) }
+        val evaluatedLogicalFilePath = logicalFilePath?.evalExpressions(changeLog)
 
         changeLog.include(
             fileName,
@@ -157,6 +159,7 @@ class ChangeLogDsl(
             includeContexts,
             typedLabels,
             ignore,
+            evaluatedLogicalFilePath,
             onUnknownFileFormat,
         )
     }
@@ -189,6 +192,7 @@ class ChangeLogDsl(
         filter: ((String) -> Boolean)? = null,
         ignore: Boolean = false, // optional
         labels: String? = null,
+        logicalFilePath: String? = null,
         maxDepth: Int? = null,
         minDepth: Int? = null,
         relativeToChangelogFile: Boolean = false, // optional
@@ -201,6 +205,7 @@ class ChangeLogDsl(
         val includeAllFilter = filter?.let {
             IncludeAllFilter { changeLogPath -> filter(changeLogPath) }
         }
+        val evaluatedLogicalFilePath = logicalFilePath?.evalExpressions(changeLog)
         changeLog.includeAll(
             path.evalExpressions(changeLog),
             relativeToChangelogFile,
@@ -211,6 +216,7 @@ class ChangeLogDsl(
             includeContexts,
             typedLabels,
             ignore,
+            evaluatedLogicalFilePath,
             minDepth ?: 0,
             maxDepth ?: Integer.MAX_VALUE,
             endsWithFilter?.evalExpressions(changeLog) ?: "",
