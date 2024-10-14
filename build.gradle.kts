@@ -133,7 +133,6 @@ configure(libraryProjects) {
 
     deployer {
         val projectUrl: String by project
-        val githubUrl: String by project
         val artifactVersion: String by project
         val autherName: String by project
         val autherEmail: String by project
@@ -147,9 +146,7 @@ configure(libraryProjects) {
             groupId = artifactGroup
             artifactId = "$artifactIdPrefix-${project.name}"
             scm {
-                connection = "scm:git:$githubUrl"
-                developerConnection = "scm:git:$githubUrl"
-                url = projectUrl
+                fromGithub(autherName, artifactIdPrefix)
             }
             license(apache2)
             developer(autherName, autherEmail)
@@ -162,6 +159,7 @@ configure(libraryProjects) {
         centralPortalSpec {
             auth.user = secret("CENTRAL_PORTAL_USER")
             auth.password = secret("CENTRAL_PORTAL_PASSWORD")
+            allowMavenCentralSync = false
         }
         signing {
             key = secret("SIGNING_KEY")
