@@ -3,29 +3,35 @@ package momosetkn
 import io.kotest.core.spec.style.FunSpec
 import momosetkn.liquibase.client.LiquibaseClient
 import momosetkn.liquibase.client.LiquibaseDatabaseFactory
+import momosetkn.liquibase.command.client.LiquibaseCommandClient
 import momosetkn.utils.Constants
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
 import momosetkn.utils.DatabaseServer
 import momosetkn.utils.ResourceUtils.getResourceAsString
+import momosetkn.utils.maskChangeSetParams
 import momosetkn.utils.shouldMatchWithoutLineBreaks
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.nio.file.Paths
 
 class KotlinScriptMigrateAndSerializeSpec : FunSpec({
+    lateinit var targetDatabaseServer: DatabaseServer
+    beforeSpec {
+        targetDatabaseServer = SharedResources.getTargetDatabaseServer()
+    }
     beforeEach {
-        DatabaseServer.startAndClear()
+        targetDatabaseServer.startAndClear()
     }
 
     context("Serialize output file is relative path") {
         test("can migrate and serialize") {
-            val container = DatabaseServer.startedContainer
+            val server = targetDatabaseServer.startedServer
             val database = LiquibaseDatabaseFactory.create(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
+                driver = server.driver,
+                url = server.jdbcUrl,
+                username = server.username,
+                password = server.password,
             )
             val liquibaseClient = LiquibaseClient(
                 changeLogFile = PARSER_INPUT_CHANGELOG,
@@ -41,38 +47,40 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
                 Paths.get(Constants.TEST_RESOURCE_DIR, SERIALIZER_ACTUAL_CHANGELOG)
             val f = actualSerializedChangeLogFile.toFile()
             if (f.exists()) f.delete()
-            val generateLiquibaseClient = LiquibaseClient(
-                changeLogFile = f.toString(),
-                database = database,
-            )
+
             println("${this::class.simpleName} -- before generateChangeLog")
             val baos = ByteArrayOutputStream()
-            generateLiquibaseClient.generateChangeLog(
-                outputStream = PrintStream(baos),
+            val liquibaseCommandClient = LiquibaseCommandClient {}
+            liquibaseCommandClient.generateChangelog(
+                driver = server.driver,
+                url = server.jdbcUrl,
+                username = server.username,
+                password = server.password,
+                changelogFile = f.toString(),
             )
             val generateResult = baos.toString()
             println(generateResult) // empty
 
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
-            DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
+            targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
-            val actual = f.readText().maskingChangeSet()
+            val actual = f.readText().maskChangeSetParams()
             val expect = getResourceAsString(SERIALIZER_EXPECT_CHANGELOG)
-                .maskingChangeSet()
+                .maskChangeSetParams()
             actual shouldMatchWithoutLineBreaks expect
         }
     }
 
     context("Serialize output file is absolute path") {
         test("can migrate and serialize") {
-            val container = DatabaseServer.startedContainer
+            val server = targetDatabaseServer.startedServer
             val database = LiquibaseDatabaseFactory.create(
-                driver = container.driver,
-                url = container.jdbcUrl,
-                username = container.username,
-                password = container.password,
+                driver = server.driver,
+                url = server.jdbcUrl,
+                username = server.username,
+                password = server.password,
             )
             val liquibaseClient = LiquibaseClient(
                 changeLogFile = PARSER_INPUT_CHANGELOG,
@@ -102,22 +110,17 @@ class KotlinScriptMigrateAndSerializeSpec : FunSpec({
 
             // check database
             val expectedDdl = getResourceAsString(PARSER_EXPECT_DDL)
-            DatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
+            targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(expectedDdl)
 
             // check serializer
-            val actual = f.readText().maskingChangeSet()
+            val actual = f.readText().maskChangeSetParams()
             val expect = getResourceAsString(SERIALIZER_EXPECT_CHANGELOG)
-                .maskingChangeSet()
+                .maskChangeSetParams()
             actual shouldMatchWithoutLineBreaks expect
         }
     }
 }) {
     companion object {
-        private val changeSetRegex = Regex("""changeSet\(author = "(.+)", id = "(\d+)-(\d)"\) \{""")
-
-        private fun String.maskingChangeSet() =
-            this.replace(changeSetRegex, "changeSet(author = \"**********\", id = \"*************-\$3\") {")
-
         private const val PARSER_INPUT_CHANGELOG =
             "KotlinScriptMigrateAndSerializeSpec/parser_input/db.changelog-all.kts"
 

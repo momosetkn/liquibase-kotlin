@@ -7,34 +7,32 @@ import java.sql.Connection
 import java.sql.DriverManager
 import kotlin.system.measureTimeMillis
 
-object DatabaseServer {
+class DatabaseServer {
     private val log = LoggerFactory.getLogger(this.javaClass.name)
 
-    private var container: DatabaseConfig? = null
-    private val gradlewUtils = GradlewUtils()
-
-    // For a clean run every time,
-    private const val DATABASE_NAME = "liquibase_kotlin_test"
-    private const val LAUNCH_INITIAL_WAIT = 200L
-    private const val CONFIRM_ESTABLISHED_INTERVAL = 50L
+    private var config: DatabaseConfig? = null
+    private val h2DatabaseServerLauncher = H2DatabaseServerLauncher()
 
     // Automatically find a free port
-    private val PORT = ServerSocket(0).use { socket ->
+    private val port = ServerSocket(0).use { socket ->
         socket.localPort
     }
 
-    val startedContainer
+    // For a clean run every time,
+    private val databaseName = "lk_test_${port}_${System.currentTimeMillis()}"
+
+    val startedServer
         get() =
-            requireNotNull(container) {
+            requireNotNull(config) {
                 "${DatabaseServer::class.qualifiedName} is not started"
             }
 
     @Synchronized
     fun startAndClear() {
-        if (this.container == null) {
-            this.container = createServer()
+        if (this.config == null) {
+            this.config = createServer()
         }
-        getConnection(startedContainer).use {
+        getConnection(startedServer).use {
             checkDb(it)
             dropDb(it)
         }
@@ -44,14 +42,14 @@ object DatabaseServer {
         val dir = databaseDirectory()
         val databaseConfig = DatabaseConfig(
             driver = "org.h2.Driver",
-            jdbcUrl = "jdbc:h2:tcp://127.0.0.1:$PORT/$dir/$DATABASE_NAME",
+            jdbcUrl = "jdbc:h2:tcp://127.0.0.1:$port/$dir/$databaseName",
             username = "sa",
             password = "",
         )
         Class.forName(databaseConfig.driver)
         val launchTime =
             measureTimeMillis {
-                lunchH2Server(PORT)
+                h2DatabaseServerLauncher.launch(port)
                 recursiveCheckDbLoop(databaseConfig)
             }
         log.info("database started in $launchTime ms")
@@ -60,28 +58,15 @@ object DatabaseServer {
 
     @Synchronized
     fun clear() {
-        this.container?.also { container ->
-            getConnection(container).use {
+        this.config?.also { server ->
+            getConnection(server).use {
                 dropDb(it)
             }
         }
     }
 
-    private fun lunchH2Server(port: Int): () -> Unit {
-        val command = listOfNotNull(
-            gradlewUtils.getDefaultShell(),
-            "./gradlew",
-            "test-utils:startH2Server",
-            "-Pport=$port"
-        )
-        val destroy = gradlewUtils.executeCommand(command)
-        Thread.sleep(LAUNCH_INITIAL_WAIT)
-
-        return destroy
-    }
-
     fun generateDdl(): String {
-        return getConnection(startedContainer).use {
+        return getConnection(startedServer).use {
             val stmt = it.createStatement()
             val rs = stmt.executeQuery("SCRIPT NODATA")
 
@@ -95,8 +80,8 @@ object DatabaseServer {
         }
     }
 
-    fun getConnection(container: DatabaseConfig) =
-        DriverManager.getConnection(container.jdbcUrl, container.username, container.password)
+    fun getConnection(config: DatabaseConfig) =
+        DriverManager.getConnection(config.jdbcUrl, config.username, config.password)
 
     private fun databaseDirectory() =
         Path.of(System.getProperty("user.dir")).resolveSibling("build/tmp/test")
@@ -127,6 +112,55 @@ object DatabaseServer {
     private fun dropDb(conn: Connection) {
         val stmt = conn.createStatement()
         stmt.execute("DROP ALL OBJECTS")
+    }
+
+    companion object {
+        private const val CONFIRM_ESTABLISHED_INTERVAL = 50L
+    }
+}
+
+private class H2DatabaseServerLauncher(
+    val sameProcess: Boolean = true
+) {
+    private val log = LoggerFactory.getLogger(this.javaClass.name)
+
+    private val gradlewUtils = GradlewUtils()
+
+    fun launch(port: Int): () -> Unit {
+        return if (sameProcess) {
+            launchSameProcess(port)
+        } else {
+            launchOtherProcess(port)
+        }
+    }
+
+    private fun launchOtherProcess(port: Int): () -> Unit {
+        val command = listOfNotNull(
+            gradlewUtils.getDefaultShell(),
+            "./gradlew",
+            "test-utils:startH2Server",
+            "-Pport=$port"
+        )
+        val destroy = gradlewUtils.executeCommand(command)
+        Thread.sleep(LAUNCH_INITIAL_WAIT)
+
+        return destroy
+    }
+
+    private fun launchSameProcess(port: Int): () -> Unit {
+        val args = listOf("-tcp", "-tcpAllowOthers", "-tcpDaemon", "-tcpPort", "$port", "-trace", "-ifNotExists")
+
+        @Suppress("SpreadOperator")
+        val server = org.h2.tools.Server.createTcpServer(*args.toTypedArray())
+        server.start()
+        log.info(server.getStatus())
+        return {
+            server.stop()
+        }
+    }
+
+    companion object {
+        private const val LAUNCH_INITIAL_WAIT = 200L
     }
 }
 

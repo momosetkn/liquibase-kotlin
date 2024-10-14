@@ -12,10 +12,11 @@ import momosetkn.liquibase.client.LiquibaseDatabaseFactory
 import momosetkn.liquibase.kotlin.parser.KotlinCompiledLiquibaseChangeLogParser
 import momosetkn.liquibase.kotlin.serializer.KotlinCompiledChangeLogSerializer
 import momosetkn.utils.Constants
+import momosetkn.utils.DatabaseConfig
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
 import momosetkn.utils.DatabaseServer
-import momosetkn.utils.InterchangeableChangeLog
-import momosetkn.utils.set
+import momosetkn.utils.MutableChangeLog
+import momosetkn.utils.maskChangeSetParams
 import momosetkn.utils.toVersion
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
@@ -27,29 +28,37 @@ import java.nio.file.Paths
 
 @OptIn(ExperimentalKotest::class)
 class LiquibaseClientSpec : FunSpec({
+    lateinit var targetDatabaseServer: DatabaseServer
+    lateinit var referenceDatabaseServer: DatabaseServer
+    beforeEach {
+        targetDatabaseServer = SharedResources.getTargetDatabaseServer()
+        referenceDatabaseServer = SharedResources.getReferenceDatabaseServer()
+    }
     beforeSpec {
         KotlinCompiledChangeLogSerializer.sourceRootPath = Paths.get(Constants.TEST_RESOURCE_DIR)
     }
     beforeEach {
-        DatabaseServer.startAndClear()
+        targetDatabaseServer.startAndClear()
     }
 
-    fun liquibaseClient(changeLogFile: String? = null): LiquibaseClient {
-        val container = DatabaseServer.startedContainer
+    fun liquibaseClient(
+        databaseConfig: DatabaseConfig = targetDatabaseServer.startedServer,
+        changeLogFile: String? = null
+    ): LiquibaseClient {
         val database = LiquibaseDatabaseFactory.create(
-            driver = container.driver,
-            url = container.jdbcUrl,
-            username = container.username,
-            password = container.password,
+            driver = databaseConfig.driver,
+            url = databaseConfig.jdbcUrl,
+            username = databaseConfig.username,
+            password = databaseConfig.password,
         )
         return LiquibaseClient(
-            changeLogFile = changeLogFile ?: InterchangeableChangeLog::class.qualifiedName!!,
+            changeLogFile = changeLogFile ?: MutableChangeLog::class.qualifiedName!!,
             database = database,
         )
     }
 
     context("update(tag)") {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 createTable(tableName = "company") {
                     column(name = "id", type = "UUID") {
@@ -63,9 +72,9 @@ class LiquibaseClientSpec : FunSpec({
             }
         }
         test("can migrate") {
-            liquibaseClient().update(tag = "finish",)
+            liquibaseClient().update(tag = "finish")
 
-            val db = DatabaseServer.komapperDb()
+            val db = targetDatabaseServer.komapperDb()
             val d = Meta.databasechangelog
             val result = db.runQuery {
                 QueryDsl.from(d)
@@ -75,8 +84,8 @@ class LiquibaseClientSpec : FunSpec({
     }
 
     context("generateChangeLog") {
-        val outputFile = File("src/test/resources/${LiquibaseClientSpec::class.simpleName}/generateChangeLog.kt")
-        InterchangeableChangeLog.set {
+        val outputFile = File("build/tmp/test/${LiquibaseClientSpec::class.simpleName}_generateChangeLog.kt")
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 createTable(tableName = "company") {
                     column(name = "id", type = "UUID") {
@@ -96,7 +105,7 @@ class LiquibaseClientSpec : FunSpec({
         }
         test("can generated") {
             val databaseChangeLog = KotlinCompiledLiquibaseChangeLogParser().parse(
-                physicalChangeLogLocation = InterchangeableChangeLog::class.qualifiedName!!,
+                physicalChangeLogLocation = MutableChangeLog::class.qualifiedName!!,
                 changeLogParameters = ChangeLogParameters(),
                 resourceAccessor = Scope.getCurrentScope().resourceAccessor,
             )
@@ -104,7 +113,9 @@ class LiquibaseClientSpec : FunSpec({
 
             val baos = ByteArrayOutputStream()
             liquibaseClient().update()
-            liquibaseClient(outputFile.toString()).generateChangeLog(
+            liquibaseClient(
+                changeLogFile = outputFile.toString(),
+            ).generateChangeLog(
                 outputStream = PrintStream(baos),
             )
             val generateResult = baos.toString()
@@ -112,14 +123,124 @@ class LiquibaseClientSpec : FunSpec({
 
             val actual = outputFile.readText()
 
-            actual shouldStartWith "package LiquibaseClientSpec"
+            actual.maskChangeSetParams() shouldBe """
+                package build.tmp.test
+
+                import momosetkn.liquibase.kotlin.parser.KotlinCompiledDatabaseChangeLog
+
+                class LiquibaseClientSpec_generateChangeLog : KotlinCompiledDatabaseChangeLog({
+                    changeSet(author = "**********", id = "*************-1") {
+                        createTable(tableName = "COMPANY") {
+                            column(name = "ID", type = "UUID") {
+                                constraints(nullable = false, primaryKey = true, primaryKeyName = "PK_COMPANY")
+                            }
+                            column(name = "NAME", type = "VARCHAR(256)")
+                        }
+                    }
+
+                })
+
+            """.trimIndent().maskChangeSetParams()
+        }
+    }
+    context("diffChangeLog") {
+        val outputFile = File("build/tmp/test/${LiquibaseClientSpec::class.simpleName}_diffChangeLog.kt")
+        beforeEach {
+            referenceDatabaseServer.startAndClear()
+            MutableChangeLog.set {
+                changeSet(author = "user", id = "100") {
+                    createTable(tableName = "company") {
+                        column(name = "id", type = "UUID") {
+                            constraints(nullable = false, primaryKey = true)
+                        }
+                        column(name = "name", type = "VARCHAR(256)")
+                    }
+                }
+            }
+            liquibaseClient(
+                databaseConfig = targetDatabaseServer.startedServer,
+            ).update()
+            MutableChangeLog.set {
+                changeSet(author = "user", id = "100") {
+                    createTable(tableName = "company") {
+                        column(name = "id", type = "UUID") {
+                            constraints(nullable = false, primaryKey = true)
+                        }
+                        column(name = "name", type = "VARCHAR(256)")
+                    }
+                }
+                changeSet(author = "user", id = "200") {
+                    createTable(tableName = "company2") {
+                        column(name = "id", type = "UUID") {
+                            constraints(nullable = false, primaryKey = true)
+                        }
+                        column(name = "name", type = "VARCHAR(256)")
+                    }
+                }
+                changeSet(author = "user", id = "300") {
+                    createIndex(associatedWith = "", indexName = "name_idx", tableName = "company2") {
+                        column(name = "name")
+                    }
+                }
+            }
+            liquibaseClient(
+                databaseConfig = referenceDatabaseServer.startedServer,
+            ).update()
+            if (outputFile.exists()) {
+                outputFile.delete()
+            }
+        }
+        test("can generated diff changeLog") {
+            val referenceDatabaseConfig = referenceDatabaseServer.startedServer
+            val referenceDatabase = LiquibaseDatabaseFactory.create(
+                driver = referenceDatabaseConfig.driver,
+                url = referenceDatabaseConfig.jdbcUrl,
+                username = referenceDatabaseConfig.username,
+                password = referenceDatabaseConfig.password,
+            )
+            val baos = ByteArrayOutputStream()
+            liquibaseClient(
+                changeLogFile = outputFile.toString(),
+            ).diffChangeLog(
+                referenceDatabase = referenceDatabase,
+                outputStream = PrintStream(baos),
+            )
+            val generateResult = baos.toString()
+            println(generateResult) // empty
+
+            val actual = outputFile.readText()
+
+            actual.maskChangeSetParams() shouldBe """
+                package build.tmp.test
+
+                import momosetkn.liquibase.kotlin.parser.KotlinCompiledDatabaseChangeLog
+
+                class LiquibaseClientSpec_diffChangeLog : KotlinCompiledDatabaseChangeLog({
+                    changeSet(author = "**********", id = "*************-1") {
+                        createTable(tableName = "COMPANY2") {
+                            column(name = "ID", type = "UUID") {
+                                constraints(nullable = false, primaryKey = true, primaryKeyName = "PK_COMPANY2")
+                            }
+                            column(name = "NAME", type = "VARCHAR(256)")
+                        }
+                    }
+
+                    changeSet(author = "**********", id = "*************-2") {
+                        createIndex(associatedWith = "", indexName = "NAME_IDX", tableName = "COMPANY2") {
+                            column(name = "NAME")
+                        }
+                    }
+
+                })
+
+            """.trimIndent().maskChangeSetParams()
         }
     }
 
     context("updateCountSql").config(
         enabled = System.getProperty("liquibaseVersion", "999.9.9").toVersion() >= "4.29.2".toVersion()
     ) {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 createTable(tableName = "company") {
                     column(name = "id", type = "UUID") {
@@ -140,7 +261,7 @@ class LiquibaseClientSpec : FunSpec({
     context("updateToTagSql").config(
         enabled = System.getProperty("liquibaseVersion", "999.9.9").toVersion() >= "4.29.2".toVersion()
     ) {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 createTable(tableName = "company") {
                     column(name = "id", type = "UUID") {
@@ -158,9 +279,142 @@ class LiquibaseClientSpec : FunSpec({
             liquibaseClient().use {
                 it.updateToTagSql("finish", output = sw)
             }
-            DatabaseServer.generateDdl()
+            targetDatabaseServer.generateDdl()
             println(sw.toString())
             sw.toString() shouldStartWith "-- Create Database Lock Table"
+        }
+    }
+
+    context("diff") {
+        context("not specify targetDatabase") {
+            beforeEach {
+                referenceDatabaseServer.startAndClear()
+                MutableChangeLog.set {
+                    changeSet(author = "user", id = "100") {
+                        createTable(tableName = "company") {
+                            column(name = "id", type = "UUID") {
+                                constraints(nullable = false, primaryKey = true)
+                            }
+                            column(name = "name", type = "VARCHAR(256)")
+                        }
+                    }
+                }
+                liquibaseClient(
+                    databaseConfig = targetDatabaseServer.startedServer,
+                ).update()
+                MutableChangeLog.set {
+                    changeSet(author = "user", id = "100") {
+                        createTable(tableName = "company") {
+                            column(name = "id", type = "UUID") {
+                                constraints(nullable = false, primaryKey = true)
+                            }
+                            column(name = "name", type = "VARCHAR(256)")
+                        }
+                    }
+                    changeSet(author = "user", id = "200") {
+                        createTable(tableName = "company2") {
+                            column(name = "id", type = "UUID") {
+                                constraints(nullable = false, primaryKey = true)
+                            }
+                            column(name = "name", type = "VARCHAR(256)")
+                        }
+                    }
+                }
+                liquibaseClient(
+                    databaseConfig = referenceDatabaseServer.startedServer,
+                ).update()
+            }
+            test("can output diffResult") {
+                val server = referenceDatabaseServer.startedServer
+                val referenceDatabase = LiquibaseDatabaseFactory.create(
+                    driver = server.driver,
+                    url = server.jdbcUrl,
+                    username = server.username,
+                    password = server.password,
+                )
+                val diffResult = liquibaseClient().use {
+                    it.diff(
+                        referenceDatabase = referenceDatabase
+                    )
+                }
+                diffResult.missingObjects.size shouldBe 5
+                diffResult.missingObjects.map { it.name }.sorted() shouldBe listOf(
+                    "COMPANY2",
+                    "ID",
+                    "NAME",
+                    "PK_COMPANY2",
+                    "PRIMARY_KEY_A",
+                )
+            }
+        }
+        context("specify targetDatabase") {
+            beforeEach {
+                referenceDatabaseServer.startAndClear()
+                MutableChangeLog.set {
+                    changeSet(author = "user", id = "100") {
+                        createTable(tableName = "company") {
+                            column(name = "id", type = "UUID") {
+                                constraints(nullable = false, primaryKey = true)
+                            }
+                            column(name = "name", type = "VARCHAR(256)")
+                        }
+                    }
+                }
+                liquibaseClient(
+                    databaseConfig = targetDatabaseServer.startedServer,
+                ).update()
+                MutableChangeLog.set {
+                    changeSet(author = "user", id = "100") {
+                        createTable(tableName = "company") {
+                            column(name = "id", type = "UUID") {
+                                constraints(nullable = false, primaryKey = true)
+                            }
+                            column(name = "name", type = "VARCHAR(256)")
+                        }
+                    }
+                    changeSet(author = "user", id = "200") {
+                        createTable(tableName = "company2") {
+                            column(name = "id", type = "UUID") {
+                                constraints(nullable = false, primaryKey = true)
+                            }
+                            column(name = "name", type = "VARCHAR(256)")
+                        }
+                    }
+                }
+                liquibaseClient(
+                    databaseConfig = referenceDatabaseServer.startedServer,
+                ).update()
+            }
+            test("can output diffResult") {
+                val targetDatabaseConfig = targetDatabaseServer.startedServer
+                val targetDatabase = LiquibaseDatabaseFactory.create(
+                    driver = targetDatabaseConfig.driver,
+                    url = targetDatabaseConfig.jdbcUrl,
+                    username = targetDatabaseConfig.username,
+                    password = targetDatabaseConfig.password,
+                )
+                val referenceDatabaseConfig = referenceDatabaseServer.startedServer
+                val referenceDatabase = LiquibaseDatabaseFactory.create(
+                    driver = referenceDatabaseConfig.driver,
+                    url = referenceDatabaseConfig.jdbcUrl,
+                    username = referenceDatabaseConfig.username,
+                    password = referenceDatabaseConfig.password,
+                )
+                val diffResult = liquibaseClient().use {
+                    it.diff(
+                        targetDatabase = targetDatabase,
+                        referenceDatabase = referenceDatabase,
+                    )
+                }
+                diffResult.missingObjects.size shouldBe 5
+                diffResult.missingObjects.map { it.name }.sorted() shouldBe listOf(
+                    "COMPANY2",
+                    "ID",
+                    "NAME",
+                    "PK_COMPANY2",
+                    "PRIMARY_KEY_A",
+                )
+            }
         }
     }
 })

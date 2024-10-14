@@ -7,15 +7,18 @@ import komapper.databasechangelog
 import momosetkn.liquibase.command.client.LiquibaseCommandClient
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
 import momosetkn.utils.DatabaseServer
-import momosetkn.utils.InterchangeableChangeLog
-import momosetkn.utils.set
+import momosetkn.utils.MutableChangeLog
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import org.komapper.core.dsl.query.single
 
 class ChangeLogSpec : FunSpec({
-    beforeEach {
-        DatabaseServer.startAndClear()
+    lateinit var targetDatabaseServer: DatabaseServer
+    beforeSpec {
+        targetDatabaseServer = SharedResources.getTargetDatabaseServer()
+    }
+    beforeSpec {
+        targetDatabaseServer.startAndClear()
     }
     val client = LiquibaseCommandClient {
         global {
@@ -26,18 +29,18 @@ class ChangeLogSpec : FunSpec({
     }
 
     fun subject() {
-        val container = DatabaseServer.startedContainer
+        val server = targetDatabaseServer.startedServer
         client.update(
-            driver = container.driver,
-            url = container.jdbcUrl,
-            username = container.username,
-            password = container.password,
-            changelogFile = InterchangeableChangeLog::class.qualifiedName!!,
+            driver = server.driver,
+            url = server.jdbcUrl,
+            username = server.username,
+            password = server.password,
+            changelogFile = MutableChangeLog::class.qualifiedName!!,
         )
     }
 
     context("property") {
-        InterchangeableChangeLog.set {
+        MutableChangeLog.set {
             property(name = "key1", value = "value1")
             property(name = "key2", value = "value2")
             property(file = "ChangeLogSpec/prop.txt")
@@ -47,7 +50,7 @@ class ChangeLogSpec : FunSpec({
         }
         test("can use property") {
             subject()
-            val db = DatabaseServer.komapperDb()
+            val db = targetDatabaseServer.komapperDb()
             val d = Meta.databasechangelog
             val result = db.runQuery {
                 QueryDsl.from(d).single()
@@ -58,7 +61,7 @@ class ChangeLogSpec : FunSpec({
 
     context("removeChangeSetProperty") {
         context("dbms = all, remove = afterColumn") {
-            InterchangeableChangeLog.set {
+            MutableChangeLog.set {
                 removeChangeSetProperty(
                     change = "addColumn",
                     dbms = "all",
@@ -84,7 +87,7 @@ class ChangeLogSpec : FunSpec({
             // https://github.com/liquibase/liquibase/issues/5290
             xtest("NAME column be last") {
                 subject()
-                DatabaseServer.generateDdl() shouldContain """
+                targetDatabaseServer.generateDdl() shouldContain """
                 CREATE CACHED TABLE "PUBLIC"."COMPANY"(
                     "ID" UUID,
                     "DESCRIPTION" CHARACTER VARYING(512),

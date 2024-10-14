@@ -3,5 +3,6 @@
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>ForbiddenComment:ChangeLogSpec.kt$ChangeLogSpec$// FIXME: failed. liquibase bug?</ID>
+    <ID>ForbiddenComment:KotestProjectConfig.kt$KotestProjectConfig$// TODO: off parallelism. because liquibase generateChangeLog is not threadSafe.</ID>
   </CurrentIssues>
 </SmellBaseline>
