@@ -23,9 +23,9 @@ jobs:
           https://api.github.com/repos/${{ github.repository }}/actions/runs \
           | jq -r ".workflow_runs[] | select(.head_sha==\"${{ env.COMMIT_SHA }}\" and .name==\"check\") | .conclusion" > status.txt
           if grep -q "success" status.txt; then
-            echo "Tests passed!"
+            echo "Check passed!"
           else
-            echo "Tests failed or not found!"
+            echo "Check failed or not found!"
             exit 1
           fi
 
