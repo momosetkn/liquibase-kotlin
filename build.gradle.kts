@@ -159,11 +159,10 @@ configure(libraryProjects) {
         centralPortalSpec {
             auth.user = secret("CENTRAL_PORTAL_USER")
             auth.password = secret("CENTRAL_PORTAL_PASSWORD")
+            signing.key = secret("SIGNING_KEY")
+            signing.password = secret("SIGNING_PASSWORD")
+
             allowMavenCentralSync = false
-        }
-        signing {
-            key = secret("SIGNING_KEY")
-            password = secret("SIGNING_PASSWORD")
         }
     }
 }
