@@ -2,17 +2,47 @@ val kotestVersion: String by project
 val kotlinVersion: String by project
 val liquibaseVersion: String by project
 val artifactIdPrefix: String by project
-val liquibaseKotlinVersion: String by project
+val artifactVersion: String by project
+val artifactGroup: String by project
 
 plugins {
     kotlin("jvm")
     id("io.gitlab.arturbosch.detekt") version "1.23.7"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
     `maven-publish`
+    id("io.deepmedia.tools.deployer") version "0.14.0"
+    id("org.jetbrains.dokka") version "1.9.20"
 }
 
-group = "momosetkn"
-version = "1.0-SNAPSHOT"
+group = artifactGroup
+version = artifactVersion
+description = "Liquibase kotlin(DSL, Wrapper client, ORM integration)"
+
+fun validateArtifactVersion(artifactVersion: String) {
+    val (artifactVersionLiquibase, artifactVersionLiquibaseKotlin) = artifactVersion.split("-")
+    require(artifactVersionLiquibase == liquibaseVersion) {
+        "artifactVersion is not matched `liquibaseVersion`"
+    }
+    require(artifactVersionLiquibaseKotlin.isNotEmpty()) {
+        "specify the version after the `-` character of `artifactVersion`"
+    }
+}
+if (artifactVersion.isNotEmpty()) {
+    validateArtifactVersion(artifactVersion)
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+    withSourcesJar()
+    withJavadocJar()
+}
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
 
 allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
@@ -21,6 +51,7 @@ allprojects {
 
     repositories {
         mavenCentral()
+        // for snapshot version
         maven {
             url = uri("https://maven.pkg.github.com/liquibase/liquibase")
             credentials {
@@ -57,6 +88,7 @@ allprojects {
 
 val libraryProjects =
     subprojects.filter {
+        // To prevent accidental publishing, use a allowlist.
         it.name in listOf(
             // dsl
             "dsl",
@@ -85,24 +117,61 @@ val libraryProjects =
 configure(libraryProjects) {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "maven-publish")
+    apply(plugin = "io.deepmedia.tools.deployer")
+    apply(plugin = "org.jetbrains.dokka")
+
+    version = rootProject.version
 
     val sourcesJar by tasks.creating(Jar::class) {
         archiveClassifier.set("sources")
         from(sourceSets["main"].allSource)
     }
+    val javadocs = tasks.register<Jar>("dokkaJavadocJar") {
+        dependsOn(tasks.dokkaJavadoc)
+        from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
+        archiveClassifier.set("javadoc")
+    }
 
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                from(components["java"])
-                artifact(sourcesJar)
-                groupId = "com.github.momosetkn.$artifactIdPrefix"
-                artifactId = "$artifactIdPrefix-${project.name}"
-                version = liquibaseKotlinVersion
+    deployer {
+        val projectUrl: String by project
+        val artifactVersion: String by project
+        val autherName: String by project
+        val autherEmail: String by project
+
+        verbose = true
+
+        projectInfo {
+            name = rootProject.name
+            description = rootProject.description
+            url = projectUrl
+            groupId = artifactGroup
+            artifactId = "$artifactIdPrefix-${project.name}"
+            scm {
+                fromGithub(autherName, artifactIdPrefix)
+            }
+            license(apache2)
+            developer(autherName, autherEmail)
+        }
+        content {
+            component {
+                sources(sourcesJar)
+                docs(javadocs)
+                fromJava()
             }
         }
-        repositories {
-            maven { url = uri("https://jitpack.io") }
+        release {
+            release.version = artifactVersion
+            release.tag = artifactVersion
+            release.description = project.description
+        }
+        centralPortalSpec {
+            auth.user = secret("CENTRAL_PORTAL_USER")
+            auth.password = secret("CENTRAL_PORTAL_PASSWORD")
+            signing.key = secret("SIGNING_KEY")
+            signing.password = secret("SIGNING_PASSWORD")
+
+            // Publish manually from this link https://central.sonatype.com/publishing
+            allowMavenCentralSync = false
         }
     }
 }
