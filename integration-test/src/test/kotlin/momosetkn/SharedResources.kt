@@ -7,8 +7,8 @@ object SharedResources {
     private val targetDatabaseServerThreadLocal = ThreadLocal<DatabaseServer>()
     fun getTargetDatabaseServer(): DatabaseServer {
         return targetDatabaseServerThreadLocal.getOrSet {
-                DatabaseServer()
-            }
+            DatabaseServer()
+        }
     }
 
     private val referenceDatabaseServerThreadLocal = ThreadLocal<DatabaseServer>()
@@ -17,5 +17,4 @@ object SharedResources {
             DatabaseServer()
         }
     }
-
 }
