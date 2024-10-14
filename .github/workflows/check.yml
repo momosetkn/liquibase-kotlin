@@ -29,8 +29,8 @@ jobs:
 
       - name: Configure Gradle for GitHub Packages
         run: |
-          echo "gpr.user=${{ github.actor }}" >> ~/.gradle/gradle.properties
-          echo "gpr.token=${{ secrets.GITHUB_TOKEN }}" >> ~/.gradle/gradle.properties
+          echo "gpr.user=${{ github.actor }}" >> gradle.properties
+          echo "gpr.token=${{ secrets.GITHUB_TOKEN }}" >> gradle.properties
 
       - name: Run Test
         run: ./gradlew test
@@ -60,8 +60,8 @@ jobs:
 
       - name: Configure Gradle for GitHub Packages
         run: |
-          echo "gpr.user=${{ github.actor }}" >> ~/.gradle/gradle.properties
-          echo "gpr.token=${{ secrets.GITHUB_TOKEN }}" >> ~/.gradle/gradle.properties
+          echo "gpr.user=${{ github.actor }}" >> gradle.properties
+          echo "gpr.token=${{ secrets.GITHUB_TOKEN }}" >> gradle.properties
 
       - name: Run detekt
         run: ./gradlew detekt
@@ -91,8 +91,8 @@ jobs:
 
       - name: Configure Gradle for GitHub Packages
         run: |
-          echo "gpr.user=${{ github.actor }}" >> ~/.gradle/gradle.properties
-          echo "gpr.token=${{ secrets.GITHUB_TOKEN }}" >> ~/.gradle/gradle.properties
+          echo "gpr.user=${{ github.actor }}" >> gradle.properties
+          echo "gpr.token=${{ secrets.GITHUB_TOKEN }}" >> gradle.properties
 
       - name: Run ktlintCheck
         run: ./gradlew ktlintCheck
