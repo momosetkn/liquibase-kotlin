@@ -1,7 +1,6 @@
 val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
 val kotlinVersion = rootProject.properties["kotlinVersion"] as String
-
 val slf4jVersion = rootProject.properties["slf4jVersion"] as String
 
 dependencies {
