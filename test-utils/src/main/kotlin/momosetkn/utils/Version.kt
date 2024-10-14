@@ -10,7 +10,14 @@ data class Version(
     }
 }
 
+val maxVersion = Version(Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE)
+
 fun String.toVersion(): Version {
-    val (major, minor, patch) = this.split(".").map { it.toInt() }
-    return Version(major = major, minor = minor, patch = patch)
+    return runCatching {
+        val (major, minor, patch) = this.split(".").map { it.toInt() }
+        return Version(major = major, minor = minor, patch = patch)
+    }.fold(
+        onSuccess = { it },
+        onFailure = { maxVersion }
+    )
 }
