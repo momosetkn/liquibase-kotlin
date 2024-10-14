@@ -661,7 +661,7 @@ class LiquibaseClient(
         vararg snapshotTypes: Class<out DatabaseObject?>?
     ) {
         var finalCompareTypes: Set<Class<out DatabaseObject?>>? = null
-        if ((snapshotTypes != null) && (snapshotTypes.size > 0)) {
+        if (snapshotTypes.isNotEmpty()) {
             finalCompareTypes = HashSet(Arrays.asList(*snapshotTypes))
         }
         val compareControl = CompareControl(
