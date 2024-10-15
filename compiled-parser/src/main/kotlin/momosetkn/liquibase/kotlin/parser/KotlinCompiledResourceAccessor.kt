@@ -18,12 +18,20 @@ class KotlinCompiledResourceAccessor(
 ) : ResourceAccessor by classLoaderResourceAccessor {
     // value is null when notfound return
     override fun search(path: String, recursive: Boolean): List<Resource>? {
-        return classLoaderResourceAccessor.search(containPackageNameToClasspathName(path), recursive)
+        val items = containPackageNameToClasspathNames(path)
+        val results = items.flatMap {
+            classLoaderResourceAccessor.search(it, recursive) ?: emptyList()
+        }
+        return results.ifEmpty { null }
     }
 
     // value is null when notfound return
     override fun getAll(path: String): List<Resource>? {
-        return classLoaderResourceAccessor.getAll(containPackageNameToClasspathName(path))
+        val items = containPackageNameToClasspathNames(path)
+        val results = items.flatMap {
+            classLoaderResourceAccessor.getAll(it) ?: emptyList()
+        }
+        return results.ifEmpty { null }
     }
 
     /**
@@ -34,7 +42,7 @@ class KotlinCompiledResourceAccessor(
      * aaa/bbb/com.example.hoge/hogehoge.class -> aaa/bbb/com/example/hoge/hogehoge.class
      * aaa/bbb/com.example.hoge/ -> aaa/bbb/com/example/hoge/
      */
-    private fun containPackageNameToClasspathName(containPackageName: String): String {
+    private fun containPackageNameToClasspathNames(containPackageName: String): List<String> {
         val replaced = containPackageName
             .replace("file:", "")
             .replace("\\", "/")
@@ -47,13 +55,14 @@ class KotlinCompiledResourceAccessor(
         }
         val replacedPackageName = decoded
             .replace(".", "/")
-            .let {
-                if (it.endsWith("/class")) {
-                    it.removeSuffix("/class") + ".class"
-                } else {
-                    it
-                }
-            }
-        return replacedPackageName
+        val className = if (!replacedPackageName.endsWith("/")) {
+            replacedPackageName.removeSuffix("/class") + ".class"
+        } else {
+            null
+        }
+        return listOfNotNull(
+            replacedPackageName,
+            className
+        )
     }
 }
