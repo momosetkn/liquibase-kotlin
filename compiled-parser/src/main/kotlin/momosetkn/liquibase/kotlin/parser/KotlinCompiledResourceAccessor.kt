@@ -16,16 +16,19 @@ import java.nio.charset.StandardCharsets
 class KotlinCompiledResourceAccessor(
     private val classLoaderResourceAccessor: ClassLoaderResourceAccessor = ClassLoaderResourceAccessor(),
 ) : ResourceAccessor by classLoaderResourceAccessor {
-    override fun search(path: String, recursive: Boolean): List<Resource> {
+    // value is null when notfound return
+    override fun search(path: String, recursive: Boolean): List<Resource>? {
         return classLoaderResourceAccessor.search(containPackageNameToClasspathName(path), recursive)
     }
 
-    override fun getAll(path: String): List<Resource> {
+    // value is null when notfound return
+    override fun getAll(path: String): List<Resource>? {
         return classLoaderResourceAccessor.getAll(containPackageNameToClasspathName(path))
     }
 
     /**
      * Transform contain package name filepath to name on classpath.
+     * Support only package-name directory and .class file
      *
      * example
      * aaa/bbb/com.example.hoge/hogehoge.class -> aaa/bbb/com/example/hoge/hogehoge.class
@@ -35,17 +38,22 @@ class KotlinCompiledResourceAccessor(
         val replaced = containPackageName
             .replace("file:", "")
             .replace("\\", "/")
-        val decodedRoot = try {
+        val decoded = try {
             URLDecoder.decode(replaced, StandardCharsets.UTF_8.name())
         } catch (e: UnsupportedEncodingException) {
             Scope.getCurrentScope().getLog(javaClass)
                 .fine("Failed to decode path $containPackageName; continuing without decoding.", e)
             replaced
         }
-        val splited = decodedRoot.split("/")
-        val init = splited.dropLast(2)
-        val packageName = splited.dropLast(1).last().replace(".", "/")
-        val className = splited.last()
-        return (init + packageName + className).joinToString("/")
+        val replacedPackageName = decoded
+            .replace(".", "/")
+            .let {
+                if (it.endsWith("/class")) {
+                    it.removeSuffix("/class") + ".class"
+                } else {
+                    it
+                }
+            }
+        return replacedPackageName
     }
 }
