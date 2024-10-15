@@ -37,8 +37,8 @@ jobs:
 
       - name: Configure Gradle for GitHub Packages
         run: |
-          echo "gpr.user=${{ github.actor }}" >> ~/.gradle/gradle.properties
-          echo "gpr.token=${{ secrets.GITHUB_TOKEN }}" >> ~/.gradle/gradle.properties
+          echo "gpr.user=${{ github.actor }}" >> gradle.properties
+          echo "gpr.token=${{ secrets.GITHUB_TOKEN }}" >> gradle.properties
 
       - name: Test with latest liquibase SNAPSHOT version
         run: |
