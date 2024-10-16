@@ -29,6 +29,7 @@ class ChangeLogSpec : FunSpec({
         global {
             general {
                 showBanner = false
+                logLevel = "debug"
             }
         }
     }
