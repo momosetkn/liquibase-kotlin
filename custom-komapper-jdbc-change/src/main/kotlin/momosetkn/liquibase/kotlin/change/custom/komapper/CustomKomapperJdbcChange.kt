@@ -6,6 +6,7 @@ import momosetkn.liquibase.kotlin.change.custom.core.CustomTaskChangeDefineImpl
 import momosetkn.liquibase.kotlin.change.custom.core.ForwardOnlyTaskCustomChange
 import momosetkn.liquibase.kotlin.change.custom.core.RollbackTaskCustomChange
 import momosetkn.liquibase.kotlin.change.custom.core.addCustomChange
+import momosetkn.liquibase.kotlin.change.custom.core.toJavaxSqlDataSource
 import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
 
 fun ChangeSetDsl.customKomapperJdbcChange(

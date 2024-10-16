@@ -6,8 +6,6 @@ dependencies {
     implementation(project(":dsl"))
     // liquibase
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
-    // reflection
-    api("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 
     // test
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")

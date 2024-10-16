@@ -199,11 +199,12 @@ class LiquibaseClientSpec : FunSpec({
                 password = referenceDatabaseConfig.password,
             )
             val baos = ByteArrayOutputStream()
+            val ps = PrintStream(ByteArrayOutputStream())
             liquibaseClient(
                 changeLogFile = outputFile.toString(),
             ).diffChangeLog(
                 referenceDatabase = referenceDatabase,
-                outputStream = PrintStream(baos),
+                outputStream = ps,
             )
             val generateResult = baos.toString()
             println(generateResult) // empty
