@@ -39,3 +39,5 @@ include("custom-ktorm-change")
 // starter
 include("starter-compiled")
 include("starter-script")
+// internal
+include("liquibase-internal")
