@@ -11,7 +11,7 @@ object CustomScope {
         val customServiceLocator = CustomServiceLocator(classloader)
         ScopeUtils.createCustomRootScope(customServiceLocator)
         return ReflectionUtils.getInstanceWithClassLoader(
-            clazz,
+            clazz.java,
             classloader,
             *args,
         )

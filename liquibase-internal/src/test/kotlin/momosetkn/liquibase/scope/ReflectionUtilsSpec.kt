@@ -10,14 +10,14 @@ class ReflectionUtilsSpec : FunSpec({
         context("java class") {
             val command = arrayOf("update")
             test("can create instance") {
-                val actual = ReflectionUtils.getInstanceWithClassLoader(CommandScope::class, classloader, *command)
+                val actual = ReflectionUtils.getInstanceWithClassLoader(CommandScope::class.java, classloader, *command)
                 actual.shouldBeInstanceOf<CommandScope>()
             }
         }
         context("kotlin class") {
             val command = arrayOf("update")
             test("can create instance") {
-                val actual = ReflectionUtils.getInstanceWithClassLoader(KotlinClass::class, classloader, *command)
+                val actual = ReflectionUtils.getInstanceWithClassLoader(KotlinClass::class.java, classloader, *command)
                 actual.shouldBeInstanceOf<KotlinClass>()
             }
         }

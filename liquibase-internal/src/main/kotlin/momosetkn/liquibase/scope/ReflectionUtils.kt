@@ -3,11 +3,10 @@ package momosetkn.liquibase.scope
 import java.lang.reflect.Constructor
 import java.net.URL
 import java.net.URLClassLoader
-import kotlin.reflect.KClass
 
 object ReflectionUtils {
     fun <T : Any> getInstanceWithClassLoader(
-        clazz: KClass<T>,
+        clazz: Class<T>,
         getClassloaderByClass: (Class<*>) -> ClassLoader,
         vararg args: Any,
     ): T {
@@ -28,18 +27,18 @@ object ReflectionUtils {
         return classLoader
     }
 
-    private fun <T : Any> isKotlinClazz(clazz: KClass<T>): Boolean {
-        val metadataAnnotation = clazz.java.getAnnotation(Metadata::class.java)
+    private fun <T : Any> isKotlinClazz(clazz: Class<T>): Boolean {
+        val metadataAnnotation = clazz.getAnnotation(Metadata::class.java)
         return metadataAnnotation != null
     }
 
     private fun getConstructor(
-        clazz: KClass<*>,
+        clazz: Class<*>,
         getClassloaderByClass: (Class<*>) -> ClassLoader,
         argsSize: Int,
     ): Constructor<*> {
-        val customClassLoader = getClassloaderByClass(clazz.java)
-        val constructors = customClassLoader.loadClass(clazz.qualifiedName).constructors
+        val customClassLoader = getClassloaderByClass(clazz)
+        val constructors = customClassLoader.loadClass(clazz.canonicalName).constructors
         val constructor = constructors.find {
             it.parameters.size == argsSize
         } ?: error("not found constructor. clazz: $clazz")
