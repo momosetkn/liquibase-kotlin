@@ -2,6 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>ForbiddenComment:ChangeLogSpec.kt$ChangeLogSpec$// FIXME: failed. liquibase bug?</ID>
+    <ID>ForbiddenComment:LiquibaseClient.kt$LiquibaseClient.Companion$// TODO: mopve ConfigureLiquibase</ID>
   </CurrentIssues>
 </SmellBaseline>
