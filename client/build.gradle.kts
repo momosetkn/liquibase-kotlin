@@ -6,6 +6,7 @@ val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 dependencies {
     // liquibase
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
+    api(project(":liquibase-internal"))
     // log
     api("org.slf4j:slf4j-api:$slf4jVersion")
 

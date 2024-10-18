@@ -111,7 +111,9 @@ val libraryProjects =
             "custom-ktorm-change",
             // starter
             "starter-compiled",
-            "starter-script"
+            "starter-script",
+            // internal
+            "liquibase-internal",
         )
     }
 configure(libraryProjects) {

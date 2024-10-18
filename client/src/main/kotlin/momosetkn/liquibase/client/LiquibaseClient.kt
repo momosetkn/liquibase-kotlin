@@ -35,6 +35,7 @@ import liquibase.snapshot.SnapshotControl
 import liquibase.snapshot.SnapshotGeneratorFactory
 import liquibase.structure.DatabaseObject
 import momosetkn.liquibase.client.DateUtils.toJavaUtilDate
+import momosetkn.liquibase.scope.CustomScope
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.io.Writer
@@ -60,11 +61,20 @@ class LiquibaseClient(
         "views"
     )
 
-    val liquibase: ExtendedLiquibase = ExtendedLiquibase(
-        changeLogFile = changeLogFile,
-        database = database,
-        resourceAccessor = resourceAccessor,
-    )
+    val liquibase = if (everyUseNewClassloader) {
+        CustomScope.createWithNewClassloader(
+            ExtendedLiquibase::class,
+            changeLogFile,
+            database,
+            resourceAccessor
+        )
+    } else {
+        ExtendedLiquibase(
+            changeLogFile,
+            database,
+            resourceAccessor
+        )
+    }
 
     var showSummaryOutput: UpdateSummaryOutputEnum? = null
         set(value) {
@@ -715,5 +725,10 @@ class LiquibaseClient(
 
     private fun buildCatalogAndSchema(database: Database): CatalogAndSchema {
         return CatalogAndSchema(database.defaultCatalogName, database.defaultSchemaName)
+    }
+
+    companion object {
+        // TODO: mopve ConfigureLiquibase
+        var everyUseNewClassloader: Boolean = false
     }
 }
