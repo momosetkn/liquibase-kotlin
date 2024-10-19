@@ -2,6 +2,7 @@ val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
 val slf4jVersion = rootProject.properties["slf4jVersion"] as String
 val komapperVersion = rootProject.properties["komapperVersion"] as String
+val testcontainersVersion = rootProject.properties["testcontainersVersion"] as String
 
 dependencies {
     implementation(project(":dsl"))
@@ -15,6 +16,11 @@ dependencies {
 
     // h2database
     implementation("com.h2database:h2:2.3.232")
+    // testcontainer
+    implementation("org.testcontainers:testcontainers:$testcontainersVersion")
+    implementation("org.testcontainers:postgresql:$testcontainersVersion")
+    implementation("org.testcontainers:mysql:$testcontainersVersion")
+    implementation("com.mysql:mysql-connector-j:9.1.0")
 
     // db-migration
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
