@@ -2926,4 +2926,9 @@ class LiquibaseCommandClient(
     private fun listOfNotNullStringToString(vararg keyValue: Pair<String, Any>?): List<Pair<String, String>> {
         return keyValue.filterNotNull().map { (k, v) -> k to v.toString() }
     }
+
+    companion object {
+        // TODO: mopve ConfigureLiquibase
+        var everyUseNewClassloader = false
+    }
 }

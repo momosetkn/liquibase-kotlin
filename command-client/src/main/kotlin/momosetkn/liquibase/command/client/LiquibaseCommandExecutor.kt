@@ -6,15 +6,12 @@ import momosetkn.liquibase.scope.CustomScope
 object LiquibaseCommandExecutor {
     private val log = org.slf4j.LoggerFactory.getLogger(this::class.java)
 
-    // TODO: mopve ConfigureLiquibase
-    var everyUseNewClassloader = false
-
     fun executeCommand(
         command: List<String>,
         args: List<Pair<String, String>>,
     ) {
         @Suppress("SpreadOperator")
-        val commandScope = if (everyUseNewClassloader) {
+        val commandScope = if (LiquibaseCommandClient.everyUseNewClassloader) {
             CustomScope.createWithNewClassloader(
                 CommandScope::class,
                 *command.toTypedArray()
