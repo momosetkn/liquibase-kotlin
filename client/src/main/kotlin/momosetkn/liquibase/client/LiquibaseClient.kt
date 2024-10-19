@@ -24,7 +24,6 @@ import liquibase.command.core.helpers.ReferenceDbUrlConnectionCommandStep
 import liquibase.database.Database
 import liquibase.diff.DiffResult
 import liquibase.diff.compare.CompareControl
-import liquibase.diff.compare.CompareControl.SchemaComparison
 import liquibase.diff.output.changelog.DiffToChangeLog
 import liquibase.exception.CommandExecutionException
 import liquibase.exception.DatabaseException
@@ -39,7 +38,6 @@ import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.io.Writer
 import java.time.LocalDateTime
-import java.util.Arrays
 import kotlin.reflect.KClass
 
 @Suppress("TooManyFunctions", "LargeClass")
@@ -662,24 +660,9 @@ class LiquibaseClient(
         outputStream: PrintStream = createPrintStream(),
         vararg snapshotTypes: Class<out DatabaseObject?>?
     ) {
-        var finalCompareTypes: Set<Class<out DatabaseObject?>>? = null
-        if (snapshotTypes.isNotEmpty()) {
-            finalCompareTypes = HashSet(Arrays.asList(*snapshotTypes))
-        }
-        val compareControl = CompareControl(
-            arrayOf(
-                SchemaComparison(
-                    buildCatalogAndSchema(this.liquibase.database),
-                    buildCatalogAndSchema(referenceDatabase)
-                )
-            ),
-            finalCompareTypes
-        )
-
         // Reference liquibase.command.core.DiffToChangeLogCommand.run
         CommandScope("diffChangelog")
             .addArgumentValue(GenerateChangelogCommandStep.CHANGELOG_FILE_ARG, changeLogFile)
-            .addArgumentValue(PreCompareCommandStep.COMPARE_CONTROL_ARG, compareControl)
             .addArgumentValue(DbUrlConnectionArgumentsCommandStep.DATABASE_ARG, this.liquibase.database)
             .addArgumentValue(ReferenceDbUrlConnectionCommandStep.REFERENCE_DATABASE_ARG, referenceDatabase)
             .addArgumentValue(PreCompareCommandStep.SNAPSHOT_TYPES_ARG, snapshotTypes)
