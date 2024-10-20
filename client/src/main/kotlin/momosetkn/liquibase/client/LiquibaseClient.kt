@@ -34,7 +34,6 @@ import liquibase.snapshot.SnapshotControl
 import liquibase.snapshot.SnapshotGeneratorFactory
 import liquibase.structure.DatabaseObject
 import momosetkn.liquibase.client.DateUtils.toJavaUtilDate
-import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.io.Writer
 import java.time.LocalDateTime
@@ -46,7 +45,7 @@ class LiquibaseClient(
     val database: Database,
     val resourceAccessor: ResourceAccessor = Scope.getCurrentScope().resourceAccessor,
     private val defaultOutputWriter: Writer = LiquibaseMultilineLogWriter(),
-    private val createPrintStream: () -> PrintStream = { PrintStream(ByteArrayOutputStream()) },
+    private val createPrintStream: () -> PrintStream = { PrintStream(System.out) },
 ) : AutoCloseable {
     var diffTypes = listOf(
         "columns",
