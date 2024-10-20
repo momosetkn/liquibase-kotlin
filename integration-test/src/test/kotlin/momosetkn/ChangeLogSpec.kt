@@ -8,7 +8,8 @@ import momosetkn.liquibase.command.client.LiquibaseCommandClient
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
 import momosetkn.utils.DatabaseServer
 import momosetkn.utils.MutableChangeLog
-import momosetkn.utils.MutableDsl
+import momosetkn.utils.MutableChangeLogBuilderDsl
+import momosetkn.utils.changeLogsDsl
 import momosetkn.utils.children.MutableChangeLog1
 import momosetkn.utils.children.MutableChangeLog4
 import org.komapper.core.dsl.Meta
@@ -23,7 +24,6 @@ class ChangeLogSpec : FunSpec({
     }
     beforeEach {
         targetDatabaseServer.clear()
-        MutableDsl.clear()
     }
     val client = LiquibaseCommandClient {
         global {
@@ -34,7 +34,8 @@ class ChangeLogSpec : FunSpec({
         }
     }
 
-    fun subject() {
+    fun subject(dsl: MutableChangeLogBuilderDsl) {
+        dsl.set()
         val server = targetDatabaseServer.startedServer
         client.update(
             driver = server.driver,
@@ -46,8 +47,8 @@ class ChangeLogSpec : FunSpec({
     }
 
     context("property") {
-        beforeEach {
-            MutableChangeLog.set {
+        val dsl = changeLogsDsl {
+            changeLog {
                 property(name = "key1", value = "value1")
                 property(name = "key2", value = "value2")
                 property(file = "ChangeLogSpec/prop.txt")
@@ -57,7 +58,7 @@ class ChangeLogSpec : FunSpec({
             }
         }
         test("can use property") {
-            subject()
+            subject(dsl)
             val db = targetDatabaseServer.komapperDb()
             val d = Meta.databasechangelog
             val result = db.runQuery {
@@ -68,14 +69,13 @@ class ChangeLogSpec : FunSpec({
     }
 
     context("include") {
-        beforeEach {
-            MutableDsl.clear()
-            MutableChangeLog.set {
+        val dsl = changeLogsDsl {
+            changeLog {
                 include(
                     file = MutableChangeLog1::class.qualifiedName!!,
                 )
             }
-            MutableChangeLog1.set {
+            changeLog1 {
                 changeSet(author = "user", id = "100") {
                     tagDatabase("tag1")
                 }
@@ -85,7 +85,7 @@ class ChangeLogSpec : FunSpec({
             }
         }
         test("can migrate include changeLog") {
-            subject()
+            subject(dsl)
             val db = targetDatabaseServer.komapperDb()
             val d = Meta.databasechangelog
             val result = db.runQuery {
@@ -96,15 +96,14 @@ class ChangeLogSpec : FunSpec({
     }
 
     context("includeAll") {
-        beforeEach {
-            MutableDsl.clear()
-            MutableChangeLog.set {
+        val dsl = changeLogsDsl {
+            changeLog {
                 includeAll(
                     // packageName
                     path = MutableChangeLog4::class.qualifiedName!!.substringBeforeLast('.'),
                 )
             }
-            MutableChangeLog1.set {
+            changeLog1 {
                 changeSet(author = "user", id = "100") {
                     tagDatabase("tag1")
                 }
@@ -114,7 +113,7 @@ class ChangeLogSpec : FunSpec({
             }
         }
         test("can migrate include changeLog") {
-            subject()
+            subject(dsl)
 
             val db = targetDatabaseServer.komapperDb()
             val d = Meta.databasechangelog
@@ -127,8 +126,8 @@ class ChangeLogSpec : FunSpec({
 
     context("removeChangeSetProperty") {
         context("dbms = all, remove = afterColumn") {
-            beforeEach {
-                MutableChangeLog1.set {
+            val dsl = changeLogsDsl {
+                changeLog1 {
                     removeChangeSetProperty(
                         change = "addColumn",
                         dbms = "all",
@@ -154,7 +153,7 @@ class ChangeLogSpec : FunSpec({
             // FIXME: failed. liquibase bug?
             // https://github.com/liquibase/liquibase/issues/5290
             xtest("NAME column be last") {
-                subject()
+                subject(dsl)
                 targetDatabaseServer.generateDdl() shouldContain """
                 CREATE CACHED TABLE "PUBLIC"."COMPANY"(
                     "ID" UUID,

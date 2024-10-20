@@ -8,11 +8,13 @@ import komapper.company2
 import liquibase.exception.CommandExecutionException
 import momosetkn.liquibase.command.client.LiquibaseCommandClient
 import momosetkn.liquibase.kotlin.change.custom.komapper.customKomapperJdbcChange
+import momosetkn.utils.ChangeLogDslBlock
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
 import momosetkn.utils.DatabaseServer
 import momosetkn.utils.MutableChangeLog
+import momosetkn.utils.changeLogDsl
 import momosetkn.utils.shouldMatchWithoutLineBreaks
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
@@ -36,7 +38,8 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
     }
 
     context("forwardOnly") {
-        fun subject() {
+        fun subject(dsl: ChangeLogDslBlock) {
+            MutableChangeLog.set(dsl)
             val server = targetDatabaseServer.startedServer
             client.update(
                 driver = server.driver,
@@ -47,7 +50,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
             )
         }
         val c = Meta.company2
-        MutableChangeLog.set {
+        val dsl = changeLogDsl {
             changeSet(author = "momose", id = "100-10") {
                 customKomapperJdbcChange(
                     execute = { db ->
@@ -82,7 +85,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
             }
         }
         test("can migrate") {
-            subject()
+            subject(dsl)
             targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
                     CREATE CACHED TABLE "PUBLIC"."COMPANY2"(
@@ -101,7 +104,8 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
 
     context("forward and rollback") {
         val startedTag = "started"
-        fun subject() {
+        fun subject(dsl: ChangeLogDslBlock) {
+            MutableChangeLog.set(dsl)
             val server = targetDatabaseServer.startedServer
             client.update(
                 driver = server.driver,
@@ -121,7 +125,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
         }
         val c = Meta.company2
         context("rollback arg is given") {
-            MutableChangeLog.set {
+            val dsl = changeLogDsl {
                 changeSet(author = "momose", id = "0-10") {
                     tagDatabase(startedTag)
                 }
@@ -163,12 +167,12 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
                 }
             }
             test("can rollback") {
-                subject()
+                subject(dsl)
                 targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql("")
             }
         }
         context("rollback arg is none") {
-            MutableChangeLog.set {
+            val dsl = changeLogDsl {
                 changeSet(author = "momose", id = "0-10") {
                     tagDatabase(startedTag)
                 }
@@ -207,7 +211,7 @@ class CustomKomapperJdbcChangeSetSpec : FunSpec({
             }
             test("throw error") {
                 shouldThrow<CommandExecutionException> {
-                    subject()
+                    subject(dsl)
                 }
             }
         }

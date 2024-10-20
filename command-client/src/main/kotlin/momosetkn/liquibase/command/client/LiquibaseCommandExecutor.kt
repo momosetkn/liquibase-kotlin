@@ -1,6 +1,7 @@
 package momosetkn.liquibase.command.client
 
 import liquibase.command.CommandScope
+import momosetkn.liquibase.scope.CustomScope
 
 object LiquibaseCommandExecutor {
     private val log = org.slf4j.LoggerFactory.getLogger(this::class.java)
@@ -10,13 +11,21 @@ object LiquibaseCommandExecutor {
         args: List<Pair<String, String>>,
     ) {
         @Suppress("SpreadOperator")
-        val commandScope = CommandScope(*command.toTypedArray())
-        args.forEach { arg ->
-            val (key, value) = arg
-            commandScope.addArgumentValue(key, value)
+        if (LiquibaseCommandClient.everyUseNewClassloader) {
+            CustomScope.executeWithNewClassloader(
+                CommandScope::class,
+                *command.toTypedArray(),
+            ) { commandScope ->
+                args.forEach { arg ->
+                    val (key, value) = arg
+                    commandScope.addArgumentValue(key, value)
+                }
+                logArgs(command, args)
+                commandScope.execute()
+            }
+        } else {
+            CommandScope(*command.toTypedArray())
         }
-        logArgs(command, args)
-        commandScope.execute()
     }
 
     private fun logArgs(

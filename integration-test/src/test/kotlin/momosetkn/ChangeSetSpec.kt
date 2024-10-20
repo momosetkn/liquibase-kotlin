@@ -7,11 +7,13 @@ import komapper.databasechangelog
 import liquibase.exception.CommandExecutionException
 import momosetkn.liquibase.command.client.LiquibaseCommandClient
 import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
+import momosetkn.utils.ChangeLogDslBlock
 import momosetkn.utils.DDLUtils.sql
 import momosetkn.utils.DDLUtils.toMainDdl
 import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
 import momosetkn.utils.DatabaseServer
 import momosetkn.utils.MutableChangeLog
+import momosetkn.utils.changeLogDsl
 import momosetkn.utils.shouldMatchWithoutLineBreaks
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
@@ -33,7 +35,8 @@ class ChangeSetSpec : FunSpec({
         }
     }
 
-    fun subject() {
+    fun subject(dsl: ChangeLogDslBlock) {
+        MutableChangeLog.set(dsl)
         val server = targetDatabaseServer.startedServer
         client.update(
             driver = server.driver,
@@ -45,14 +48,14 @@ class ChangeSetSpec : FunSpec({
     }
 
     context("comment") {
-        MutableChangeLog.set {
+        val dsl = changeLogDsl {
             changeSet(author = "user", id = "100") {
                 comment("comment_123") // precedence this
                 comment("comment_456")
             }
         }
         test("can migrate") {
-            subject()
+            subject(dsl)
             val db = targetDatabaseServer.komapperDb()
             val d = Meta.databasechangelog
             val result = db.runQuery {
@@ -64,7 +67,7 @@ class ChangeSetSpec : FunSpec({
     context("preConditions") {
         fun databaseUsername() = targetDatabaseServer.startedServer.username
         context("postgresql and <currentUser>") {
-            MutableChangeLog.set {
+            val dsl = changeLogDsl {
                 changeSet(author = "user", id = "100") {
                     preConditions(
                         onFail = "MARK_RAN",
@@ -76,7 +79,7 @@ class ChangeSetSpec : FunSpec({
                 }
             }
             test("can migrate") {
-                subject()
+                subject(dsl)
                 targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                     """
                     CREATE CACHED TABLE "PUBLIC"."COMPANY"(
@@ -95,7 +98,7 @@ class ChangeSetSpec : FunSpec({
             }
         }
         context("mysql and root") {
-            MutableChangeLog.set {
+            val dsl = changeLogDsl {
                 changeSet(author = "user", id = "100") {
                     preConditions(
                         onFail = "MARK_RAN",
@@ -107,7 +110,7 @@ class ChangeSetSpec : FunSpec({
                 }
             }
             test("can migrate") {
-                subject()
+                subject(dsl)
                 targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql("")
                 val db = targetDatabaseServer.komapperDb()
                 val d = Meta.databasechangelog
@@ -118,7 +121,7 @@ class ChangeSetSpec : FunSpec({
             }
         }
         context("(mysql and root) or (postgresql and currentUser)") {
-            MutableChangeLog.set {
+            val dsl = changeLogDsl {
                 changeSet(author = "user", id = "100") {
                     preConditions(
                         onFail = "MARK_RAN",
@@ -138,7 +141,7 @@ class ChangeSetSpec : FunSpec({
                 }
             }
             test("can migrate") {
-                subject()
+                subject(dsl)
                 targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                     """
                     CREATE CACHED TABLE "PUBLIC"."COMPANY"(
@@ -159,7 +162,7 @@ class ChangeSetSpec : FunSpec({
     }
 
     context("executeCommand") {
-        MutableChangeLog.set {
+        val dsl = changeLogDsl {
             changeSet(author = "user", id = "100") {
                 executeCommand(
                     executable = "java",
@@ -170,12 +173,12 @@ class ChangeSetSpec : FunSpec({
             }
         }
         test("can migrate") {
-            subject()
+            subject(dsl)
             // confirm output docker help
         }
     }
     context("output") {
-        MutableChangeLog.set {
+        val dsl = changeLogDsl {
             changeSet(author = "user", id = "100") {
                 output(
                     message = "output_message",
@@ -183,13 +186,13 @@ class ChangeSetSpec : FunSpec({
             }
         }
         test("can migrate") {
-            subject()
+            subject(dsl)
             // confirm output "output_message"
         }
     }
 
     context("sql") {
-        MutableChangeLog.set {
+        val dsl = changeLogDsl {
             changeSet(author = "user", id = "100") {
                 sql(
                     """
@@ -202,7 +205,7 @@ class ChangeSetSpec : FunSpec({
             }
         }
         test("can migrate") {
-            subject()
+            subject(dsl)
             targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
                     CREATE CACHED TABLE "PUBLIC"."TABLE_A"(
@@ -215,7 +218,7 @@ class ChangeSetSpec : FunSpec({
         }
     }
     context("sql(original)") {
-        MutableChangeLog.set {
+        val dsl = changeLogDsl {
             changeSet(author = "user", id = "100") {
                 sql {
                     """
@@ -228,7 +231,7 @@ class ChangeSetSpec : FunSpec({
             }
         }
         test("can migrate") {
-            subject()
+            subject(dsl)
             targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
                     CREATE CACHED TABLE "PUBLIC"."TABLE_A"(
@@ -241,7 +244,7 @@ class ChangeSetSpec : FunSpec({
         }
     }
     context("sqlFile") {
-        MutableChangeLog.set {
+        val dsl = changeLogDsl {
             changeSet(author = "user", id = "100") {
                 sqlFile(
                     path = "ChangeSetSpec/sqlFile.sql",
@@ -250,7 +253,7 @@ class ChangeSetSpec : FunSpec({
             }
         }
         test("can migrate") {
-            subject()
+            subject(dsl)
             targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
                    CREATE CACHED TABLE "PUBLIC".U&"\5bff\53f8"(
@@ -263,7 +266,7 @@ class ChangeSetSpec : FunSpec({
         }
     }
     context("stop") {
-        MutableChangeLog.set {
+        val dsl = changeLogDsl {
             changeSet(author = "user", id = "100") {
                 createTable(tableName = "company") {
                     column(name = "id", type = "UUID") {
@@ -287,7 +290,7 @@ class ChangeSetSpec : FunSpec({
         }
         test("throw error") {
             shouldThrow<CommandExecutionException> {
-                subject()
+                subject(dsl)
             }
             targetDatabaseServer.generateDdl().toMainDdl() shouldMatchWithoutLineBreaks sql(
                 """
@@ -301,13 +304,13 @@ class ChangeSetSpec : FunSpec({
         }
     }
     context("tagDatabase") {
-        MutableChangeLog.set {
+        val dsl = changeLogDsl {
             changeSet(author = "user", id = "100") {
                 tagDatabase("example_tag1")
             }
         }
         test("can migrate") {
-            subject()
+            subject(dsl)
             val db = targetDatabaseServer.komapperDb()
             val d = Meta.databasechangelog
             val result = db.runQuery {

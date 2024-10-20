@@ -5,6 +5,7 @@ package momosetkn.liquibase.client
 import liquibase.CatalogAndSchema
 import liquibase.Contexts
 import liquibase.LabelExpression
+import liquibase.Liquibase
 import liquibase.Scope
 import liquibase.UpdateSummaryEnum
 import liquibase.UpdateSummaryOutputEnum
@@ -16,15 +17,9 @@ import liquibase.changelog.DatabaseChangeLog
 import liquibase.changelog.RanChangeSet
 import liquibase.changelog.visitor.ChangeExecListener
 import liquibase.changelog.visitor.DefaultChangeExecListener
-import liquibase.command.CommandScope
-import liquibase.command.core.GenerateChangelogCommandStep
-import liquibase.command.core.helpers.DbUrlConnectionArgumentsCommandStep
-import liquibase.command.core.helpers.PreCompareCommandStep
-import liquibase.command.core.helpers.ReferenceDbUrlConnectionCommandStep
 import liquibase.database.Database
 import liquibase.diff.DiffResult
 import liquibase.diff.compare.CompareControl
-import liquibase.diff.compare.CompareControl.SchemaComparison
 import liquibase.diff.output.changelog.DiffToChangeLog
 import liquibase.exception.CommandExecutionException
 import liquibase.exception.DatabaseException
@@ -35,11 +30,10 @@ import liquibase.snapshot.SnapshotControl
 import liquibase.snapshot.SnapshotGeneratorFactory
 import liquibase.structure.DatabaseObject
 import momosetkn.liquibase.client.DateUtils.toJavaUtilDate
-import java.io.ByteArrayOutputStream
+import momosetkn.liquibase.scope.CustomScope
 import java.io.PrintStream
 import java.io.Writer
 import java.time.LocalDateTime
-import java.util.Arrays
 import kotlin.reflect.KClass
 
 @Suppress("TooManyFunctions", "LargeClass")
@@ -48,7 +42,7 @@ class LiquibaseClient(
     val database: Database,
     val resourceAccessor: ResourceAccessor = Scope.getCurrentScope().resourceAccessor,
     private val defaultOutputWriter: Writer = LiquibaseMultilineLogWriter(),
-    private val createPrintStream: () -> PrintStream = { PrintStream(ByteArrayOutputStream()) },
+    private val createPrintStream: () -> PrintStream = { PrintStream(System.out) },
 ) : AutoCloseable {
     var diffTypes = listOf(
         "columns",
@@ -60,53 +54,67 @@ class LiquibaseClient(
         "views"
     )
 
-    val liquibase: ExtendedLiquibase = ExtendedLiquibase(
-        changeLogFile = changeLogFile,
-        database = database,
-        resourceAccessor = resourceAccessor,
-    )
+    private fun <E : Any> executeWithCustomScope(block: (ExtendedLiquibase) -> E): E {
+        return if (everyUseNewClassloader) {
+            CustomScope.executeWithNewClassloader(
+                ExtendedLiquibase::class,
+                changeLogFile,
+                database,
+                resourceAccessor,
+                createPrintStream,
+            ) {
+                setOptions(it)
+                block(it)
+            }
+        } else {
+            val liquibase = ExtendedLiquibase(
+                changeLogFile,
+                database,
+                resourceAccessor,
+                createPrintStream,
+            )
+            setOptions(liquibase)
+            block(liquibase)
+        }
+    }
+
+    private fun setOptions(liquibase: Liquibase) {
+        liquibase.setShowSummaryOutput(this.showSummaryOutput)
+        liquibase.setShowSummary(this.showSummary)
+        liquibase.setChangeExecListener(this.changeExecListener)
+    }
 
     var showSummaryOutput: UpdateSummaryOutputEnum? = null
-        set(value) {
-            liquibase.setShowSummaryOutput(value)
-            field = value
-        }
 
     var showSummary: UpdateSummaryEnum? = null
-        set(value) {
-            liquibase.setShowSummary(value)
-            field = value
-        }
 
     val changeLogParameters: ChangeLogParameters?
-        get() = liquibase.changeLogParameters
+        get() = executeWithCustomScope { liquibase -> liquibase.changeLogParameters }
 
     var changeExecListener: ChangeExecListener? = null
-        set(value) {
-            liquibase.setChangeExecListener(value)
-            field = value
-        }
 
     val defaultChangeExecListener: DefaultChangeExecListener
-        get() = liquibase.defaultChangeExecListener
+        get() = executeWithCustomScope { liquibase -> liquibase.defaultChangeExecListener }
 
     // comment-out. The following method is for the sole purpose of testing Liquibase.
 //    fun getLog() {
-//        this.liquibase.log
+//        executeWithCustomScope { liquibase -> log }
 //    }
 
     @Throws(LiquibaseException::class)
     fun getDatabaseChangeLog(): DatabaseChangeLog {
-        return this.liquibase.databaseChangeLog
+        return executeWithCustomScope { liquibase -> liquibase.databaseChangeLog }
     }
 
     @Throws(LiquibaseException::class)
     fun update() {
         @Suppress("ForbiddenComment")
-        this.liquibase.update(
-            Contexts(),
-            LabelExpression(),
-        )
+        executeWithCustomScope { liquibase ->
+            liquibase.update(
+                Contexts(),
+                LabelExpression(),
+            )
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -114,10 +122,12 @@ class LiquibaseClient(
         tag: String? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase.update(tag, Contexts(), LabelExpression())
-        } else {
-            this.liquibase.update(tag, Contexts(), LabelExpression(), output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.update(tag, Contexts(), LabelExpression())
+            } else {
+                liquibase.update(tag, Contexts(), LabelExpression(), output)
+            }
         }
     }
 
@@ -128,10 +138,12 @@ class LiquibaseClient(
         labelExpression: LabelExpression? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase.update(tag, contexts, labelExpression)
-        } else {
-            this.liquibase.update(tag, contexts, labelExpression, output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.update(tag, contexts, labelExpression)
+            } else {
+                liquibase.update(tag, contexts, labelExpression, output)
+            }
         }
     }
 
@@ -142,10 +154,12 @@ class LiquibaseClient(
         labelExpression: String? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase.update(tag, Contexts(contexts), LabelExpression(labelExpression))
-        } else {
-            this.liquibase.update(tag, Contexts(contexts), LabelExpression(labelExpression), output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.update(tag, Contexts(contexts), LabelExpression(labelExpression))
+            } else {
+                liquibase.update(tag, Contexts(contexts), LabelExpression(labelExpression), output)
+            }
         }
     }
 
@@ -154,10 +168,12 @@ class LiquibaseClient(
         changesToApply: Int,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase.update(changesToApply, Contexts(), LabelExpression())
-        } else {
-            this.liquibase.update(changesToApply, Contexts(), LabelExpression(), output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.update(changesToApply, Contexts(), LabelExpression())
+            } else {
+                liquibase.update(changesToApply, Contexts(), LabelExpression(), output)
+            }
         }
     }
 
@@ -168,10 +184,12 @@ class LiquibaseClient(
         labelExpression: LabelExpression? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase.update(changesToApply, contexts, labelExpression)
-        } else {
-            this.liquibase.update(changesToApply, contexts, labelExpression, output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.update(changesToApply, contexts, labelExpression)
+            } else {
+                liquibase.update(changesToApply, contexts, labelExpression, output)
+            }
         }
     }
 
@@ -182,10 +200,17 @@ class LiquibaseClient(
         labelExpression: String? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase.update(changesToApply, Contexts(contexts), LabelExpression(labelExpression))
-        } else {
-            this.liquibase.update(changesToApply, Contexts(contexts), LabelExpression(labelExpression), output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.update(changesToApply, Contexts(contexts), LabelExpression(labelExpression))
+            } else {
+                liquibase.update(
+                    changesToApply,
+                    Contexts(contexts),
+                    LabelExpression(labelExpression),
+                    output
+                )
+            }
         }
     }
 
@@ -196,7 +221,9 @@ class LiquibaseClient(
         labelExpression: LabelExpression? = null,
         output: Writer = defaultOutputWriter,
     ) {
-        return this.liquibase.updateCountSql(count, contexts, labelExpression, output)
+        return executeWithCustomScope { liquibase ->
+            liquibase.updateCountSql(count, contexts, labelExpression, output)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -206,7 +233,9 @@ class LiquibaseClient(
         labelExpression: LabelExpression? = null,
         output: Writer = defaultOutputWriter,
     ) {
-        return this.liquibase.updateToTagSql(tag, contexts, labelExpression, output)
+        return executeWithCustomScope { liquibase ->
+            liquibase.updateToTagSql(tag, contexts, labelExpression, output)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -217,12 +246,12 @@ class LiquibaseClient(
         labelExpression: LabelExpression? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase
-                .rollback(changesToRollback, rollbackScript, contexts, labelExpression)
-        } else {
-            this.liquibase
-                .rollback(changesToRollback, rollbackScript, contexts, labelExpression, output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.rollback(changesToRollback, rollbackScript, contexts, labelExpression)
+            } else {
+                liquibase.rollback(changesToRollback, rollbackScript, contexts, labelExpression, output)
+            }
         }
     }
 
@@ -234,18 +263,18 @@ class LiquibaseClient(
         labelExpression: String? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase
-                .rollback(changesToRollback, rollbackScript, Contexts(contexts), LabelExpression(labelExpression))
-        } else {
-            this.liquibase
-                .rollback(
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.rollback(changesToRollback, rollbackScript, Contexts(contexts), LabelExpression(labelExpression))
+            } else {
+                liquibase.rollback(
                     changesToRollback,
                     rollbackScript,
                     Contexts(contexts),
                     LabelExpression(labelExpression),
                     output
                 )
+            }
         }
     }
 
@@ -255,12 +284,12 @@ class LiquibaseClient(
         rollbackScript: String? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase
-                .rollback(tagToRollBackTo, rollbackScript, Contexts(), LabelExpression())
-        } else {
-            this.liquibase
-                .rollback(tagToRollBackTo, rollbackScript, Contexts(), LabelExpression(), output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.rollback(tagToRollBackTo, rollbackScript, Contexts(), LabelExpression())
+            } else {
+                liquibase.rollback(tagToRollBackTo, rollbackScript, Contexts(), LabelExpression(), output)
+            }
         }
     }
 
@@ -272,12 +301,12 @@ class LiquibaseClient(
         labelExpression: LabelExpression? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase
-                .rollback(tagToRollBackTo, rollbackScript, contexts, labelExpression)
-        } else {
-            this.liquibase
-                .rollback(tagToRollBackTo, rollbackScript, contexts, labelExpression, output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.rollback(tagToRollBackTo, rollbackScript, contexts, labelExpression)
+            } else {
+                liquibase.rollback(tagToRollBackTo, rollbackScript, contexts, labelExpression, output)
+            }
         }
     }
 
@@ -289,12 +318,12 @@ class LiquibaseClient(
         labelExpression: String? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase
-                .rollback(tagToRollBackTo, rollbackScript, Contexts(contexts), LabelExpression(labelExpression))
-        } else {
-            this.liquibase
-                .rollback(tagToRollBackTo, rollbackScript, Contexts(contexts), LabelExpression(labelExpression), output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.rollback(tagToRollBackTo, rollbackScript, Contexts(contexts), LabelExpression(labelExpression))
+            } else {
+                liquibase.rollback(tagToRollBackTo, rollbackScript, Contexts(contexts), LabelExpression(labelExpression), output)
+            }
         }
     }
 
@@ -304,12 +333,12 @@ class LiquibaseClient(
         rollbackScript: String? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase
-                .rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, Contexts(), LabelExpression())
-        } else {
-            this.liquibase
-                .rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, Contexts(), LabelExpression(), output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, Contexts(), LabelExpression())
+            } else {
+                liquibase.rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, Contexts(), LabelExpression(), output)
+            }
         }
     }
 
@@ -321,12 +350,12 @@ class LiquibaseClient(
         labelExpression: LabelExpression? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase
-                .rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, contexts, labelExpression)
-        } else {
-            this.liquibase
-                .rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, contexts, labelExpression, output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, contexts, labelExpression)
+            } else {
+                liquibase.rollback(dateToRollBackTo.toJavaUtilDate(), rollbackScript, contexts, labelExpression, output)
+            }
         }
     }
 
@@ -338,23 +367,23 @@ class LiquibaseClient(
         labelExpression: String? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase
-                .rollback(
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.rollback(
                     dateToRollBackTo.toJavaUtilDate(),
                     rollbackScript,
                     Contexts(contexts),
                     LabelExpression(labelExpression),
                 )
-        } else {
-            this.liquibase
-                .rollback(
+            } else {
+                liquibase.rollback(
                     dateToRollBackTo.toJavaUtilDate(),
                     rollbackScript,
                     Contexts(contexts),
                     LabelExpression(labelExpression),
                     output
                 )
+            }
         }
     }
 
@@ -363,10 +392,12 @@ class LiquibaseClient(
         tag: String? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase.changeLogSync(tag, Contexts(), LabelExpression())
-        } else {
-            this.liquibase.changeLogSync(tag, Contexts(), LabelExpression(), output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.changeLogSync(tag, Contexts(), LabelExpression())
+            } else {
+                liquibase.changeLogSync(tag, Contexts(), LabelExpression(), output)
+            }
         }
     }
 
@@ -377,10 +408,12 @@ class LiquibaseClient(
         labelExpression: LabelExpression? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase.changeLogSync(tag, contexts, labelExpression)
-        } else {
-            this.liquibase.changeLogSync(tag, contexts, labelExpression, output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.changeLogSync(tag, contexts, labelExpression)
+            } else {
+                liquibase.changeLogSync(tag, contexts, labelExpression, output)
+            }
         }
     }
 
@@ -391,10 +424,12 @@ class LiquibaseClient(
         labelExpression: String? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase.changeLogSync(tag, Contexts(contexts), LabelExpression(labelExpression))
-        } else {
-            this.liquibase.changeLogSync(tag, Contexts(contexts), LabelExpression(labelExpression), output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.changeLogSync(tag, Contexts(contexts), LabelExpression(labelExpression))
+            } else {
+                liquibase.changeLogSync(tag, Contexts(contexts), LabelExpression(labelExpression), output)
+            }
         }
     }
 
@@ -404,10 +439,12 @@ class LiquibaseClient(
         labelExpression: LabelExpression? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase.markNextChangeSetRan(contexts, labelExpression)
-        } else {
-            this.liquibase.markNextChangeSetRan(contexts, labelExpression, output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.markNextChangeSetRan(contexts, labelExpression)
+            } else {
+                liquibase.markNextChangeSetRan(contexts, labelExpression, output)
+            }
         }
     }
 
@@ -417,10 +454,16 @@ class LiquibaseClient(
         labelExpression: String? = null,
         output: Writer? = null,
     ) {
-        return if (output == null) {
-            this.liquibase.markNextChangeSetRan(Contexts(contexts), LabelExpression(labelExpression))
-        } else {
-            this.liquibase.markNextChangeSetRan(Contexts(contexts), LabelExpression(labelExpression), output)
+        return executeWithCustomScope { liquibase ->
+            if (output == null) {
+                liquibase.markNextChangeSetRan(Contexts(contexts), LabelExpression(labelExpression))
+            } else {
+                liquibase.markNextChangeSetRan(
+                    Contexts(contexts),
+                    LabelExpression(labelExpression),
+                    output
+                )
+            }
         }
     }
 
@@ -433,38 +476,51 @@ class LiquibaseClient(
         output: Writer,
         checkLiquibaseTables: Boolean
     ) {
-        return this.liquibase
-            .extendedFutureRollbackSQL(count, tag, contexts, labelExpression, output, checkLiquibaseTables)
+        return executeWithCustomScope { liquibase ->
+            liquibase.extendedFutureRollbackSQL(count, tag, contexts, labelExpression, output, checkLiquibaseTables)
+        }
     }
 
     @Throws(DatabaseException::class)
     fun dropAll(vararg schemas: CatalogAndSchema) {
-        return this.liquibase.dropAll(*schemas)
+        return executeWithCustomScope { liquibase ->
+            liquibase.dropAll(*schemas)
+        }
     }
 
     @Throws(DatabaseException::class)
     fun dropAll(dropDbclhistory: Boolean? = null, vararg schemas: CatalogAndSchema) {
-        return this.liquibase.dropAll(dropDbclhistory, *schemas)
+        return executeWithCustomScope { liquibase ->
+            liquibase.dropAll(dropDbclhistory, *schemas)
+        }
     }
 
     @Throws(LiquibaseException::class)
     fun tag(tagString: String) {
-        return this.liquibase.tag(tagString)
+        return executeWithCustomScope { liquibase ->
+            liquibase.tag(tagString)
+        }
     }
 
     @Throws(LiquibaseException::class)
     fun tagExists(tagString: String): Boolean {
-        return this.liquibase.tagExists(tagString)
+        return executeWithCustomScope { liquibase ->
+            liquibase.tagExists(tagString)
+        }
     }
 
     @Throws(LiquibaseException::class)
     fun updateTestingRollback(contexts: String? = null) {
-        return this.liquibase.updateTestingRollback(contexts)
+        return executeWithCustomScope { liquibase ->
+            liquibase.updateTestingRollback(contexts)
+        }
     }
 
     @Throws(LiquibaseException::class)
     fun updateTestingRollback(contexts: Contexts? = null, labelExpression: LabelExpression? = null) {
-        return this.liquibase.updateTestingRollback(contexts, labelExpression)
+        return executeWithCustomScope { liquibase ->
+            liquibase.updateTestingRollback(contexts, labelExpression)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -473,7 +529,9 @@ class LiquibaseClient(
         contexts: Contexts? = null,
         labelExpression: LabelExpression? = null
     ) {
-        return this.liquibase.updateTestingRollback(tag, contexts, labelExpression)
+        return executeWithCustomScope { liquibase ->
+            liquibase.updateTestingRollback(tag, contexts, labelExpression)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -483,31 +541,41 @@ class LiquibaseClient(
         contexts: Contexts? = null,
         labelExpression: LabelExpression?
     ) {
-        return this.liquibase.checkLiquibaseTables(
-            updateExistingNullChecksums,
-            databaseChangeLog,
-            contexts,
-            labelExpression
-        )
+        return executeWithCustomScope { liquibase ->
+            liquibase.checkLiquibaseTables(
+                updateExistingNullChecksums,
+                databaseChangeLog,
+                contexts,
+                labelExpression
+            )
+        }
     }
 
     @get:Throws(DatabaseException::class)
     val isSafeToRunUpdate: Boolean
-        get() = this.liquibase.isSafeToRunUpdate
+        get() = executeWithCustomScope { liquibase ->
+            liquibase.isSafeToRunUpdate
+        }
 
     @Throws(LiquibaseException::class)
     fun listLocks(): Array<DatabaseChangeLogLock> {
-        return this.liquibase.listLocks()
+        return executeWithCustomScope { liquibase ->
+            liquibase.listLocks()
+        }
     }
 
     @Throws(LiquibaseException::class)
     fun reportLocks(out: PrintStream? = null) {
-        return this.liquibase.reportLocks(out)
+        return executeWithCustomScope { liquibase ->
+            liquibase.reportLocks(out)
+        }
     }
 
     @Throws(LiquibaseException::class)
     fun forceReleaseLocks() {
-        return this.liquibase.forceReleaseLocks()
+        return executeWithCustomScope { liquibase ->
+            liquibase.forceReleaseLocks()
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -516,7 +584,9 @@ class LiquibaseClient(
         labels: LabelExpression,
         checkLiquibaseTables: Boolean = true
     ): List<ChangeSet> {
-        return this.liquibase.listUnrunChangeSets(contexts, labels, checkLiquibaseTables)
+        return executeWithCustomScope { liquibase ->
+            liquibase.listUnrunChangeSets(contexts, labels, checkLiquibaseTables)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -525,7 +595,9 @@ class LiquibaseClient(
         labelExpression: LabelExpression,
         checkLiquibaseTables: Boolean = true
     ): List<ChangeSetStatus> {
-        return this.liquibase.getChangeSetStatuses(contexts, labelExpression, checkLiquibaseTables)
+        return executeWithCustomScope { liquibase ->
+            liquibase.getChangeSetStatuses(contexts, labelExpression, checkLiquibaseTables)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -534,8 +606,9 @@ class LiquibaseClient(
         labelExpression: String,
         checkLiquibaseTables: Boolean = true
     ): List<ChangeSetStatus> {
-        return this.liquibase
-            .getChangeSetStatuses(Contexts(contexts), LabelExpression(labelExpression), checkLiquibaseTables)
+        return executeWithCustomScope { liquibase ->
+            liquibase.getChangeSetStatuses(Contexts(contexts), LabelExpression(labelExpression), checkLiquibaseTables)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -545,7 +618,9 @@ class LiquibaseClient(
         labels: LabelExpression? = null,
         out: Writer = defaultOutputWriter,
     ) {
-        return this.liquibase.reportStatus(verbose, contexts, labels, out)
+        return executeWithCustomScope { liquibase ->
+            liquibase.reportStatus(verbose, contexts, labels, out)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -555,7 +630,9 @@ class LiquibaseClient(
         labels: String? = null,
         out: Writer = defaultOutputWriter,
     ) {
-        return this.liquibase.reportStatus(verbose, Contexts(contexts), LabelExpression(labels), out)
+        return executeWithCustomScope { liquibase ->
+            liquibase.reportStatus(verbose, Contexts(contexts), LabelExpression(labels), out)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -563,12 +640,16 @@ class LiquibaseClient(
         contexts: Contexts? = null,
         labelExpression: LabelExpression? = null
     ): Collection<RanChangeSet> {
-        return this.liquibase.listUnexpectedChangeSets(contexts, labelExpression)
+        return executeWithCustomScope { liquibase ->
+            liquibase.listUnexpectedChangeSets(contexts, labelExpression)
+        }
     }
 
     @Throws(LiquibaseException::class)
     fun listUnexpectedChangeSets(contexts: String? = null, labelExpression: String? = null): Collection<RanChangeSet> {
-        return this.liquibase.listUnexpectedChangeSets(Contexts(contexts), LabelExpression(labelExpression))
+        return executeWithCustomScope { liquibase ->
+            liquibase.listUnexpectedChangeSets(Contexts(contexts), LabelExpression(labelExpression))
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -577,7 +658,9 @@ class LiquibaseClient(
         contexts: String? = null,
         out: Writer = defaultOutputWriter,
     ) {
-        return this.liquibase.reportUnexpectedChangeSets(verbose, contexts, out)
+        return executeWithCustomScope { liquibase ->
+            liquibase.reportUnexpectedChangeSets(verbose, contexts, out)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -587,22 +670,30 @@ class LiquibaseClient(
         labelExpression: LabelExpression? = null,
         out: Writer = defaultOutputWriter,
     ) {
-        return this.liquibase.reportUnexpectedChangeSets(verbose, contexts, labelExpression, out)
+        return executeWithCustomScope { liquibase ->
+            liquibase.reportUnexpectedChangeSets(verbose, contexts, labelExpression, out)
+        }
     }
 
     @Throws(LiquibaseException::class)
     fun clearCheckSums() {
-        return this.liquibase.clearCheckSums()
+        return executeWithCustomScope { liquibase ->
+            liquibase.clearCheckSums()
+        }
     }
 
     @Throws(LiquibaseException::class)
     fun calculateCheckSum(changeSetIdentifier: String): CheckSum {
-        return this.liquibase.calculateCheckSum(changeSetIdentifier)
+        return executeWithCustomScope { liquibase ->
+            liquibase.calculateCheckSum(changeSetIdentifier)
+        }
     }
 
     @Throws(LiquibaseException::class)
     fun calculateCheckSum(changeSetPath: String, changeSetId: String, changeSetAuthor: String): CheckSum {
-        return this.liquibase.calculateCheckSum(changeSetPath, changeSetId, changeSetAuthor)
+        return executeWithCustomScope { liquibase ->
+            liquibase.calculateCheckSum(changeSetPath, changeSetId, changeSetAuthor)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -612,8 +703,9 @@ class LiquibaseClient(
         labelExpression: LabelExpression? = null,
         vararg schemaList: CatalogAndSchema?
     ) {
-        return this.liquibase
-            .generateDocumentation(outputDirectory, contexts, labelExpression, *schemaList)
+        return executeWithCustomScope { liquibase ->
+            liquibase.generateDocumentation(outputDirectory, contexts, labelExpression, *schemaList)
+        }
     }
 
     @Throws(LiquibaseException::class)
@@ -622,21 +714,27 @@ class LiquibaseClient(
         targetDatabase: Database? = null,
         compareControl: CompareControl? = null
     ): DiffResult {
-        val targetDatabase = targetDatabase ?: this.liquibase.database
-        return this.liquibase.diff(
-            referenceDatabase,
-            targetDatabase,
-            compareControl ?: compareControl(targetDatabase = targetDatabase, referenceDatabase = referenceDatabase)
-        )
+        return executeWithCustomScope { liquibase ->
+            val targetDatabase = targetDatabase ?: database
+            liquibase.diff(
+                referenceDatabase,
+                targetDatabase,
+                compareControl ?: compareControl(targetDatabase = targetDatabase, referenceDatabase = referenceDatabase)
+            )
+        }
     }
 
     @Throws(LiquibaseException::class)
     fun validate() {
-        return this.liquibase.validate()
+        return executeWithCustomScope { liquibase ->
+            liquibase.validate()
+        }
     }
 
     fun setChangeLogParameter(key: String, value: Any? = null) {
-        return this.liquibase.setChangeLogParameter(key, value)
+        return executeWithCustomScope { liquibase ->
+            liquibase.setChangeLogParameter(key, value)
+        }
     }
 
     @Throws(DatabaseException::class, CommandExecutionException::class)
@@ -647,12 +745,14 @@ class LiquibaseClient(
         vararg snapshotTypes: KClass<out DatabaseObject>
     ) {
         @Suppress("SpreadOperator")
-        return this.liquibase.generateChangeLog(
-            catalogAndSchema,
-            changeLogWriter,
-            outputStream,
-            *snapshotTypes.map { it.java }.toTypedArray()
-        )
+        return executeWithCustomScope { liquibase ->
+            liquibase.generateChangeLog(
+                catalogAndSchema,
+                changeLogWriter,
+                outputStream,
+                *snapshotTypes.map { it.java }.toTypedArray()
+            )
+        }
     }
 
     @SafeVarargs
@@ -662,34 +762,14 @@ class LiquibaseClient(
         outputStream: PrintStream = createPrintStream(),
         vararg snapshotTypes: Class<out DatabaseObject?>?
     ) {
-        var finalCompareTypes: Set<Class<out DatabaseObject?>>? = null
-        if (snapshotTypes.isNotEmpty()) {
-            finalCompareTypes = HashSet(Arrays.asList(*snapshotTypes))
+        executeWithCustomScope { liquibase ->
+            liquibase.diffChangelog(referenceDatabase, outputStream, *snapshotTypes)
         }
-        val compareControl = CompareControl(
-            arrayOf(
-                SchemaComparison(
-                    buildCatalogAndSchema(this.liquibase.database),
-                    buildCatalogAndSchema(referenceDatabase)
-                )
-            ),
-            finalCompareTypes
-        )
-
-        // Reference liquibase.command.core.DiffToChangeLogCommand.run
-        CommandScope("diffChangelog")
-            .addArgumentValue(GenerateChangelogCommandStep.CHANGELOG_FILE_ARG, changeLogFile)
-            .addArgumentValue(PreCompareCommandStep.COMPARE_CONTROL_ARG, compareControl)
-            .addArgumentValue(DbUrlConnectionArgumentsCommandStep.DATABASE_ARG, this.liquibase.database)
-            .addArgumentValue(ReferenceDbUrlConnectionCommandStep.REFERENCE_DATABASE_ARG, referenceDatabase)
-            .addArgumentValue(PreCompareCommandStep.SNAPSHOT_TYPES_ARG, snapshotTypes)
-            .setOutput(outputStream)
-            .execute()
     }
 
     @Throws(LiquibaseException::class)
     override fun close() {
-        return this.liquibase.close()
+        return executeWithCustomScope { liquibase -> liquibase.close() }
     }
 
     private fun compareControl(
@@ -715,5 +795,10 @@ class LiquibaseClient(
 
     private fun buildCatalogAndSchema(database: Database): CatalogAndSchema {
         return CatalogAndSchema(database.defaultCatalogName, database.defaultSchemaName)
+    }
+
+    companion object {
+        // TODO: mopve ConfigureLiquibase
+        var everyUseNewClassloader: Boolean = false
     }
 }
