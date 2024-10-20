@@ -11,20 +11,21 @@ object LiquibaseCommandExecutor {
         args: List<Pair<String, String>>,
     ) {
         @Suppress("SpreadOperator")
-        val commandScope = if (LiquibaseCommandClient.everyUseNewClassloader) {
-            CustomScope.createWithNewClassloader(
+        if (LiquibaseCommandClient.everyUseNewClassloader) {
+            CustomScope.executeWithNewClassloader(
                 CommandScope::class,
-                *command.toTypedArray()
-            )
+                *command.toTypedArray(),
+            ) { commandScope ->
+                args.forEach { arg ->
+                    val (key, value) = arg
+                    commandScope.addArgumentValue(key, value)
+                }
+                logArgs(command, args)
+                commandScope.execute()
+            }
         } else {
             CommandScope(*command.toTypedArray())
         }
-        args.forEach { arg ->
-            val (key, value) = arg
-            commandScope.addArgumentValue(key, value)
-        }
-        logArgs(command, args)
-        commandScope.execute()
     }
 
     private fun logArgs(

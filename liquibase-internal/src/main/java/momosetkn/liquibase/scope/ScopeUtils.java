@@ -46,7 +46,7 @@ public class ScopeUtils {
      *
      * @param customServiceLocator specify customServiceLocator
      */
-    public static Scope createCustomRootScope(
+    public Scope createCustomRootScope(
             ServiceLocator customServiceLocator
     ) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         var scopeManager = new NonProtectedSingletonScopeManager();
