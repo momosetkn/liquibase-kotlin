@@ -171,6 +171,7 @@ configure(libraryProjects) {
             // Publish manually from this link https://central.sonatype.com/publishing
             allowMavenCentralSync = false
         }
+        localSpec {}
     }
 }
 
