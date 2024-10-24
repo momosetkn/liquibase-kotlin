@@ -40,7 +40,7 @@ object DDLUtils {
                 "LIQUIBASE" CHARACTER VARYING(20),
                 "CONTEXTS" CHARACTER VARYING(255),
                 "LABELS" CHARACTER VARYING(255),
-                "DEPLOYMENT_ID" CHARACTER VARYING(10)
+                "DEPLOYMENT_ID" CHARACTER VARYING(36)
             );
         """.trimIndent()
         val databaseChangeLogLockTableDdl = """
