@@ -1,9 +1,9 @@
-name: test snapshot-version Liquibase
+name: test master-version Liquibase
 
 on:
   workflow_dispatch:
   schedule:
-    - cron:  '0 0 * * *'
+    - cron:  '0 20 * * *'
 
 jobs:
   test:
@@ -26,23 +26,25 @@ jobs:
       - name: setup gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Fetch latest SNAPSHOT version from GitHub Packages
-        id: liquibase-core-latest-snapshot-version
+      # see https://github.com/liquibase/liquibase/actions/workflows/build-main.yml
+      - name: Fetch latest master-version from GitHub Packages
+        id: liquibase-core-master-version
         uses: momosetkn/fetch-gh-package-latest-snapshot-version@main
         with:
           org: liquibase
           packageType: maven
           packageName: org.liquibase.liquibase-core
           githubToken: ${{ secrets.GITHUB_TOKEN }}
+          versionPattern: '^.{7}-SNAPSHOT$' # for master-branch condition
 
       - name: Configure Gradle for GitHub Packages
         run: |
           echo "gpr.user=${{ github.actor }}" >> gradle.properties
           echo "gpr.token=${{ secrets.GITHUB_TOKEN }}" >> gradle.properties
 
-      - name: Test with latest liquibase SNAPSHOT version
+      - name: Test with latest liquibase master-version
         run: |
-          ./gradlew test -PliquibaseVersion=${{ steps.liquibase-core-latest-snapshot-version.outputs.version }}
+          ./gradlew test -PliquibaseVersion=${{ steps.liquibase-core-master-version.outputs.version }}
 
       - name: Upload reports
         if: failure()
