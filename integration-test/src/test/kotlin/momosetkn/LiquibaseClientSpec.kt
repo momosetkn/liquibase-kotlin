@@ -17,7 +17,6 @@ import momosetkn.utils.DatabaseKomapperExtensions.komapperDb
 import momosetkn.utils.DatabaseServer
 import momosetkn.utils.MutableChangeLog
 import momosetkn.utils.maskChangeSetParams
-import momosetkn.utils.toVersion
 import org.komapper.core.dsl.Meta
 import org.komapper.core.dsl.QueryDsl
 import java.io.ByteArrayOutputStream
@@ -238,9 +237,7 @@ class LiquibaseClientSpec : FunSpec({
         }
     }
 
-    context("updateCountSql").config(
-        enabled = System.getProperty("liquibaseVersion", "999.9.9").toVersion() >= "4.29.2".toVersion()
-    ) {
+    context("updateCountSql") {
         MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 createTable(tableName = "company") {
@@ -259,9 +256,7 @@ class LiquibaseClientSpec : FunSpec({
         }
     }
 
-    context("updateToTagSql").config(
-        enabled = System.getProperty("liquibaseVersion", "999.9.9").toVersion() >= "4.29.2".toVersion()
-    ) {
+    context("updateToTagSql").config {
         MutableChangeLog.set {
             changeSet(author = "user", id = "100") {
                 createTable(tableName = "company") {

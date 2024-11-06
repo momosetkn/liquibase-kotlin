@@ -4,6 +4,11 @@
 [Liquibase-kotlin](https://momosetkn.github.io/liquibase-kotlin) was created with the aim of integrating [liquibase](https://github.com/liquibase/liquibase) with kotlin.
 This module provides Kotlin-DSL, Wrapper-client, ORM-integration.
 
+To ensure compatibility with the latest Liquibase versions, we also conduct tests with snapshot versions on every-day.
+
+Liquibase-kotlin versions are named in correspondence with Liquibase versions, following the format `${liquibaseVersion}-${majar.minor.patch}`.
+Examples, Liquibase-kotlin versions correspond to Liquibase4.29.2-0.8.0 or Liquibase4.29.2-0.8.1
+
 Liquibase-kotlin documentation page 
 - [liquibase-kotlin document](https://momosetkn.github.io/liquibase-kotlin-docs) 
 
@@ -12,8 +17,8 @@ Liquibase-kotlin documentation page
 ```kotlin
 dependencies {
     // liquibase
-    implementation("org.liquibase:liquibase-core:4.29.2")
-    val liquibaseKotlinVersion = "4.29.2-0.8.0"
+    implementation("org.liquibase:liquibase-core:4.30.0")
+    val liquibaseKotlinVersion = "4.30.0-0.9.0"
     // You can choose to install either kotlin-script or kotlin-compiled.
     // for kotlin-script
     implementation("io.github.momosetkn:liquibase-kotlin-starter-script:$liquibaseKotlinVersion")
@@ -264,6 +269,7 @@ changeSet(author = "momose", id = "100-70") {
 - 4.27.0
 - 4.28.0
 - 4.29.2
+- 4.30.0
 
 # example project
 https://github.com/momosetkn/liquibase-kotlin-example
