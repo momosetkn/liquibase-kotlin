@@ -10,7 +10,6 @@ import liquibase.resource.ResourceAccessor
 class RollbackTaskCustomChange<T : Any>(
     private val define: CustomRollbackableTaskChangeDefineImpl<T>,
 ) : CustomChange, CustomTaskChange, CustomTaskRollback {
-    private var alreadyRollbackFlg = false
     private var resourceAccessor: ResourceAccessor? = null
     override fun getConfirmationMessage(): String {
         return define.confirmationMessage
@@ -31,11 +30,6 @@ class RollbackTaskCustomChange<T : Any>(
     }
 
     override fun rollback(database: Database) {
-        // FIXME: CustomTaskRollback has a bug that causes it to be rolled back twice, but there is a workaround.
-        // bugfix: https://github.com/liquibase/liquibase/pull/6266
-        if (!alreadyRollbackFlg) {
-            define.rollbackBlock(define.transformDatabase(database))
-            alreadyRollbackFlg = true
-        }
+        define.rollbackBlock(define.transformDatabase(database))
     }
 }
