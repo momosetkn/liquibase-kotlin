@@ -17,8 +17,8 @@ Liquibase-kotlin documentation page
 ```kotlin
 dependencies {
     // liquibase
-    implementation("org.liquibase:liquibase-core:4.30.0")
-    val liquibaseKotlinVersion = "4.30.0-0.9.0"
+    implementation("org.liquibase:liquibase-core:4.31.0")
+    val liquibaseKotlinVersion = "4.31.0-0.9.1"
     // You can choose to install either kotlin-script or kotlin-compiled.
     // for kotlin-script
     implementation("io.github.momosetkn:liquibase-kotlin-starter-script:$liquibaseKotlinVersion")
@@ -270,6 +270,7 @@ changeSet(author = "momose", id = "100-70") {
 - 4.28.0
 - 4.29.2
 - 4.30.0
+- 4.31.0
 
 # example project
 https://github.com/momosetkn/liquibase-kotlin-example
