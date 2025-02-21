@@ -7,7 +7,7 @@ val artifactGroup: String by project
 
 plugins {
     kotlin("jvm")
-    id("io.gitlab.arturbosch.detekt") version "1.23.7"
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
     `maven-publish`
     id("io.deepmedia.tools.deployer") version "0.17.0"
