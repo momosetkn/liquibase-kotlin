@@ -5,6 +5,9 @@ val artifactIdPrefix: String by project
 val artifactVersion: String by project
 val artifactGroup: String by project
 
+val jvmTargetVersion = 17
+val javaLanguageVersion = 21
+
 plugins {
     kotlin("jvm")
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
@@ -33,15 +36,10 @@ if (artifactVersion.isNotEmpty()) {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(javaLanguageVersion))
     }
     withSourcesJar()
     withJavadocJar()
-}
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-    }
 }
 
 allprojects {
@@ -61,10 +59,21 @@ allprojects {
         }
     }
 
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-            freeCompilerArgs.addAll(listOf("-Xjvm-default=all"))
+    tasks {
+        withType<JavaCompile>().configureEach {
+            options.release.set(jvmTargetVersion)
+        }
+
+        withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+            compilerOptions {
+                freeCompilerArgs.addAll(
+                    listOf(
+                        "-Xjvm-default=all",
+                        "-Xjdk-release=$jvmTargetVersion"
+                    )
+                )
+                jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(jvmTargetVersion.toString()))
+            }
         }
     }
 
