@@ -29,6 +29,7 @@ import liquibase.exception.CommandExecutionException
 import liquibase.exception.DatabaseException
 import liquibase.exception.LiquibaseException
 import liquibase.lockservice.DatabaseChangeLogLock
+import liquibase.logging.Logger
 import liquibase.resource.ResourceAccessor
 import liquibase.snapshot.SnapshotControl
 import liquibase.snapshot.SnapshotGeneratorFactory
@@ -87,10 +88,8 @@ class LiquibaseClient(
     val defaultChangeExecListener: DefaultChangeExecListener
         get() = liquibase.defaultChangeExecListener
 
-    // comment-out. The following method is for the sole purpose of testing Liquibase.
-//    fun getLog() {
-//        this.liquibase.log
-//    }
+    val log: Logger
+        get() = this.liquibase.log
 
     @Throws(LiquibaseException::class)
     fun getDatabaseChangeLog(): DatabaseChangeLog {
@@ -184,6 +183,11 @@ class LiquibaseClient(
         } else {
             this.liquibase.update(changesToApply, Contexts(contexts), LabelExpression(labelExpression), output)
         }
+    }
+
+    @Throws(LiquibaseException::class)
+    fun updateSql(contexts: Contexts? = null, labelExpression: LabelExpression? = null, output: Writer) {
+        this.liquibase.updateSql(contexts, labelExpression, output)
     }
 
     @Throws(LiquibaseException::class)
