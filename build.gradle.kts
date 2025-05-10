@@ -13,7 +13,7 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
     `maven-publish`
-    id("io.deepmedia.tools.deployer") version "0.17.0"
+    id("io.deepmedia.tools.deployer") version "0.18.0"
     id("org.jetbrains.dokka") version "2.0.0"
 }
 
