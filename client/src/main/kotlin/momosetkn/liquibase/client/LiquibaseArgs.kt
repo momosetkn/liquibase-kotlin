@@ -235,7 +235,7 @@ data class LiquibaseExtensionsArgs(
     var dynamodbWaitersEnabled: Boolean? = null,
     var dynamodbWaitersFailOnTimeout: Boolean? = null,
     var dynamodbWaitersLogNotificationEnabled: Boolean? = null,
-    var dynamodbWaitersLogNotificationIntervar: Int? = null,
+    var dynamodbWaitersLogNotificationInterval: Int? = null,
     var dynamodbWaiterCreateFixedDelayBackoffStrategyDuration: Int? = null,
     var dynamodbWaiterCreateMaxAttempts: Int? = null,
     var dynamodbWaiterCreateTotalTimeout: Int? = null,
@@ -257,7 +257,7 @@ data class LiquibaseExtensionsArgs(
             "dynamodb-waiters-enabled" to dynamodbWaitersEnabled,
             "dynamodb-waiters-fail-on-timeout" to dynamodbWaitersFailOnTimeout,
             "dynamodb-waiters-log-notification-enabled" to dynamodbWaitersLogNotificationEnabled,
-            "dynamodb-waiters-log-notification-intervar" to dynamodbWaitersLogNotificationIntervar,
+            "dynamodb-waiters-log-notification-interval" to dynamodbWaitersLogNotificationInterval,
             "dynamodb-waiter-create-fixed-delay-backoff-strategy-duration" to dynamodbWaiterCreateFixedDelayBackoffStrategyDuration,
             "dynamodb-waiter-create-max-attempts" to dynamodbWaiterCreateMaxAttempts,
             "dynamodb-waiter-create-total-timeout" to dynamodbWaiterCreateTotalTimeout,
@@ -275,13 +275,13 @@ data class LiquibaseExtensionsArgs(
 data class LiquibaseMongoDBArgs(
     var adjustTrackingTablesOnStartup: Boolean? = null,
     var retryWrites: Boolean? = null,
-    var supportsvaridator: Boolean? = null,
+    var supportsValidator: Boolean? = null,
 ) : LiquibaseGlobalArgs {
     override fun serialize(): List<Pair<String, String?>> {
         return listOf(
             "adjust-tracking-tables-on-startup" to adjustTrackingTablesOnStartup,
             "retry-writes" to retryWrites,
-            "supports-varidator" to supportsvaridator,
+            "supports-validator" to supportsValidator,
         ).map { (k, v) -> k to v?.toString() }
     }
 }
