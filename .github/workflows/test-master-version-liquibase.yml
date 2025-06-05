@@ -5,6 +5,10 @@ on:
   schedule:
     - cron:  '0 20 * * *'
 
+env:
+  JDK_DISTRIBUTION: 'temurin'
+  JDK_VERSION: '21'
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -20,8 +24,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: 21
+          distribution: ${{ env.JDK_DISTRIBUTION }}
+          java-version: ${{ env.JDK_VERSION }}
 
       - name: setup gradle
         uses: gradle/actions/setup-gradle@v4
