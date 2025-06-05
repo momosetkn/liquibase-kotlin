@@ -1,5 +1,6 @@
 # liquibase-kotlin
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.momosetkn/liquibase-kotlin-dsl)](https://search.maven.org/artifact/io.github.momosetkn/liquibase-kotlin-dsl)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/momosetkn/liquibase-kotlin)
 
 [Liquibase-kotlin](https://momosetkn.github.io/liquibase-kotlin) was created with the aim of integrating [liquibase](https://github.com/liquibase/liquibase) with kotlin.
 This module provides Kotlin-DSL, Wrapper-client, ORM-integration.
