@@ -6,6 +6,10 @@ on:
     branches: [ main ]
   pull_request:
 
+env:
+  JDK_DISTRIBUTION: 'temurin'
+  JDK_VERSION: '21'
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -21,8 +25,8 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: 21
+          distribution: ${{ env.JDK_DISTRIBUTION }}
+          java-version: ${{ env.JDK_VERSION }}
 
       - name: Setup gradle
         uses: gradle/actions/setup-gradle@v4
@@ -42,9 +46,12 @@ jobs:
           name: 'reports-${{ matrix.os }}'
           path: ./**/build/reports
 
-  detekt:
+  lint:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    strategy:
+      matrix:
+        lint-tool: [ detekt, ktlintCheck ]
 
     steps:
       - uses: actions/checkout@v4
@@ -52,8 +59,8 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: 17
+          distribution: ${{ env.JDK_DISTRIBUTION }}
+          java-version: ${{ env.JDK_VERSION }}
 
       - name: Setup gradle
         uses: gradle/actions/setup-gradle@v4
@@ -63,39 +70,8 @@ jobs:
           echo "gpr.user=${{ github.actor }}" >> gradle.properties
           echo "gpr.token=${{ secrets.GITHUB_TOKEN }}" >> gradle.properties
 
-      - name: Run detekt
-        run: ./gradlew detekt
-
-      - name: Upload reports
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test
-          path: ./**/build/reports
-
-  ktlint:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: 17
-
-      - name: Setup gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Configure Gradle for GitHub Packages
-        run: |
-          echo "gpr.user=${{ github.actor }}" >> gradle.properties
-          echo "gpr.token=${{ secrets.GITHUB_TOKEN }}" >> gradle.properties
-
-      - name: Run ktlintCheck
-        run: ./gradlew ktlintCheck
+      - name: Run lint
+        run: ./gradlew ${{ matrix.lint-tool }}
 
       - name: Upload reports
         if: failure()
