@@ -1,7 +1,5 @@
-<?xml version="1.0" ?>
+<?xml version='1.0' encoding='UTF-8'?>
 <SmellBaseline>
-  <ManuallySuppressedIssues></ManuallySuppressedIssues>
-  <CurrentIssues>
-    <ID>ForbiddenComment:RollbackTaskCustomExposedMigrationChange.kt$RollbackTaskCustomExposedMigrationChange$// FIXME: CustomTaskRollback has a bug that causes it to be rolled back twice, but there is a workaround.</ID>
-  </CurrentIssues>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues/>
 </SmellBaseline>

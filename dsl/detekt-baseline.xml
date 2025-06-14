@@ -1,8 +1,5 @@
-<?xml version="1.0" ?>
+<?xml version='1.0' encoding='UTF-8'?>
 <SmellBaseline>
-  <ManuallySuppressedIssues></ManuallySuppressedIssues>
-  <CurrentIssues>
-    <ID>ForbiddenComment:ChangeLogDsl.kt$ChangeLogDsl$// TODO: confirm</ID>
-    <ID>ForbiddenComment:ChangeLogDsl.kt$ChangeLogDsl$// TODO: set by user</ID>
-  </CurrentIssues>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues/>
 </SmellBaseline>
