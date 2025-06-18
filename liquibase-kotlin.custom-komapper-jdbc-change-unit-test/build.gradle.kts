@@ -2,6 +2,7 @@ val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
 val slf4jVersion = rootProject.properties["slf4jVersion"] as String
 val komapperVersion = rootProject.properties["komapperVersion"] as String
+val kotlinVersion = rootProject.properties["kotlinVersion"] as String
 
 dependencies {
     implementation(project(":custom-komapper-jdbc-change"))
@@ -21,6 +22,8 @@ dependencies {
 
     // db-migration
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
+    // reflection
+    testImplementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
 }
 
 tasks.test {
