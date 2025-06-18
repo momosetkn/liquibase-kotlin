@@ -1,5 +1,6 @@
 val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
+val mockkVersion = rootProject.properties["mockkVersion"] as String
 val slf4jVersion = rootProject.properties["slf4jVersion"] as String
 val komapperVersion = rootProject.properties["komapperVersion"] as String
 val jooqVersion = rootProject.properties["jooqVersion"] as String
@@ -23,6 +24,7 @@ dependencies {
     implementation(project(":custom-jooq-change"))
     implementation(project(":custom-exposed-migration-change"))
     implementation(project(":custom-ktorm-change"))
+    implementation(project(":extension"))
 
     // log
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
@@ -55,6 +57,7 @@ dependencies {
     implementation(project(":test-utils"))
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testImplementation("io.mockk:mockk:$mockkVersion")
 
     // db-migration
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
