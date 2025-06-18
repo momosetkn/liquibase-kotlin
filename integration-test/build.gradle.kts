@@ -5,6 +5,7 @@ val komapperVersion = rootProject.properties["komapperVersion"] as String
 val jooqVersion = rootProject.properties["jooqVersion"] as String
 val exposedVersion = rootProject.properties["exposedVersion"] as String
 val ktormVersion = rootProject.properties["ktormVersion"] as String
+val hikariCpVersion = rootProject.properties["hikariCpVersion"] as String
 
 plugins {
     id("com.google.devtools.ksp")
@@ -61,6 +62,8 @@ dependencies {
 
     // h2database
     testImplementation("com.h2database:h2:2.3.232")
+    // connection pool
+    testImplementation("com.zaxxer:HikariCP:$hikariCpVersion")
 }
 
 configurations.all {
