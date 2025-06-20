@@ -5,6 +5,8 @@ val komapperVersion = rootProject.properties["komapperVersion"] as String
 val jooqVersion = rootProject.properties["jooqVersion"] as String
 val exposedVersion = rootProject.properties["exposedVersion"] as String
 val ktormVersion = rootProject.properties["ktormVersion"] as String
+val log4jSlf4j2Version = rootProject.properties["log4jSlf4j2Version"] as String
+val log4jApiKotlinVersion = rootProject.properties["log4jApiKotlinVersion"] as String
 val hikariCpVersion = rootProject.properties["hikariCpVersion"] as String
 
 plugins {
@@ -27,8 +29,8 @@ dependencies {
 
     // log
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
-    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.5.0")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4jSlf4j2Version")
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:$log4jApiKotlinVersion")
 
     // komapper
     implementation("org.komapper:komapper-core:$komapperVersion")
