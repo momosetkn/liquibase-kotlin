@@ -22,6 +22,8 @@ import liquibase.command.core.helpers.DbUrlConnectionArgumentsCommandStep
 import liquibase.command.core.helpers.PreCompareCommandStep
 import liquibase.command.core.helpers.ReferenceDbUrlConnectionCommandStep
 import liquibase.database.Database
+import liquibase.database.DatabaseFactory
+import liquibase.database.jvm.JdbcConnection
 import liquibase.diff.DiffResult
 import liquibase.diff.compare.CompareControl
 import liquibase.diff.output.changelog.DiffToChangeLog
@@ -702,4 +704,38 @@ class LiquibaseClient(
     private fun buildCatalogAndSchema(database: Database): CatalogAndSchema {
         return CatalogAndSchema(database.defaultCatalogName, database.defaultSchemaName)
     }
+}
+
+fun LiquibaseClient(
+    changeLogFile: String,
+    datasource: javax.sql.DataSource,
+    resourceAccessor: ResourceAccessor = Scope.getCurrentScope().resourceAccessor,
+    defaultOutputWriter: Writer = LiquibaseMultilineLogWriter(),
+    createPrintStream: () -> PrintStream = { PrintStream(System.out) },
+): LiquibaseClient {
+    return LiquibaseClient(
+        changeLogFile = changeLogFile,
+        connection = datasource.connection,
+        resourceAccessor = resourceAccessor,
+        defaultOutputWriter = defaultOutputWriter,
+        createPrintStream = createPrintStream,
+    )
+}
+
+fun LiquibaseClient(
+    changeLogFile: String,
+    connection: java.sql.Connection,
+    resourceAccessor: ResourceAccessor = Scope.getCurrentScope().resourceAccessor,
+    defaultOutputWriter: Writer = LiquibaseMultilineLogWriter(),
+    createPrintStream: () -> PrintStream = { PrintStream(System.out) },
+): LiquibaseClient {
+    val databaseFactory = DatabaseFactory.getInstance()
+    val database = databaseFactory.findCorrectDatabaseImplementation(JdbcConnection(connection))
+    return LiquibaseClient(
+        changeLogFile = changeLogFile,
+        database = database,
+        resourceAccessor = resourceAccessor,
+        defaultOutputWriter = defaultOutputWriter,
+        createPrintStream = createPrintStream,
+    )
 }
