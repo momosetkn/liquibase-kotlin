@@ -41,14 +41,6 @@ tasks.test {
     systemProperty("kotest.framework.classpath.scanning.config.disable", "true")
 }
 
-tasks {
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        compilerOptions {
-            freeCompilerArgs.add("-opt-in=org.komapper.annotation.KomapperExperimentalAssociation")
-        }
-    }
-}
-
 // To run in a separate process.
 tasks.register<JavaExec>("startH2Server") {
     group = "Database"
