@@ -43,3 +43,5 @@ include("custom-ktorm-change")
 // starter
 include("starter-compiled")
 include("starter-script")
+// extension
+include("extension")

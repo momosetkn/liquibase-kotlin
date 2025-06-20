@@ -120,7 +120,9 @@ val libraryProjects =
             "custom-ktorm-change",
             // starter
             "starter-compiled",
-            "starter-script"
+            "starter-script",
+            // extension
+            "extension"
         )
     }
 configure(libraryProjects) {
