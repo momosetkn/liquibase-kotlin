@@ -22,6 +22,7 @@ class LiquibaseKomapperJdbcConfigSpec : FunSpec({
     }
 
     context("not supported and dialect is one") {
+        // org.komapper:komapper-dialect-postgresql-jdbc is a dependency
         test("can use loaded dialect") {
             val actual = subject(H2Database::class)
             actual.config.dialect.shouldBeInstanceOf<PostgreSqlJdbcDialect>()
