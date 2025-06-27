@@ -18,7 +18,7 @@ rootProject.name = "liquibase-kotlin"
 include("integration-test")
 include("test-utils")
 // unit-test
-include("liquibase-kotlin.custom-komapper-jdbc-change-unit-test")
+include("custom-komapper-jdbc-change-unit-test")
 
 // production code
 // dsl
