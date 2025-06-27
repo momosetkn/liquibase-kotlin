@@ -180,38 +180,38 @@ class LiquibaseExposedMigrationConfigSpec : FunSpec({
 
 val StubDataSource = object : javax.sql.DataSource {
     override fun getLogWriter(): PrintWriter {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun setLogWriter(out: PrintWriter?) {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun setLoginTimeout(seconds: Int) {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun getLoginTimeout(): Int {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun getParentLogger(): Logger {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun <T : Any?> unwrap(iface: Class<T>?): T {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun isWrapperFor(iface: Class<*>?): Boolean {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun getConnection(): Connection {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun getConnection(username: String?, password: String?): Connection {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 }
