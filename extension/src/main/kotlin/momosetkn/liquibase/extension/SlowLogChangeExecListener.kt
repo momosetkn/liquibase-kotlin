@@ -1,5 +1,10 @@
 package momosetkn.liquibase.extension
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import liquibase.change.Change
 import liquibase.changelog.ChangeSet
 import liquibase.changelog.DatabaseChangeLog
@@ -9,13 +14,16 @@ import liquibase.exception.PreconditionErrorException
 import liquibase.exception.PreconditionFailedException
 import liquibase.precondition.core.PreconditionContainer
 import java.lang.Exception
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @Suppress("TooManyFunctions")
 class SlowLogChangeExecListener(
-    val thresholdMillis: Long = 3_000,
+    val thresholdMillis: Duration = 3.seconds,
     private val log: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(SlowLogChangeExecListener::class.java)
 ) : ChangeExecListener {
-    private val startTimes = mutableMapOf<String, Long>()
+    // not care for concurrent
+    private val reportSlowLogJobs = mutableMapOf<ChangeSet, TimedJob>()
 
     override fun willRun(
         changeSet: ChangeSet,
@@ -23,7 +31,7 @@ class SlowLogChangeExecListener(
         database: Database,
         runStatus: ChangeSet.RunStatus
     ) {
-        resetStartTimes(changeSet)
+        launchSlowLogJob(changeSet, "executed")
     }
 
     override fun ran(
@@ -32,7 +40,7 @@ class SlowLogChangeExecListener(
         database: Database,
         execType: ChangeSet.ExecType
     ) {
-        logElapsedTime(changeSet, "executed")
+        logElapsedTimeAndCancelSlowLog(changeSet, "executed")
     }
 
     override fun willRollback(
@@ -40,7 +48,7 @@ class SlowLogChangeExecListener(
         databaseChangeLog: DatabaseChangeLog,
         database: Database
     ) {
-        resetStartTimes(changeSet)
+        launchSlowLogJob(changeSet, "rolled back")
     }
 
     override fun rolledBack(
@@ -48,7 +56,7 @@ class SlowLogChangeExecListener(
         databaseChangeLog: DatabaseChangeLog,
         database: Database
     ) {
-        logElapsedTime(changeSet, "rolled back")
+        logElapsedTimeAndCancelSlowLog(changeSet, "rolled back")
     }
 
     override fun preconditionFailed(
@@ -101,18 +109,29 @@ class SlowLogChangeExecListener(
         // no-op
     }
 
-    private fun resetStartTimes(changeSet: ChangeSet) {
-        startTimes[changeSet.id] = System.currentTimeMillis()
+    private fun logElapsedTimeAndCancelSlowLog(changeSet: ChangeSet, action: String) {
+        val timedJob = reportSlowLogJobs[changeSet]
+        checkNotNull(timedJob)
+        timedJob.job.cancel()
+
+        val elapsedTime = System.currentTimeMillis() - timedJob.startTime
+        log.debug("ChangeSet: {} {} took {}ms", action, changeSet, elapsedTime)
     }
 
-    private fun logElapsedTime(changeSet: ChangeSet, action: String) {
-        val startTime = startTimes[changeSet.id] ?: return
-        val endTime = System.currentTimeMillis()
-        val duration = endTime - startTime
-        if (duration >= thresholdMillis) {
-            log.warn("Slow ChangeSet: {} {} took {}ms", action, changeSet, duration)
-        } else {
-            log.debug("ChangeSet: {} {} took {}ms", action, changeSet, duration)
+    private fun launchSlowLogJob(changeSet: ChangeSet, action: String) {
+        val job = CoroutineScope(Dispatchers.IO).launch {
+            delay(thresholdMillis)
+            log.warn("Slow ChangeSet: {} {} threshold-time is {}", action, changeSet, thresholdMillis)
         }
+        reportSlowLogJobs[changeSet] = TimedJob.create(job)
+    }
+}
+
+private data class TimedJob(
+    val job: Job,
+    val startTime: Long
+) {
+    companion object {
+        fun create(job: Job): TimedJob = TimedJob(job, System.currentTimeMillis())
     }
 }
