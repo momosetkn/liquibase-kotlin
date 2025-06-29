@@ -128,7 +128,7 @@ class ChangeLogSpec : FunSpec({
     context("removeChangeSetProperty") {
         context("dbms = all, remove = afterColumn") {
             beforeEach {
-                MutableChangeLog1.set {
+                MutableChangeLog.set {
                     removeChangeSetProperty(
                         change = "addColumn",
                         dbms = "all",

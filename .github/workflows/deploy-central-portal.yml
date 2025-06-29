@@ -5,6 +5,10 @@ on:
     tags:
       - '**'
 
+env:
+  JDK_DISTRIBUTION: 'temurin'
+  JDK_VERSION: '21'
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -32,8 +36,8 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: 21
+          distribution: ${{ env.JDK_DISTRIBUTION }}
+          java-version: ${{ env.JDK_VERSION }}
 
       - name: Setup gradle
         uses: gradle/actions/setup-gradle@v4

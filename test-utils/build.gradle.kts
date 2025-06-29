@@ -2,6 +2,8 @@ val liquibaseVersion = rootProject.properties["liquibaseVersion"] as String
 val kotestVersion = rootProject.properties["kotestVersion"] as String
 val slf4jVersion = rootProject.properties["slf4jVersion"] as String
 val komapperVersion = rootProject.properties["komapperVersion"] as String
+val log4jSlf4j2Version = rootProject.properties["log4jSlf4j2Version"] as String
+val log4jApiKotlinVersion = rootProject.properties["log4jApiKotlinVersion"] as String
 
 dependencies {
     implementation(project(":dsl"))
@@ -25,8 +27,8 @@ dependencies {
 
     // log
     implementation("org.slf4j:slf4j-api:$slf4jVersion")
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.24.3")
-    implementation("org.apache.logging.log4j:log4j-api-kotlin:1.5.0")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4jSlf4j2Version")
+    implementation("org.apache.logging.log4j:log4j-api-kotlin:$log4jApiKotlinVersion")
 
     // extend test
     implementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
@@ -39,14 +41,6 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
     systemProperty("kotest.framework.classpath.scanning.config.disable", "true")
-}
-
-tasks {
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        compilerOptions {
-            freeCompilerArgs.add("-opt-in=org.komapper.annotation.KomapperExperimentalAssociation")
-        }
-    }
 }
 
 // To run in a separate process.
