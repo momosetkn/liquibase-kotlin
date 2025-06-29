@@ -22,6 +22,7 @@ class LiquibaseKomapperJdbcConfigSpec : FunSpec({
     }
 
     context("not supported and dialect is one") {
+        // org.komapper:komapper-dialect-postgresql-jdbc is a dependency
         test("can use loaded dialect") {
             val actual = subject(H2Database::class)
             actual.config.dialect.shouldBeInstanceOf<PostgreSqlJdbcDialect>()
@@ -31,38 +32,38 @@ class LiquibaseKomapperJdbcConfigSpec : FunSpec({
 
 val StubDataSource = object : DataSource {
     override fun getLogWriter(): PrintWriter {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun setLogWriter(out: PrintWriter?) {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun setLoginTimeout(seconds: Int) {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun getLoginTimeout(): Int {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun getParentLogger(): Logger {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun <T : Any?> unwrap(iface: Class<T>?): T {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun isWrapperFor(iface: Class<*>?): Boolean {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun getConnection(): Connection {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun getConnection(username: String?, password: String?): Connection {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 }

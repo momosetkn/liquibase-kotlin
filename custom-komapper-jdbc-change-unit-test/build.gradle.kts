@@ -15,6 +15,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api-kotlin:$log4jApiKotlinVersion")
 
     // komapper
+    // Test for the case with a single dialect
     implementation("org.komapper:komapper-dialect-postgresql-jdbc:$komapperVersion")
 
     // test
