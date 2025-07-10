@@ -30,7 +30,7 @@ class SlowLogChangeExecListenerSpec : FunSpec({
 
     val log = mockk<org.slf4j.Logger>(relaxed = true)
     val changeExecListener = SlowLogChangeExecListener(
-        thresholdMillis = 1.seconds,
+        threshold = 1.seconds,
         log = log
     )
 
@@ -81,7 +81,7 @@ class SlowLogChangeExecListenerSpec : FunSpec({
                         changeSet.toString().shouldBe("momosetkn.utils.MutableChangeLog::100::user")
                     },
                     withArg { duration: Duration ->
-                        duration.shouldBe(changeExecListener.thresholdMillis)
+                        duration.shouldBe(changeExecListener.threshold)
                     },
                 )
             }
@@ -93,7 +93,7 @@ class SlowLogChangeExecListenerSpec : FunSpec({
                         changeSet.toString().shouldBe("momosetkn.utils.MutableChangeLog::0::user")
                     },
                     withArg { duration: Long ->
-                        duration.shouldBeLessThan(changeExecListener.thresholdMillis.inWholeMilliseconds)
+                        duration.shouldBeLessThan(changeExecListener.threshold.inWholeMilliseconds)
                     },
                 )
             }
@@ -106,7 +106,7 @@ class SlowLogChangeExecListenerSpec : FunSpec({
                     },
                     withArg { duration: Long ->
                         // slow
-                        duration.shouldBeGreaterThan(changeExecListener.thresholdMillis.inWholeMilliseconds)
+                        duration.shouldBeGreaterThan(changeExecListener.threshold.inWholeMilliseconds)
                     },
                 )
             }
@@ -134,7 +134,7 @@ class SlowLogChangeExecListenerSpec : FunSpec({
                     withArg { changeSet ->
                         changeSet.toString().shouldBe("momosetkn.utils.MutableChangeLog::100::user")
                     },
-                    withArg { duration: Duration -> duration.shouldBe(changeExecListener.thresholdMillis) },
+                    withArg { duration: Duration -> duration.shouldBe(changeExecListener.threshold) },
                 )
             }
             verify {
@@ -146,7 +146,7 @@ class SlowLogChangeExecListenerSpec : FunSpec({
                     },
                     withArg { duration: Long ->
                         // slow
-                        duration.shouldBeGreaterThan(changeExecListener.thresholdMillis.inWholeMilliseconds)
+                        duration.shouldBeGreaterThan(changeExecListener.threshold.inWholeMilliseconds)
                     },
                 )
             }
@@ -158,7 +158,7 @@ class SlowLogChangeExecListenerSpec : FunSpec({
                         changeSet.toString().shouldBe("momosetkn.utils.MutableChangeLog::0::user")
                     },
                     withArg { duration: Long ->
-                        duration.shouldBeLessThan(changeExecListener.thresholdMillis.inWholeMilliseconds)
+                        duration.shouldBeLessThan(changeExecListener.threshold.inWholeMilliseconds)
                     },
                 )
             }
@@ -194,7 +194,7 @@ class SlowLogChangeExecListenerSpec : FunSpec({
                         changeSet.toString().shouldBe("momosetkn.utils.MutableChangeLog::0::user")
                     },
                     withArg { duration: Long ->
-                        duration.shouldBeLessThan(changeExecListener.thresholdMillis.inWholeMilliseconds)
+                        duration.shouldBeLessThan(changeExecListener.threshold.inWholeMilliseconds)
                     },
                 )
             }
@@ -206,7 +206,7 @@ class SlowLogChangeExecListenerSpec : FunSpec({
                         changeSet.toString().shouldBe("momosetkn.utils.MutableChangeLog::100::user")
                     },
                     withArg { duration: Long ->
-                        duration.shouldBeLessThan(changeExecListener.thresholdMillis.inWholeMilliseconds)
+                        duration.shouldBeLessThan(changeExecListener.threshold.inWholeMilliseconds)
                     },
                 )
             }
@@ -218,7 +218,7 @@ class SlowLogChangeExecListenerSpec : FunSpec({
                         changeSet.toString().shouldBe("momosetkn.utils.MutableChangeLog::100::user")
                     },
                     withArg { duration: Long ->
-                        duration.shouldBeLessThan(changeExecListener.thresholdMillis.inWholeMilliseconds)
+                        duration.shouldBeLessThan(changeExecListener.threshold.inWholeMilliseconds)
                     },
                 )
             }
@@ -230,7 +230,7 @@ class SlowLogChangeExecListenerSpec : FunSpec({
                         changeSet.toString().shouldBe("momosetkn.utils.MutableChangeLog::0::user")
                     },
                     withArg { duration: Long ->
-                        duration.shouldBeLessThan(changeExecListener.thresholdMillis.inWholeMilliseconds)
+                        duration.shouldBeLessThan(changeExecListener.threshold.inWholeMilliseconds)
                     },
                 )
             }

@@ -19,7 +19,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("TooManyFunctions")
 class SlowLogChangeExecListener(
-    val thresholdMillis: Duration = 3.seconds,
+    val threshold: Duration = 3.seconds,
     private val log: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(SlowLogChangeExecListener::class.java)
 ) : ChangeExecListener {
     // not care for concurrent
@@ -120,8 +120,8 @@ class SlowLogChangeExecListener(
 
     private fun launchSlowLogJob(changeSet: ChangeSet, action: String) {
         val job = CoroutineScope(Dispatchers.IO).launch {
-            delay(thresholdMillis)
-            log.warn("Slow ChangeSet: {} {} threshold-time is {}", action, changeSet, thresholdMillis)
+            delay(threshold)
+            log.warn("Slow ChangeSet: {} {} threshold-time is {}", action, changeSet, threshold)
         }
         reportSlowLogJobs[changeSet] = TimedJob.create(job)
     }
