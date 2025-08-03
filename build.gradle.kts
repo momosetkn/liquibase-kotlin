@@ -122,9 +122,12 @@ val libraryProjects =
             "starter-compiled",
             "starter-script",
             // extension
-            "extension"
+            "extension",
+            // bom
+            "bom",
         )
     }
+extra["libraryProjects"] = libraryProjects
 configure(libraryProjects) {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "maven-publish")
