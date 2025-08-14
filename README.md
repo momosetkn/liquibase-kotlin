@@ -19,15 +19,16 @@ Liquibase-kotlin documentation page
 dependencies {
     // liquibase
     implementation("org.liquibase:liquibase-core:4.33.0")
-    val liquibaseKotlinVersion = "4.33.0-0.10.1"
+    // BOM (Bill of Materials) to align versions of all liquibase-kotlin modules.
+    // This ensures compatibility between liquibase-kotlin-starter, client, and other extensions.
+    implementation("io.github.momosetkn:liquibase-kotlin-bom:4.33.0-0.10.1")
     // You can choose to install either kotlin-script or kotlin-compiled.
     // for kotlin-script
-    implementation("io.github.momosetkn:liquibase-kotlin-starter-script:$liquibaseKotlinVersion")
+    implementation("io.github.momosetkn:liquibase-kotlin-starter-script")
     // for kotlin-compiled
-    implementation("io.github.momosetkn:liquibase-kotlin-starter-compiled:$liquibaseKotlinVersion")
-    // If you want to use call liquibase-command by kotlin, add the following code.
-    implementation("io.github.momosetkn:liquibase-kotlin-client:$liquibaseKotlinVersion")
-    // Optional modules are available for Komapper, jOOQ, Exposed and Ktorm.
+    implementation("io.github.momosetkn:liquibase-kotlin-starter-compiled")
+    // If you want to use call liquibase from kotlin, add the following code.
+    implementation("io.github.momosetkn:liquibase-kotlin-client")
 }
 ```
 

@@ -45,3 +45,5 @@ include("starter-compiled")
 include("starter-script")
 // extension
 include("extension")
+// bom
+include("bom")
