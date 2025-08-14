@@ -27,14 +27,7 @@ dependencies {
     implementation("io.github.momosetkn:liquibase-kotlin-starter-compiled:$liquibaseKotlinVersion")
     // If you want to use call liquibase-command by kotlin, add the following code.
     implementation("io.github.momosetkn:liquibase-kotlin-client:$liquibaseKotlinVersion")
-    // If you want to use komapper on customChange, add the following code.
-    implementation("io.github.momosetkn:liquibase-kotlin-custom-komapper-jdbc-change:$liquibaseKotlinVersion")
-    // If you want to use exposed on customChange, add the following code.
-    implementation("io.github.momosetkn:liquibase-kotlin-custom-exposed-migration-change:$liquibaseKotlinVersion")
-    // If you want to use ktorm on customChange, add the following code.
-    implementation("io.github.momosetkn:liquibase-kotlin-custom-ktorm-change:$liquibaseKotlinVersion")
-    // If you want to use jOOQ on customChange, add the following code.
-    implementation("io.github.momosetkn:liquibase-kotlin-custom-jooq-change:$liquibaseKotlinVersion")
+    // Optional modules are available for Komapper, jOOQ, Exposed and Ktorm.
 }
 ```
 
@@ -48,6 +41,11 @@ Both have the same syntax for changeSet.
 > [!NOTE]
 > kotlin-script module is It is can integration with existing migration files.
 > But when integrating the kotlin-compiled module, you need to load kotlin-compiled migration using include or includeAll.
+
+| Feature | KotlinScript | KotlinCompiled |
+| --- | --- | --- |
+| File location | `.kts` files under `src/main/resources` | Kotlin classes implementing `KotlinCompiledDatabaseChangeLog` on the classpath |
+| Loading method | scripts loaded directly by path | `include` with a `.class` path; `includeAll` with a `/`-separated classpath directory or dot-separated package name |
 
 #### kotlin-script
 
@@ -113,153 +111,10 @@ val liquibaseClient = LiquibaseClient(
 )
 liquibaseClient.update()
 ```
+### Supported ORMs for customChange
 
-### Use Komapper on customChange
+Liquibase-kotlin can integrate with Komapper, jOOQ, Exposed, and Ktorm using optional modules.
 
-`liquibase-kotlin-custom-komapper-jdbc-change` module can use [Komapper](https://www.komapper.org/) on customChange
-
-> [!NOTE]
-> can use both the `kotlin-script` and `kotlin-compiled`.
-
-add bellow dependencies.
-
-```kotlin
-implementation("io.github.momosetkn:liquibase-kotlin-custom-komapper-jdbc-change:$liquibaseKotlinVersion")
-```
-
-changeSet example
-```kotlin
-changeSet(author = "momose", id = "100-40") {
-    customKomapperJdbcChange(
-        execute = { db ->
-            val query = QueryDsl.executeScript(
-                """
-                CREATE TABLE created_by_komapper (
-                    id uuid NOT NULL,
-                    name character varying(256)
-                );
-                """.trimIndent()
-            )
-            db.runQuery(query)
-        },
-        rollback = { db ->
-            val query = QueryDsl.executeScript("DROP TABLE created_by_komapper")
-            db.runQuery(query)
-        },
-    )
-}
-```
-
-### Use jOOQ on customChange
-
-`liquibase-kotlin-custom-jooq-change` module can use [jOOQ](https://www.jooq.org/) on customChange
-
-> [!NOTE]
-> can use both the `kotlin-script` and `kotlin-compiled`.
-
-add bellow dependencies.
-
-```kotlin
-implementation("io.github.momosetkn:liquibase-kotlin-custom-jooq-change:$liquibaseKotlinVersion")
-```
-
-changeSet example
-```kotlin
-changeSet(author = "momose", id = "100-40") {
-    customJooqChange(
-        execute = { db ->
-            val query = 
-                """
-                CREATE TABLE created_by_komapper (
-                    id uuid NOT NULL,
-                    name character varying(256)
-                );
-                """.trimIndent()
-            db.execute(query)
-        },
-        rollback = { db ->
-            val query = "DROP TABLE created_by_komapper"
-            db.execute(query)
-        },
-    )
-}
-```
-
-### Use Exposed-migration on customChange
-
-`liquibase-kotlin-custom-exposed-migration-change` module can use [Exposed](https://jetbrains.github.io/Exposed/home.html) on customChange
-
-> [!NOTE]
-> can use both the `kotlin-script` and `kotlin-compiled`.
-
-add bellow dependencies.
-
-```kotlin
-implementation("io.github.momosetkn:liquibase-kotlin-custom-exposed-migration-change:$liquibaseKotlinVersion")
-```
-
-changeSet example
-```kotlin
-changeSet(author = "momose", id = "100-60") {
-    // https://jetbrains.github.io/Exposed/table-definition.html#dsl-create-table
-    val createdByExposed = object : Table("created_by_exposed") {
-        val id = integer("id").autoIncrement()
-        val name = varchar("name", 256)
-        override val primaryKey = PrimaryKey(id)
-    }
-    customExposedMigrationChange(
-        execute = { db ->
-            transaction(db) {
-                SchemaUtils.create(createdByExposed)
-            }
-        },
-        rollback = { db ->
-            transaction(db) {
-                SchemaUtils.drop(createdByExposed)
-            }
-        },
-    )
-}
-```
-
-
-### Use Ktorm on customChange
-
-`liquibase-kotlin-custom-Ktorm-change` module can use [Ktorm](https://www.ktorm.org/en/quick-start.html) on customChange
-
-> [!NOTE]
-> can use both the `kotlin-script` and `kotlin-compiled`.
-
-add bellow dependencies.
-
-```kotlin
-implementation("io.github.momosetkn:liquibase-kotlin-custom-ktorm-change:$liquibaseKotlinVersion")
-```
-
-changeSet example
-```kotlin
-changeSet(author = "momose", id = "100-70") {
-    customKtormChange(
-        execute = { db ->
-            val query = """
-                 CREATE TABLE created_by_ktorm (
-                    id uuid NOT NULL,
-                    name character varying(256)
-                );
-            """.trimIndent()
-            db.useConnection { conn ->
-                conn.createStatement().execute(query)
-            }
-        },
-        rollback = { db ->
-            val query = "DROP TABLE created_by_ktorm"
-            db.useConnection { conn ->
-                conn.createStatement().execute(query)
-            }
-        },
-    )
-}
-```
 
 ## Prerequisite
 
