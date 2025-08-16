@@ -10,10 +10,12 @@
   "packageRules": [
     {
       "groupName": "Kotlin & KSP",
-      "matchManagers": ["gradle"],
-      "matchPackagePatterns": [
-        "org.jetbrains.kotlin",
-        "com.google.devtools.ksp"
+      "matchManagers": [
+        "gradle"
+      ],
+      "matchPackageNames": [
+        "/org.jetbrains.kotlin/",
+        "/com.google.devtools.ksp/"
       ]
     }
   ]
