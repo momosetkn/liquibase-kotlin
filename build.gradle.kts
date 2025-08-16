@@ -1,5 +1,6 @@
 val kotestVersion: String by project
 val kotlinVersion: String by project
+val kspVersion: String by project
 val liquibaseVersion: String by project
 val artifactIdPrefix: String by project
 val artifactVersion: String by project
@@ -20,6 +21,14 @@ plugins {
 group = artifactGroup
 version = artifactVersion
 description = "Liquibase kotlin(DSL, Wrapper client, ORM integration)"
+
+// check ksp version
+run {
+    val kotlinPartInKsp = kspVersion.split("-")[0]
+    check(kotlinPartInKsp == kotlinVersion) {
+        "KSP version mismatch: expected $kotlinVersion-<suffix>, but was $kspVersion"
+    }
+}
 
 fun validateArtifactVersion(artifactVersion: String) {
     val (artifactVersionLiquibase, artifactVersionLiquibaseKotlin) = artifactVersion.split("-")
