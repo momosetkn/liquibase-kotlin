@@ -116,6 +116,9 @@ liquibaseClient.update()
 
 Liquibase-kotlin can integrate with Komapper, jOOQ, Exposed, and Ktorm using optional modules.
 
+For detailed information about ORM integration, please see:
+- [ORM Integration Documentation](https://momosetkn.github.io/liquibase-kotlin-docs/orm-integration.html)
+
 
 ## Prerequisite
 
