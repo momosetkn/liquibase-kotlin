@@ -31,16 +31,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api-kotlin:$log4jApiKotlinVersion")
 
     // extend test
-    implementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
-
-    // test
-    testImplementation(kotlin("test"))
-    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
-}
-
-tasks.test {
-    useJUnitPlatform()
-    systemProperty("kotest.framework.classpath.scanning.config.disable", "true")
+    implementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
 }
 
 // To run in a separate process.
