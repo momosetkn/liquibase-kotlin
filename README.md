@@ -68,6 +68,8 @@ class DatabaseChangelogAll : KotlinCompiledDatabaseChangeLog({
 ```
 
 ```kotlin
+package changelogs.main
+
 class DatabaseChangelog0 : KotlinCompiledDatabaseChangeLog({
     changeSet(author = "momose", id = "100-0") {
         tagDatabase("started")
