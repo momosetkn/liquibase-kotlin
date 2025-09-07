@@ -29,7 +29,7 @@ runs:
       uses: gradle/actions/setup-gradle@v4
       with:
         cache-read-only: ${{ github.event_name == 'pull_request' }}
-        dependency-graph: generate-and-submit
+        dependency-graph: ${{ github.event.pull_request.head.repo.fork && 'disable' || 'generate-and-submit' }}
 
     - name: Configure Gradle for GitHub Packages
       shell: bash
