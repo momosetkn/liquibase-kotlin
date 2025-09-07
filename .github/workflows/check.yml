@@ -6,6 +6,11 @@ on:
     branches: [ main ]
   pull_request:
 
+permissions:
+  # Required: when using dependency-graph: generate-and-submit,
+  # the GITHUB_TOKEN must have contents: write permission
+  contents: write
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}

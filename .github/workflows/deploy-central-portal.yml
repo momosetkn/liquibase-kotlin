@@ -5,6 +5,11 @@ on:
     tags:
       - '**'
 
+permissions:
+  # Required: when using dependency-graph: generate-and-submit,
+  # the GITHUB_TOKEN must have contents: write permission
+  contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
