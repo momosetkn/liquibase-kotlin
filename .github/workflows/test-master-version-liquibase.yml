@@ -5,9 +5,10 @@ on:
   schedule:
     - cron:  '0 20 * * *'
 
-env:
-  JDK_DISTRIBUTION: 'temurin'
-  JDK_VERSION: '21'
+permissions:
+  # Required: when using dependency-graph: generate-and-submit,
+  # the GITHUB_TOKEN must have contents: write permission
+  contents: write
 
 jobs:
   test:
@@ -21,14 +22,11 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Set up JDK
-        uses: actions/setup-java@v5
+      - name: Setup Gradle with GitHub Packages
+        uses: ./.github/actions/setup-gradle-with-gpr
         with:
-          distribution: ${{ env.JDK_DISTRIBUTION }}
-          java-version: ${{ env.JDK_VERSION }}
-
-      - name: setup gradle
-        uses: gradle/actions/setup-gradle@v4
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-actor: ${{ github.actor }}
 
       # see https://github.com/liquibase/liquibase/actions/workflows/build-main.yml
       - name: Fetch latest master-version from GitHub Packages
@@ -40,11 +38,6 @@ jobs:
           packageName: org.liquibase.liquibase-core
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           versionPattern: '^.{7}-SNAPSHOT$' # for master-branch condition
-
-      - name: Configure Gradle for GitHub Packages
-        run: |
-          echo "gpr.user=${{ github.actor }}" >> gradle.properties
-          echo "gpr.token=${{ secrets.GITHUB_TOKEN }}" >> gradle.properties
 
       - name: Test with latest liquibase master-version
         run: |

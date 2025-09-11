@@ -1,0 +1,38 @@
+name: 'Setup Gradle with GitHub Packages'
+description: 'Setup JDK, Gradle with dependency caching, and configure GitHub Packages'
+inputs:
+  jdk-distribution:
+    description: 'JDK distribution'
+    required: false
+    default: 'temurin'
+  jdk-version:
+    description: 'JDK version'
+    required: false
+    default: '21'
+  github-token:
+    description: 'GitHub token for packages access'
+    required: true
+  github-actor:
+    description: 'GitHub actor for packages access'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup JDK
+      uses: actions/setup-java@v5
+      with:
+        distribution: ${{ inputs.jdk-distribution }}
+        java-version: ${{ inputs.jdk-version }}
+
+    - name: Setup Gradle with dependency caching
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        cache-read-only: ${{ github.event_name == 'pull_request' }}
+        dependency-graph: ${{ github.event.pull_request.head.repo.fork && 'disable' || 'generate-and-submit' }}
+
+    - name: Configure Gradle for GitHub Packages
+      shell: bash
+      run: |
+        echo "gpr.user=${{ inputs.github-actor }}" >> gradle.properties
+        echo "gpr.token=${{ inputs.github-token }}" >> gradle.properties

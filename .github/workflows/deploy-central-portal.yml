@@ -5,9 +5,10 @@ on:
     tags:
       - '**'
 
-env:
-  JDK_DISTRIBUTION: 'temurin'
-  JDK_VERSION: '21'
+permissions:
+  # Required: when using dependency-graph: generate-and-submit,
+  # the GITHUB_TOKEN must have contents: write permission
+  contents: write
 
 jobs:
   deploy:
@@ -33,14 +34,11 @@ jobs:
             exit 1
           fi
 
-      - name: Setup JDK
-        uses: actions/setup-java@v5
+      - name: Setup Gradle with GitHub Packages
+        uses: ./.github/actions/setup-gradle-with-gpr
         with:
-          distribution: ${{ env.JDK_DISTRIBUTION }}
-          java-version: ${{ env.JDK_VERSION }}
-
-      - name: Setup gradle
-        uses: gradle/actions/setup-gradle@v4
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-actor: ${{ github.actor }}
 
       - name: Deploy centralPortal
         env:
