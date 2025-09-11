@@ -31,7 +31,7 @@ class SlowLogChangeExecListener(
         database: Database,
         runStatus: ChangeSet.RunStatus
     ) {
-        launchSlowLogJob(changeSet, "executed")
+        launchSlowLogJob(changeSet, "execute")
     }
 
     override fun ran(
@@ -48,7 +48,7 @@ class SlowLogChangeExecListener(
         databaseChangeLog: DatabaseChangeLog,
         database: Database
     ) {
-        launchSlowLogJob(changeSet, "rolled back")
+        launchSlowLogJob(changeSet, "rollback")
     }
 
     override fun rolledBack(
@@ -97,7 +97,7 @@ class SlowLogChangeExecListener(
         database: Database,
         exception: Exception
     ) {
-        // no-op
+        logElapsedTimeAndCancelSlowLog(changeSet, "execute failed")
     }
 
     override fun rollbackFailed(
@@ -106,7 +106,7 @@ class SlowLogChangeExecListener(
         database: Database,
         exception: Exception
     ) {
-        // no-op
+        logElapsedTimeAndCancelSlowLog(changeSet, "rollback failed")
     }
 
     private fun logElapsedTimeAndCancelSlowLog(changeSet: ChangeSet, action: String) {
