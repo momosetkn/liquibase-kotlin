@@ -17,17 +17,6 @@ class LiquibaseClientSpec : FunSpec({
         val liquibasePublicMethods =
             Liquibase::class.functions.filter { it.visibility == KVisibility.PUBLIC }
 
-        val setterLiquibasePublicMethodNames = sortedLiquibasePublicMethodsExcludes
-            .filter { it.startsWith("set") }
-            .map {
-                it.substring(3).replaceFirstChar { it.lowercase() }
-            }
-        val getterLiquibasePublicMethodNames = sortedLiquibasePublicMethodsExcludes
-            .filter { it.startsWith("get") }
-            .map {
-                it.substring(3).replaceFirstChar { it.lowercase() }
-            }
-
         // confirm a deprecated method
         run {
             val deprecatedLiquibasePublicMethods = liquibasePublicMethods
@@ -55,28 +44,45 @@ class LiquibaseClientSpec : FunSpec({
                 sortedLiquibaseClientPublicMethods shouldBe sortedLiquibasePublicMethods
             }
         }
-        context("check mutable property") {
-            setterLiquibasePublicMethodNames.forEach { setterProperty ->
-                val finedMethod = liquibaseClientPublicMethods.find { it.name == setterProperty }
-                context(setterProperty) {
-                    test("should be mutable property") {
-                        checkNotNull(finedMethod)
-                        (finedMethod is KMutableProperty1<*, *>) shouldBe true
+
+        context("Check what `check public methods` can't check") {
+            val setterLiquibasePublicMethodNames = sortedLiquibasePublicMethodsExcludes
+                .filter { it.startsWith("set") }
+                .map {
+                    it.substring(3).replaceFirstChar { it.lowercase() }
+                }
+            context("setter method is exist with mutable in the LiquibaseClient") {
+                setterLiquibasePublicMethodNames.forEach { setterProperty ->
+                    val finedMethod = liquibaseClientPublicMethods.find { it.name == setterProperty }
+                    context(setterProperty) {
+                        test("should be mutable property") {
+                            checkNotNull(finedMethod) {
+                                "method `$setterProperty` is not found in ${LiquibaseClient::class.qualifiedName}"
+                            }
+                            (finedMethod is KMutableProperty1<*, *>) shouldBe true
+                        }
                     }
                 }
             }
-        }
-        context("check immutable property") {
-            val getterOnlyProperties = getterLiquibasePublicMethodNames
-                .filter {
-                    it !in setterLiquibasePublicMethodNames
-                }
-            getterOnlyProperties.forEach { getterOnlyProperty ->
-                val finedMethod = liquibaseClientPublicMethods.find { it.name == getterOnlyProperty }
-                context(getterOnlyProperty) {
-                    test("should be mutable property") {
-                        checkNotNull(finedMethod)
-                        (finedMethod is KMutableProperty1<*, *>) shouldBe false
+            context("getter only method is exist with not mutable in the LiquibaseClient") {
+                val getterLiquibasePublicMethodNames = sortedLiquibasePublicMethodsExcludes
+                    .filter { it.startsWith("get") }
+                    .map {
+                        it.substring(3).replaceFirstChar { it.lowercase() }
+                    }
+                val getterOnlyProperties = getterLiquibasePublicMethodNames
+                    .filter {
+                        it !in setterLiquibasePublicMethodNames
+                    }
+                getterOnlyProperties.forEach { getterOnlyProperty ->
+                    val finedMethod = liquibaseClientPublicMethods.find { it.name == getterOnlyProperty }
+                    context(getterOnlyProperty) {
+                        test("should be mutable property") {
+                            checkNotNull(finedMethod) {
+                                "method `$getterOnlyProperty` is not found in ${LiquibaseClient::class.qualifiedName}"
+                            }
+                            (finedMethod is KMutableProperty1<*, *>) shouldBe false
+                        }
                     }
                 }
             }
