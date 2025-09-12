@@ -40,15 +40,15 @@ class GradlewUtils(
     ): List<Thread> {
         val inputStreamThread = Thread {
             process.inputStream.bufferedReader().use {
-                while (it.ready()) {
-                    log.info("> : {}", it.readLine())
+                while (true) {
+                    log.info("> : {}", it.readLine() ?: break)
                 }
             }
         }
         val errorStreamThread = Thread {
             process.errorStream.bufferedReader().use {
-                while (it.ready()) {
-                    log.warn("> : {}", it.readLine())
+                while (true) {
+                    log.warn("> : {}", it.readLine() ?: break)
                 }
             }
         }
