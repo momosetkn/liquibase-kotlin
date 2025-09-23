@@ -9,13 +9,17 @@ class LiquibaseMultilineLogWriter : Writer() {
     private val log = LoggerFactory.getLogger(LiquibaseMultilineLogWriter::class.java)
 
     override fun close() {
+        flush()
         writer.close()
-        log.info(writer.toString())
     }
 
     override fun flush() {
         writer.flush()
-        log.info(writer.toString())
+        val content = writer.toString()
+        if (content.isNotBlank()) {
+            log.info(content)
+            writer.buffer.setLength(0)
+        }
     }
 
     override fun write(cbuf: CharArray, off: Int, len: Int) {
