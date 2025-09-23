@@ -1,5 +1,6 @@
 package momosetkn
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.comparables.shouldBeLessThan
@@ -12,6 +13,7 @@ import liquibase.change.custom.CustomTaskChange
 import liquibase.change.custom.CustomTaskRollback
 import liquibase.changelog.ChangeSet
 import liquibase.database.Database
+import liquibase.exception.CommandExecutionException
 import liquibase.exception.ValidationErrors
 import liquibase.resource.ResourceAccessor
 import momosetkn.liquibase.client.LiquibaseClient
@@ -76,7 +78,7 @@ class SlowLogChangeExecListenerSpec : FunSpec({
             verify {
                 log.warn(
                     "Slow ChangeSet: {} {} threshold-time is {}",
-                    "executed",
+                    "execute",
                     withArg { changeSet ->
                         changeSet.toString().shouldBe("momosetkn.utils.MutableChangeLog::100::user")
                     },
@@ -130,7 +132,7 @@ class SlowLogChangeExecListenerSpec : FunSpec({
             verify {
                 log.warn(
                     "Slow ChangeSet: {} {} threshold-time is {}",
-                    "rolled back",
+                    "rollback",
                     withArg { changeSet ->
                         changeSet.toString().shouldBe("momosetkn.utils.MutableChangeLog::100::user")
                     },
@@ -150,15 +152,87 @@ class SlowLogChangeExecListenerSpec : FunSpec({
                     },
                 )
             }
+            // In failure scenario, rollback may stop before rolling back initial tag changeSet (id=0).
+        }
+    }
+    context("failed slow execute change") {
+        MutableChangeLog.set {
+            changeSet(author = "user", id = "0") {
+                tagDatabase(tag = "initial")
+            }
+            changeSet(author = "user", id = "100") {
+                customChange(`class` = FailedSlowExecuteCustomChange::class.qualifiedName!!)
+            }
+        }
+        test("log slow and execute failed") {
+            val liquibaseClient = createLiquibaseClient()
+            shouldThrow<CommandExecutionException> {
+                liquibaseClient.update()
+            }
+
+            verify {
+                log.warn(
+                    "Slow ChangeSet: {} {} threshold-time is {}",
+                    "execute",
+                    withArg { changeSet ->
+                        changeSet.toString().shouldBe("momosetkn.utils.MutableChangeLog::100::user")
+                    },
+                    withArg { duration: Duration ->
+                        duration.shouldBe(changeExecListener.threshold)
+                    },
+                )
+            }
             verify {
                 log.debug(
                     "ChangeSet: {} {} took {}ms",
-                    "rolled back",
+                    "execute failed",
                     withArg { changeSet ->
-                        changeSet.toString().shouldBe("momosetkn.utils.MutableChangeLog::0::user")
+                        changeSet.toString().shouldBe("momosetkn.utils.MutableChangeLog::100::user")
                     },
                     withArg { duration: Long ->
-                        duration.shouldBeLessThan(changeExecListener.threshold.inWholeMilliseconds)
+                        // slow
+                        duration.shouldBeGreaterThan(changeExecListener.threshold.inWholeMilliseconds)
+                    },
+                )
+            }
+        }
+    }
+    context("failed slow rollback change") {
+        MutableChangeLog.set {
+            changeSet(author = "user", id = "0") {
+                tagDatabase(tag = "initial")
+            }
+            changeSet(author = "user", id = "100") {
+                customChange(`class` = FailedSlowRollbackCustomChange::class.qualifiedName!!)
+            }
+        }
+        test("log slow and rollback failed") {
+            val liquibaseClient = createLiquibaseClient()
+            liquibaseClient.update()
+            shouldThrow<CommandExecutionException> {
+                liquibaseClient.rollback(tagToRollBackTo = "initial")
+            }
+
+            verify {
+                log.warn(
+                    "Slow ChangeSet: {} {} threshold-time is {}",
+                    "rollback",
+                    withArg { changeSet ->
+                        changeSet.toString().shouldBe("momosetkn.utils.MutableChangeLog::100::user")
+                    },
+                    withArg { duration: Duration -> duration.shouldBe(changeExecListener.threshold) },
+                )
+            }
+            verify {
+                log.debug(
+                    "ChangeSet: {} {} took {}ms",
+                    "rollback failed",
+                    withArg { changeSet ->
+                        changeSet.toString().shouldBe("momosetkn.utils.MutableChangeLog::100::user")
+                    },
+                    withArg { duration: Long ->
+                        // slow
+                        duration.shouldBeGreaterThan(changeExecListener.threshold.inWholeMilliseconds)
                     },
                 )
             }
@@ -283,5 +357,27 @@ class ExecuteCustomChange : RollbackTaskCustomChange {
 
     override fun rollback(database: Database) {
         println("rollback")
+    }
+}
+
+class FailedSlowExecuteCustomChange : RollbackTaskCustomChange {
+    override fun execute(database: Database) {
+        Thread.sleep(1_100)
+        error("failed execute")
+    }
+
+    override fun rollback(database: Database) {
+        println("rollback")
+    }
+}
+
+class FailedSlowRollbackCustomChange : RollbackTaskCustomChange {
+    override fun execute(database: Database) {
+        println("execute")
+    }
+
+    override fun rollback(database: Database) {
+        Thread.sleep(1_100)
+        error("failed rollback")
     }
 }
