@@ -55,14 +55,20 @@ class KotlinCompiledResourceAccessor(
         }
         val replacedPackageName = decoded
             .replace(".", "/")
-        val className = if (!replacedPackageName.endsWith("/")) {
+        val replacedPackageDirectoryName = if (!replacedPackageName.endsWith("/class")) {
+            replacedPackageName
+        } else {
+            // cannot use `class` in package name
+            null
+        }
+        val classFileName = if (!replacedPackageName.endsWith("/")) {
             replacedPackageName.removeSuffix("/class") + ".class"
         } else {
             null
         }
         return listOfNotNull(
-            replacedPackageName,
-            className
+            replacedPackageDirectoryName,
+            classFileName
         )
     }
 }
