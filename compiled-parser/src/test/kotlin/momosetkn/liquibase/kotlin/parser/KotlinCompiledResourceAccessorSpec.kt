@@ -27,7 +27,7 @@ class KotlinCompiledResourceAccessorSpec : FunSpec({
         }
         context("directory + packageName + className") {
             val inputPath = "aaa/bbb/com.example.hoge/Hogehoge"
-            test("transform to filepath") {
+            test("transform to filepath(directory by package + file by class)") {
                 subject(inputPath)
 
                 val capturedArgs = mutableListOf<String>()
@@ -43,23 +43,21 @@ class KotlinCompiledResourceAccessorSpec : FunSpec({
         }
         context("directory + packageName + classFile") {
             val inputPath = "aaa/bbb/com.example.hoge/Hogehoge.class"
-            test("transform to filepath") {
+            test("transform to filepath(file by class)") {
                 subject(inputPath)
 
                 val capturedArgs = mutableListOf<String>()
-                verify(exactly = 2) {
-                    mockClassLoaderResourceAccessor.search(capture(capturedArgs), true)
+                verify(exactly = 1) {
                     mockClassLoaderResourceAccessor.search(capture(capturedArgs), true)
                 }
                 capturedArgs.toSet() shouldBe setOf(
-                    "aaa/bbb/com/example/hoge/Hogehoge/class",
                     "aaa/bbb/com/example/hoge/Hogehoge.class"
                 )
             }
         }
         context("directory + packageName") {
             val inputPath = "aaa/bbb/com.example.hoge"
-            test("transform to filepath") {
+            test("transform to filepath(directory by package + file by class)") {
                 subject(inputPath)
 
                 val capturedArgs = mutableListOf<String>()
@@ -75,7 +73,7 @@ class KotlinCompiledResourceAccessorSpec : FunSpec({
         }
         context("directory + packageName with slash suffix") {
             val inputPath = "aaa/bbb/com.example.hoge/"
-            test("transform to filepath") {
+            test("transform to filepath(directory by package)") {
                 subject(inputPath)
 
                 val capturedArgs = mutableListOf<String>()
@@ -89,7 +87,7 @@ class KotlinCompiledResourceAccessorSpec : FunSpec({
         }
         context("packageName only") {
             val inputPath = "com.example.hoge"
-            test("transform to filepath") {
+            test("transform to filepath(directory by package + file by class)") {
                 subject(inputPath)
 
                 val capturedArgs = mutableListOf<String>()
@@ -105,7 +103,7 @@ class KotlinCompiledResourceAccessorSpec : FunSpec({
         }
         context("packageName with slash suffix") {
             val inputPath = "com.example.hoge/"
-            test("transform to filepath") {
+            test("transform to filepath(directory by package)") {
                 subject(inputPath)
 
                 val capturedArgs = mutableListOf<String>()
@@ -125,7 +123,7 @@ class KotlinCompiledResourceAccessorSpec : FunSpec({
         }
         context("directory + packageName + className") {
             val inputPath = "aaa/bbb/com.example.hoge/Hogehoge"
-            test("transform to filepath") {
+            test("transform to filepath(directory by package + file by class)") {
                 subject(inputPath)
 
                 val capturedArgs = mutableListOf<String>()
@@ -141,23 +139,21 @@ class KotlinCompiledResourceAccessorSpec : FunSpec({
         }
         context("directory + packageName + classFile") {
             val inputPath = "aaa/bbb/com.example.hoge/Hogehoge.class"
-            test("transform to filepath") {
+            test("transform to filepath(file by class)") {
                 subject(inputPath)
 
                 val capturedArgs = mutableListOf<String>()
-                verify(exactly = 2) {
-                    mockClassLoaderResourceAccessor.getAll(capture(capturedArgs))
+                verify(exactly = 1) {
                     mockClassLoaderResourceAccessor.getAll(capture(capturedArgs))
                 }
                 capturedArgs.toSet() shouldBe setOf(
-                    "aaa/bbb/com/example/hoge/Hogehoge/class",
                     "aaa/bbb/com/example/hoge/Hogehoge.class"
                 )
             }
         }
         context("directory + packageName") {
             val inputPath = "aaa/bbb/com.example.hoge"
-            test("transform to filepath") {
+            test("transform to filepath(directory by package + file by class)") {
                 subject(inputPath)
 
                 val capturedArgs = mutableListOf<String>()
@@ -173,7 +169,7 @@ class KotlinCompiledResourceAccessorSpec : FunSpec({
         }
         context("directory + packageName with slash suffix") {
             val inputPath = "aaa/bbb/com.example.hoge/"
-            test("transform to filepath") {
+            test("transform to filepath(directory by package)") {
                 subject(inputPath)
 
                 val capturedArgs = mutableListOf<String>()
@@ -187,7 +183,7 @@ class KotlinCompiledResourceAccessorSpec : FunSpec({
         }
         context("packageName only") {
             val inputPath = "com.example.hoge"
-            test("transform to filepath") {
+            test("transform to filepath(directory by package + file by class)") {
                 subject(inputPath)
 
                 val capturedArgs = mutableListOf<String>()
@@ -203,7 +199,7 @@ class KotlinCompiledResourceAccessorSpec : FunSpec({
         }
         context("packageName with slash suffix") {
             val inputPath = "com.example.hoge/"
-            test("transform to filepath") {
+            test("transform to filepath(directory by package)") {
                 subject(inputPath)
 
                 val capturedArgs = mutableListOf<String>()
