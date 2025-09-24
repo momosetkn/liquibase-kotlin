@@ -16,7 +16,7 @@ dependencies {
     implementation(project(":custom-komapper-jdbc-change"))
 
     // h2database
-    implementation("com.h2database:h2:2.3.232")
+    implementation("com.h2database:h2:2.4.240")
 
     // db-migration
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
