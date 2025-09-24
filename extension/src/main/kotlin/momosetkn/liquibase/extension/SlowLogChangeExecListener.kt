@@ -110,14 +110,14 @@ class SlowLogChangeExecListener(
     }
 
     private fun logElapsedTimeAndCancelSlowLog(changeSet: ChangeSet, action: String) {
-        val timedJob = reportSlowLogJobs[changeSet]
-        checkNotNull(timedJob)
+        val timedJob = reportSlowLogJobs.remove(changeSet) ?: return
         timedJob.job.cancel()
 
         val elapsedTime = System.currentTimeMillis() - timedJob.startTime
         log.debug("ChangeSet: {} {} took {}ms", action, changeSet, elapsedTime)
     }
 
+    // should call logElapsedTimeAndCancelSlowLog after invoking this method
     private fun launchSlowLogJob(changeSet: ChangeSet, action: String) {
         val job = CoroutineScope(Dispatchers.IO).launch {
             delay(threshold)
