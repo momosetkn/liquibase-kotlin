@@ -14,11 +14,11 @@ class ChangeSetSupport(
 
     fun createChange(name: String): Change {
         val change = changeFactory.create(name)
-        change.changeSet = changeSet
-        return change
-            ?: throw ChangeLogParseException(
-                "ChangeSet '${changeSet.id}': '$name' is not a valid element of a ChangeSet",
-            )
+        return change?.apply {
+            this.changeSet = changeSet
+        } ?: throw ChangeLogParseException(
+            "ChangeSet '${changeSet.id}': '$name' is not a valid element of a ChangeSet",
+        )
     }
 
     fun addChange(change: Change) {
