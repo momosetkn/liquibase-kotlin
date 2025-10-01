@@ -151,6 +151,8 @@ configure(libraryProjects) {
         apply(plugin = "java-platform")
         Unit
         {
+            emptySources()
+            emptyDocs()
             fromSoftwareComponent("javaPlatform")
         }
     } else {
