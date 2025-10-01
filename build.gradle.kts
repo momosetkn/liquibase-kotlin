@@ -51,8 +51,13 @@ java {
     withJavadocJar()
 }
 
+val platformProject = project("bom")
+
 allprojects {
-    apply(plugin = "org.jetbrains.kotlin.jvm")
+    if (this != platformProject) {
+        apply(plugin = "org.jetbrains.kotlin.jvm")
+    }
+
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
@@ -136,24 +141,39 @@ val libraryProjects =
             "bom",
         )
     }
+
 extra["libraryProjects"] = libraryProjects
 configure(libraryProjects) {
-    apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "maven-publish")
     apply(plugin = "io.deepmedia.tools.deployer")
-    apply(plugin = "org.jetbrains.dokka")
+
+    val deployerComponentBlock: io.deepmedia.tools.deployer.model.Component.() -> Unit = if (this == platformProject) {
+        apply(plugin = "java-platform")
+        Unit
+        {
+            fromSoftwareComponent("javaPlatform")
+        }
+    } else {
+        apply(plugin = "org.jetbrains.kotlin.jvm")
+        apply(plugin = "org.jetbrains.dokka")
+        val sourcesJar by tasks.creating(Jar::class) {
+            archiveClassifier.set("sources")
+            from(sourceSets["main"].allSource)
+        }
+        val javadocs = tasks.register<Jar>("dokkaJavadocJar") {
+            dependsOn(tasks.dokkaJavadoc)
+            from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
+            archiveClassifier.set("javadoc")
+        }
+        Unit
+        {
+            sources(sourcesJar)
+            docs(javadocs)
+            fromJava()
+        }
+    }
 
     version = rootProject.version
-
-    val sourcesJar by tasks.creating(Jar::class) {
-        archiveClassifier.set("sources")
-        from(sourceSets["main"].allSource)
-    }
-    val javadocs = tasks.register<Jar>("dokkaJavadocJar") {
-        dependsOn(tasks.dokkaJavadoc)
-        from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
-        archiveClassifier.set("javadoc")
-    }
 
     deployer {
         val projectUrl: String by project
@@ -175,9 +195,7 @@ configure(libraryProjects) {
         }
         content {
             component {
-                sources(sourcesJar)
-                docs(javadocs)
-                fromJava()
+                deployerComponentBlock(this)
             }
         }
         release {
