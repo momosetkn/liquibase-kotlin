@@ -12,7 +12,7 @@ val javaLanguageVersion = 21
 plugins {
     kotlin("jvm")
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
-    id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
+    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
     `maven-publish`
     id("io.deepmedia.tools.deployer") version "0.18.0"
     id("org.jetbrains.dokka") version "2.1.0"
