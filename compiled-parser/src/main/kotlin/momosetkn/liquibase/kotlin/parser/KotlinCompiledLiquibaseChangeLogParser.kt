@@ -85,8 +85,13 @@ class KotlinCompiledLiquibaseChangeLogParser : ChangeLogParser {
     }
 
     private fun String.toClassName(): String {
-        return this.removeSuffix(".class")
-            .replace("/", ".")
+        val name = this.substringBeforeLast('.')
+        val ext = this.substringAfterLast('.')
+        return when (ext) {
+            "kt" -> name
+            "class" -> name
+            else -> this
+        }.replace("/", ".")
     }
 
     override fun getPriority() = PRIORITY_DEFAULT
