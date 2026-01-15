@@ -1,3 +1,5 @@
+import org.jetbrains.dokka.gradle.DokkaTask
+
 val kotestVersion: String by project
 val kotlinVersion: String by project
 val kspVersion: String by project
@@ -162,15 +164,15 @@ configure(libraryProjects) {
             archiveClassifier.set("sources")
             from(sourceSets["main"].allSource)
         }
-        dokka {
-            pluginsConfiguration.html {
-                separateInheritedMembers.set(false)
-                mergeImplicitExpectActualDeclarations.set(false)
-            }
+        val dokkaHtmlJar by tasks.registering(Jar::class) {
+            description = "A HTML Documentation JAR containing Dokka HTML"
+            from(tasks.dokkaGeneratePublicationHtml.flatMap { it.outputDirectory })
+            archiveClassifier.set("html-doc")
         }
         Unit
         {
             sources(sourcesJar)
+            docs(dokkaHtmlJar)
             fromJava()
         }
     }
