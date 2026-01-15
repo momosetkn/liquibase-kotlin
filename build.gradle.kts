@@ -162,15 +162,15 @@ configure(libraryProjects) {
             archiveClassifier.set("sources")
             from(sourceSets["main"].allSource)
         }
-        val javadocs = tasks.register<Jar>("dokkaJavadocJar") {
-            dependsOn(tasks.dokkaJavadoc)
-            from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
-            archiveClassifier.set("javadoc")
+        dokka {
+            pluginsConfiguration.html {
+                separateInheritedMembers.set(false)
+                mergeImplicitExpectActualDeclarations.set(false)
+            }
         }
         Unit
         {
             sources(sourcesJar)
-            docs(javadocs)
             fromJava()
         }
     }
