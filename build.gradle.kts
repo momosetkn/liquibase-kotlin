@@ -1,5 +1,3 @@
-import org.jetbrains.dokka.gradle.DokkaTask
-
 val kotestVersion: String by project
 val kotlinVersion: String by project
 val kspVersion: String by project
