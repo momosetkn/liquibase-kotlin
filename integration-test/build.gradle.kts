@@ -49,8 +49,8 @@ dependencies {
     implementation("org.jooq:jooq:$jooqVersion")
 
     // exposed
-    implementation("org.jetbrains.exposed:exposed-migration:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-migration-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-migration-jdbc:$exposedVersion")
 
     // ktorm
     implementation("org.ktorm:ktorm-core:$ktormVersion")

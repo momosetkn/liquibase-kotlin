@@ -5,9 +5,9 @@ import momosetkn.liquibase.kotlin.change.custom.jooq.customJooqChange
 import momosetkn.liquibase.kotlin.change.custom.komapper.customKomapperJdbcChange
 import momosetkn.liquibase.kotlin.change.custom.ktorm.customKtormChange
 import momosetkn.liquibase.kotlin.parser.KotlinCompiledDatabaseChangeLog
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.komapper.core.dsl.QueryDsl
 
 class CompiledDatabaseChangelog1 : KotlinCompiledDatabaseChangeLog({
