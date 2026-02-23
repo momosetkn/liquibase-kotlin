@@ -11,9 +11,9 @@ import momosetkn.liquibase.kotlin.dsl.ChangeSetDsl
 
 fun ChangeSetDsl.customExposedMigrationChange(
     confirmationMessage: String = "Executed CustomExposedMigrationChange.",
-    rollback: ((org.jetbrains.exposed.sql.Database) -> Unit)? = null,
-    validate: (org.jetbrains.exposed.sql.Database) -> ValidationErrors = { ValidationErrors() },
-    execute: (org.jetbrains.exposed.sql.Database) -> Unit,
+    rollback: ((org.jetbrains.exposed.v1.jdbc.Database) -> Unit)? = null,
+    validate: (org.jetbrains.exposed.v1.jdbc.Database) -> ValidationErrors = { ValidationErrors() },
+    execute: (org.jetbrains.exposed.v1.jdbc.Database) -> Unit,
 ) {
     val change = if (rollback != null) {
         val define = CustomRollbackableTaskChangeDefineImpl(
@@ -36,7 +36,7 @@ fun ChangeSetDsl.customExposedMigrationChange(
     addCustomChange(change)
 }
 
-private fun transformDatabase(liquibaseDatabase: liquibase.database.Database): org.jetbrains.exposed.sql.Database {
+private fun transformDatabase(liquibaseDatabase: liquibase.database.Database): org.jetbrains.exposed.v1.jdbc.Database {
     val datasource = liquibaseDatabase.toJavaxSqlDataSource()
     val database = LiquibaseExposedMigrationConfig.provideDatabase(datasource, liquibaseDatabase.shortName)
     return database

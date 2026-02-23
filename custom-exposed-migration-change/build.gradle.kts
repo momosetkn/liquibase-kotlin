@@ -9,7 +9,8 @@ dependencies {
     // liquibase
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
     // exposed
-    implementation("org.jetbrains.exposed:exposed-migration:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-migration-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-migration-jdbc:$exposedVersion")
 
     // test
     testImplementation("io.kotest:kotest-framework-engine-jvm:$kotestVersion")
