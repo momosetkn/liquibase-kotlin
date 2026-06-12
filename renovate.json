@@ -7,16 +7,5 @@
   "labels": [
     "dependencies"
   ],
-  "packageRules": [
-    {
-      "groupName": "Kotlin & KSP",
-      "matchManagers": [
-        "gradle"
-      ],
-      "matchPackageNames": [
-        "/org.jetbrains.kotlin/",
-        "/com.google.devtools.ksp/"
-      ]
-    }
-  ]
+  "packageRules": []
 }
