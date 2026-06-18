@@ -20,7 +20,7 @@ jobs:
         os: [ ubuntu-latest, windows-latest ]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Gradle with GitHub Packages
         uses: ./.github/actions/setup-gradle-with-gpr
