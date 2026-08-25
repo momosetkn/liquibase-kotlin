@@ -20,7 +20,7 @@ runs:
   using: 'composite'
   steps:
     - name: Setup JDK
-      uses: actions/setup-java@v5
+      uses: actions/setup-java@v6
       with:
         distribution: ${{ inputs.jdk-distribution }}
         java-version: ${{ inputs.jdk-version }}
