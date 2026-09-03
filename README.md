@@ -21,7 +21,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core:5.0.3")
     // BOM (Bill of Materials) to align versions of all liquibase-kotlin modules.
     // This ensures compatibility between liquibase-kotlin-starter, client, and other extensions.
-    implementation("io.github.momosetkn:liquibase-kotlin-bom:5.0.3-0.11.5")
+    implementation("io.github.momosetkn:liquibase-kotlin-bom:5.0.4-0.11.6")
     // You can choose to install either kotlin-script or kotlin-compiled.
     // for kotlin-script
     implementation("io.github.momosetkn:liquibase-kotlin-starter-script")
