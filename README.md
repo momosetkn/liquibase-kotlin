@@ -18,7 +18,7 @@ Liquibase-kotlin documentation page
 ```kotlin
 dependencies {
     // liquibase
-    implementation("org.liquibase:liquibase-core:5.0.3")
+    implementation("org.liquibase:liquibase-core:5.0.4")
     // BOM (Bill of Materials) to align versions of all liquibase-kotlin modules.
     // This ensures compatibility between liquibase-kotlin-starter, client, and other extensions.
     implementation("io.github.momosetkn:liquibase-kotlin-bom:5.0.4-0.11.6")
@@ -140,6 +140,7 @@ For detailed information about ORM integration, please see:
 - 5.0.1
 - 5.0.2
 - 5.0.3
+- 5.0.4
 
 # example project
 https://github.com/momosetkn/liquibase-kotlin-example
