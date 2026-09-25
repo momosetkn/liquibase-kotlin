@@ -66,7 +66,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core:$liquibaseVersion")
 
     // h2database
-    testImplementation("com.h2database:h2:2.4.240")
+    testImplementation("com.h2database:h2:2.5.250")
     // connection pool
     testImplementation("com.zaxxer:HikariCP:$hikariCpVersion")
 }
