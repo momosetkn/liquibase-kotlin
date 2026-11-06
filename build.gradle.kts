@@ -13,7 +13,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     `maven-publish`
     id("io.deepmedia.tools.deployer") version "0.18.0"
-    id("org.jetbrains.dokka") version "2.2.0"
+    id("org.jetbrains.dokka") version "2.3.0"
 }
 
 group = artifactGroup
